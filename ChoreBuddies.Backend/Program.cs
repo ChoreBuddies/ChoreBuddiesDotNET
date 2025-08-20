@@ -23,8 +23,6 @@ public class Program
 
         builder.Services.AddControllers();
 
-        builder.Services.AddEndpointsApiExplorer();
-
         // Add services to the container.
         builder.Services.AddRazorPages();
 
