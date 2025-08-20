@@ -7,12 +7,33 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         builder.AddServiceDefaults();
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(builder =>
+            {
+                builder.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+            });
+        });
+
+        builder.Services.AddEndpointsApiExplorer();
+        //builder.Services.AddMvc();
+        builder.Services.AddSwaggerGen();
+
+        builder.Services.AddControllers();
+
+        builder.Services.AddEndpointsApiExplorer();
+
         // Add services to the container.
         builder.Services.AddRazorPages();
+
 
         var app = builder.Build();
 
         app.MapDefaultEndpoints();
+
+        app.MapControllers();
 
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
@@ -27,9 +48,18 @@ public class Program
 
         app.UseRouting();
 
+        app.UseCors(policy => policy
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+);
+
         app.UseAuthorization();
 
         app.MapRazorPages();
+
+        app.UseSwagger();
+        app.UseSwaggerUI();
 
         app.Run();
     }
