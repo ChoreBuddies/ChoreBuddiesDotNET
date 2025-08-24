@@ -1,5 +1,8 @@
 using ChoreBuddies.Backend.Chore;
 using ChoreBuddies.Backend.Tasks;
+using ChoreBuddies.Database;
+using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace ChoreBuddies.Backend;
 
@@ -21,6 +24,12 @@ public class Program
         });
 
         builder.Services.AddEndpointsApiExplorer();
+
+        builder.Services.AddDbContext<ChoreBuddiesDbContext>(opt =>
+        {
+            opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+        });
+
         //builder.Services.AddMvc();
         builder.Services.AddSwaggerGen();
 
