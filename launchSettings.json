@@ -1,0 +1,20 @@
+{
+  "profiles": {
+    "Docker Compose": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "serviceActions": {
+        "chorebuddies.backend": "StartDebugging",
+        "sqlserver": "StartWithoutDebugging"
+      }
+    },
+    "Database Only": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "serviceActions": {
+        "chorebuddies.backend": "DoNotStart",
+        "sqlserver": "StartWithoutDebugging"
+      }
+    }
+  }
+}

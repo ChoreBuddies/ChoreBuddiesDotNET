@@ -1,11 +1,14 @@
 using ChoreBuddies.Backend.Chore;
 using ChoreBuddies.Backend.Tasks;
+using ChoreBuddies.Database;
+using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace ChoreBuddies.Backend;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public async static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
         builder.AddServiceDefaults();
@@ -21,6 +24,12 @@ public class Program
         });
 
         builder.Services.AddEndpointsApiExplorer();
+
+        builder.Services.AddDbContext<ChoreBuddiesDbContext>(opt =>
+        {
+            opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+        });
+
         //builder.Services.AddMvc();
         builder.Services.AddSwaggerGen();
 
@@ -31,6 +40,18 @@ public class Program
         builder.Services.AddScoped<IChoresService, ChoresService>();
 
         var app = builder.Build();
+
+        // Apply migrations to database
+        await using (var serviceScope = app.Services.CreateAsyncScope())
+        await using (var dbContext = serviceScope.ServiceProvider.GetRequiredService<ChoreBuddiesDbContext>())
+        {
+            var pendingMigrations = await dbContext.Database.GetPendingMigrationsAsync();
+
+            if (pendingMigrations.Any())
+            {
+                await dbContext.Database.MigrateAsync();
+            }
+        }
 
         app.MapDefaultEndpoints();
 
@@ -50,10 +71,10 @@ public class Program
         app.UseRouting();
 
         app.UseCors(policy => policy
-    .AllowAnyOrigin()
-    .AllowAnyMethod()
-    .AllowAnyHeader()
-);
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+        );
 
         app.UseAuthorization();
 
