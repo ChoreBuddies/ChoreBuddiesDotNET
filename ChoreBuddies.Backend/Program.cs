@@ -1,3 +1,6 @@
+using ChoreBuddies.Backend.Chore;
+using ChoreBuddies.Backend.Tasks;
+
 namespace ChoreBuddies.Backend;
 
 public class Program
@@ -25,7 +28,7 @@ public class Program
 
         // Add services to the container.
         builder.Services.AddRazorPages();
-
+        builder.Services.AddScoped<IChoresService, ChoresService>();
 
         var app = builder.Build();
 
