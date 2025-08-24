@@ -1,0 +1,38 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+        - ACCEPT_EULA=Y
+        - MSSQL_SA_PASSWORD=Password123!
+    ports:
+        - "8095:1433"
+    healthcheck:
+        test: [ "CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost,1433", "-U", "sa", "-P", "Password123!", "-Q", "SELECT 1" ]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+    volumes:
+        - sqlserver_data:/var/opt/mssql
+    networks: 
+        - app-network
+  chorebuddies.backend:
+    image: ${DOCKER_REGISTRY-}chorebuddiesbackend
+    build:
+      context: .
+      dockerfile: ChoreBuddies.Backend/Dockerfile
+    ports:
+      - "5000:8080"
+    depends_on:
+      - sqlserver
+    restart: on-failure
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=HobbyDB;User=sa;Password=Password123!;TrustServerCertificate=True;
+    networks:
+      - app-network     
+networks:
+  app-network:
+    driver: bridge
+    
+volumes:
+  sqlserver_data:
