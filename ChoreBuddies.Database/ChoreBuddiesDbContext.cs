@@ -1,11 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace ChoreBuddies.Database
+namespace ChoreBuddies.Database;
+
+public class ChoreBuddiesDbContext : DbContext
 {
-    public class ChoreBuddiesDbContext : DbContext
+    public ChoreBuddiesDbContext() { }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        public ChoreBuddiesDbContext() { }
+        base.OnConfiguring(optionsBuilder);
 
-
+        new DbSeeder().SetUpDbSeeding(optionsBuilder);
     }
 }
