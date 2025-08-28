@@ -4,9 +4,11 @@ namespace ChoreBuddies.Database;
 
 public class ChoreBuddiesDbContext : DbContext
 {
-    public ChoreBuddiesDbContext() { }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+	public ChoreBuddiesDbContext(DbContextOptions<ChoreBuddiesDbContext> options)
+		: base(options)
+	{
+	}
+	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
 
