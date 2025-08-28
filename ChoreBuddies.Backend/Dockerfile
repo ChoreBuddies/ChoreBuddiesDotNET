@@ -2,11 +2,15 @@
 
 # Ten etap jest używany podczas uruchamiania z programu VS w trybie szybkim (domyślnie dla konfiguracji debugowania)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+RUN apt-get update && apt-get install -y \
+    curl \
+    iputils-ping \
+    net-tools \
+ && rm -rf /var/lib/apt/lists/*
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
-RUN apt-get update && apt-get install -y curl iputils-ping net-tools
 
 
 # Ten etap służy do kompilowania projektu usługi
