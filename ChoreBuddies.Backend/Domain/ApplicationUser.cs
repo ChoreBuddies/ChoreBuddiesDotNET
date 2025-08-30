@@ -2,7 +2,7 @@
 
 namespace ChoreBuddies.Backend.Domain
 {
-    public class ApplicationUser : IdentityUser
+    public class ApplicationUser : IdentityUser<int>
     {
         public string? FirstName { get; set; }
 

@@ -32,7 +32,7 @@ public class Program
 		});
 
         // Asp.net Identity
-        builder.Services.AddIdentity<ApplicationUser, IdentityRole>(opt =>
+        builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>(opt =>
 			{
 				opt.Password.RequireDigit = true;
 				opt.Password.RequiredLength = 8;
