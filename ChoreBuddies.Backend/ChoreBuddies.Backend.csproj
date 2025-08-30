@@ -10,6 +10,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Pages\**" />
+    <Compile Remove="wwwroot\**" />
+    <Content Remove="Pages\**" />
+    <Content Remove="wwwroot\**" />
+    <EmbeddedResource Remove="Pages\**" />
+    <EmbeddedResource Remove="wwwroot\**" />
+    <None Remove="Pages\**" />
+    <None Remove="wwwroot\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="15.0.1" />
     <PackageReference Include="Docker.DotNet.Enhanced" Version="3.128.5" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.19" />
