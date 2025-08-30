@@ -2,7 +2,7 @@
 using AutoMapper;
 using ChoreBuddies.Backend.Chores;
 
-namespace ChoreBuddies.Backend.features.Chores
+namespace ChoreBuddies.Backend.Features.Chores
 {
 	public class ChoresService : IChoresService
 	{

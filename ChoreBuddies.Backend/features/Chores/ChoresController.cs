@@ -1,7 +1,7 @@
 ﻿using ChoreBuddies.Backend.Chores;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ChoreBuddies.Backend.features.Chores
+namespace ChoreBuddies.Backend.Features.Chores
 {
 	[ApiController]
 	[Route("api/[controller]")]

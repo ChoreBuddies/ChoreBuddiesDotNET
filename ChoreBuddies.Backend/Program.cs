@@ -1,5 +1,5 @@
 using AutoMapper;
-using ChoreBuddies.Backend.features.Chores;
+using ChoreBuddies.Backend.Features.Chores;
 using ChoreBuddies.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

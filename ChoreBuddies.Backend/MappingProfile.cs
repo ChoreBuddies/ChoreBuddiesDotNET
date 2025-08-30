@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using ChoreBuddies.Backend.Chores;
-using ChoreBuddies.Backend.features.Chores;
+using ChoreBuddies.Backend.Features.Chores;
 
 namespace ChoreBuddies.Backend
 {
