@@ -1,0 +1,7 @@
+#!/bin/sh
+echo "Running dotnet format..."
+cd "$(pwd)"
+echo "$(pwd)"
+read -p "Press enter to continue"
+dotnet format \ChoreBuddies.Backend\ChoreBuddies.Backend.csproj --include . --verbosity quiet
+git add . # Add the formatted files back to the commit
