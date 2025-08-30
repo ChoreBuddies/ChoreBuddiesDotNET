@@ -14,7 +14,7 @@ public class Program
         builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:32769") });
 
         var app = builder.Build();
-        
+
 
 
         await app.RunAsync();
