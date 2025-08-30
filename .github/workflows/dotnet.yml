@@ -31,6 +31,8 @@ jobs:
       run: dotnet tool install -g dotnet-format
 
     - name: Check code formatting
+      run: pwd
+      run: ls
       run: |
         # This command will fail (exit code 1) if any files are not formatted correctly.
         dotnet format ChoreBuddies.Backend.csproj --verify-no-changes --verbosity detailed
