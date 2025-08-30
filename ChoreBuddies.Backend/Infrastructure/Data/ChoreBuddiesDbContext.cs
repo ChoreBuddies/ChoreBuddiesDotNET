@@ -1,4 +1,5 @@
 ﻿using ChoreBuddies.Backend.Domain;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +11,10 @@ public class ChoreBuddiesDbContext : IdentityDbContext<ApplicationUser, Identity
     public DbSet<ApplicationUser> ApplicationUsers { get; set; }
 
     public ChoreBuddiesDbContext(DbContextOptions<ChoreBuddiesDbContext> options)
-		: base(options)
-	{
-	}
-	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        : base(options)
+    {
+    }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
 
