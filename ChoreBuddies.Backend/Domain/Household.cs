@@ -19,12 +19,11 @@ namespace ChoreBuddies.Backend.Domain
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
         // Navigation properties
-        public ApplicationUser Owner { get; set; }
 
         [JsonIgnore]
-        public virtual ICollection<ApplicationUser> Users { get; set; } = new List<ApplicationUser>();
+        public virtual ICollection<ApplicationUser> Users { get; set; } = [];
 
         [JsonIgnore]
-        public virtual ICollection<Chore> Chores { get; set; } = new List<Chore>();
+        public virtual ICollection<Chore> Chores { get; set; } = [];
     }
 }

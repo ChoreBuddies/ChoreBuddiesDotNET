@@ -4,6 +4,7 @@ using ChoreBuddies.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ChoreBuddiesDbContext))]
-    partial class ChoreBuddiesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250830172736_AddMissingRelations")]
+    partial class AddMissingRelations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -159,6 +162,8 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
 
                     b.ToTable("Households");
                 });
@@ -337,11 +342,20 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("ChoreBuddies.Backend.Domain.ApplicationUser", b =>
                 {
-                    b.HasOne("ChoreBuddies.Backend.Domain.Household", "Household")
+                    b.HasOne("ChoreBuddies.Backend.Domain.Household", null)
                         .WithMany("Users")
                         .HasForeignKey("HouseholdId");
+                });
 
-                    b.Navigation("Household");
+            modelBuilder.Entity("ChoreBuddies.Backend.Domain.Household", b =>
+                {
+                    b.HasOne("ChoreBuddies.Backend.Domain.ApplicationUser", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("ChoreBuddies.Backend.Features.Chores.Chore", b =>
