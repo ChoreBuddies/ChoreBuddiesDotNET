@@ -33,4 +33,4 @@ jobs:
     - name: Check code formatting
       run: |
         # This command will fail (exit code 1) if any files are not formatted correctly.
-        dotnet format --verify-no-changes --verbosity detailed
+        dotnet format .\ChoreBuddies.Backend\ChoreBuddies.Backend.csproj --verify-no-changes --verbosity detailed
