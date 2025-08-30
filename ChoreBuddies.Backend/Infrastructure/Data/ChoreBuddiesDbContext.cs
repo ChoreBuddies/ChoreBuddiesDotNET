@@ -7,7 +7,9 @@ namespace ChoreBuddies.Database;
 
 public class ChoreBuddiesDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>, int>
 {
-	public ChoreBuddiesDbContext(DbContextOptions<ChoreBuddiesDbContext> options)
+    public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+
+    public ChoreBuddiesDbContext(DbContextOptions<ChoreBuddiesDbContext> options)
 		: base(options)
 	{
 	}
