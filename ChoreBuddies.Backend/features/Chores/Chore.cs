@@ -1,4 +1,6 @@
-﻿namespace ChoreBuddies.Backend.Features.Chores
+﻿using ChoreBuddies.Backend.Domain;
+
+namespace ChoreBuddies.Backend.Features.Chores
 {
     public class Chore(
         string id,
@@ -18,5 +20,12 @@
         public Status Status { get; set; } = status;
         public string Room { get; set; } = room;
         public int RewardPointsCount { get; set; } = rewardPointsCount;
+
+        public int HouseholdId { get; set; }
+
+
+
+        // Navigation properties
+        public Household Household { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using ChoreBuddies.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ChoreBuddiesDbContext))]
-    partial class ChoreBuddiesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250830164916_addHouseholdTable")]
+    partial class addHouseholdTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -160,6 +163,8 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("OwnerId");
+
                     b.ToTable("Households");
                 });
 
@@ -178,7 +183,7 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("HouseholdId")
+                    b.Property<int?>("HouseholdId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -337,22 +342,27 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("ChoreBuddies.Backend.Domain.ApplicationUser", b =>
                 {
-                    b.HasOne("ChoreBuddies.Backend.Domain.Household", "Household")
+                    b.HasOne("ChoreBuddies.Backend.Domain.Household", null)
                         .WithMany("Users")
                         .HasForeignKey("HouseholdId");
+                });
 
-                    b.Navigation("Household");
+            modelBuilder.Entity("ChoreBuddies.Backend.Domain.Household", b =>
+                {
+                    b.HasOne("ChoreBuddies.Backend.Domain.ApplicationUser", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("ChoreBuddies.Backend.Features.Chores.Chore", b =>
                 {
-                    b.HasOne("ChoreBuddies.Backend.Domain.Household", "Household")
+                    b.HasOne("ChoreBuddies.Backend.Domain.Household", null)
                         .WithMany("Chores")
-                        .HasForeignKey("HouseholdId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Household");
+                        .HasForeignKey("HouseholdId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>

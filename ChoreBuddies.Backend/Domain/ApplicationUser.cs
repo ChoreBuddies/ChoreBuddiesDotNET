@@ -9,5 +9,10 @@ namespace ChoreBuddies.Backend.Domain
         public string? LastName { get; set; }
 
         public DateTime DateOfBirth { get; set; }
+
+        public int? HouseholdId { get; set; }
+
+        // Navigation properties
+        public Household? Household { get; set; }
     }
 }
