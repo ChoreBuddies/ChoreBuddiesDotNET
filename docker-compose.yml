@@ -27,7 +27,7 @@ services:
     restart: on-failure
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=HobbyDB;User=sa;Password=Password123!;TrustServerCertificate=True;
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=HobbyDB;User=sa;Password=Password123!;TrustServerCertificate=True;MultipleActiveResultSets=true;
     networks:
       - app-network     
 networks:

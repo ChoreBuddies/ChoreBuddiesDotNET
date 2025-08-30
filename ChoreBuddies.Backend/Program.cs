@@ -1,9 +1,8 @@
-using AutoMapper;
-using ChoreBuddies.Backend.features.Chores;
+using ChoreBuddies.Backend.Domain;
+using ChoreBuddies.Backend.Features.Chores;
 using ChoreBuddies.Database;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using System;
 
 namespace ChoreBuddies.Backend;
 
@@ -26,13 +25,24 @@ public class Program
 
 		builder.Services.AddEndpointsApiExplorer();
 
+		// Database configuration
 		builder.Services.AddDbContext<ChoreBuddiesDbContext>(opt =>
 		{
 			opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 		});
 
-		//builder.Services.AddMvc();
-		builder.Services.AddSwaggerGen();
+        // Asp.net Identity
+        builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>(opt =>
+			{
+				opt.Password.RequireDigit = true;
+				opt.Password.RequiredLength = 8;
+				opt.User.RequireUniqueEmail = true;
+			})
+            .AddEntityFrameworkStores<ChoreBuddiesDbContext>()
+			.AddDefaultTokenProviders();
+
+        //builder.Services.AddMvc();
+        builder.Services.AddSwaggerGen();
 
 		builder.Services.AddControllers();
 
@@ -78,7 +88,8 @@ public class Program
 			.AllowAnyHeader()
 		);
 
-		app.UseAuthorization();
+        app.UseAuthentication();
+        app.UseAuthorization();
 
 		app.MapRazorPages();
 
