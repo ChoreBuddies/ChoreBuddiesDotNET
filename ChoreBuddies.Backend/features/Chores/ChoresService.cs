@@ -1,9 +1,12 @@
-﻿using ChoreBuddies.Backend.Chore;
+﻿
+using AutoMapper;
+using ChoreBuddies.Backend.Chores;
 
-namespace ChoreBuddies.Backend.Tasks
+namespace ChoreBuddies.Backend.features.Chores
 {
 	public class ChoresService : IChoresService
 	{
+		private readonly IMapper _mapper;
 		IEnumerable<Chore> mockChores = new List<Chore>
 	   {
 			new Chore(
@@ -38,14 +41,16 @@ namespace ChoreBuddies.Backend.Tasks
 			)
 		};
 
+		public ChoresService(IMapper mapper) => _mapper = mapper;
+
 		public IEnumerable<ChoreOverviewDto> GetChores()
 		{
-			return mockChores.Select((t) => t.ToOverviewDTO());
+			return mockChores.Select((t) => _mapper.Map<ChoreOverviewDto>(t));
 		}
 
 		public ChoreDto GetChoreDetails(string id)
 		{
-			return mockChores.First(t => t.Id == id).ToDTO();
+			return _mapper.Map<ChoreDto>(mockChores.First(t => t.Id == id));
 		}
 	}
 }

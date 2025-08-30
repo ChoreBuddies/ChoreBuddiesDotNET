@@ -1,4 +1,4 @@
-﻿namespace ChoreBuddies.Backend.Tasks
+﻿namespace ChoreBuddies.Backend.features.Chores
 {
 	public class Chore(
 		string id,

@@ -1,6 +1,6 @@
-﻿using ChoreBuddies.Backend.Tasks;
+﻿using ChoreBuddies.Backend.Chores;
 
-namespace ChoreBuddies.Backend.Chore
+namespace ChoreBuddies.Backend.features.Chores
 {
 	public interface IChoresService
 	{
