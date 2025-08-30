@@ -29,12 +29,6 @@ jobs:
       
     - name: Install dotnet-format tool
       run: dotnet tool install -g dotnet-format
-
-    - name: Check pwd
-      run: pwd
-      
-    - name: Check ls
-      run: ls
       
     - name: Check code formatting
       run: |
