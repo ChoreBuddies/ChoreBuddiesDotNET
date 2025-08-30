@@ -26,3 +26,11 @@ jobs:
 
     - name: Test
       run: dotnet test ChoreBuddies.Backend/ChoreBuddies.Backend.csproj --no-build --verbosity normal
+      
+    - name: Install dotnet-format tool
+      run: dotnet tool install -g dotnet-format
+
+    - name: Check code formatting
+      run: |
+        # This command will fail (exit code 1) if any files are not formatted correctly.
+        dotnet format --verify-no-changes --verbosity detailed
