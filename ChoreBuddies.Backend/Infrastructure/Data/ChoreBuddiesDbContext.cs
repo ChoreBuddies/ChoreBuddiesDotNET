@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ChoreBuddies.Backend.Domain;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChoreBuddies.Database;
 
-public class ChoreBuddiesDbContext : DbContext
+public class ChoreBuddiesDbContext : IdentityDbContext<ApplicationUser>
 {
 	public ChoreBuddiesDbContext(DbContextOptions<ChoreBuddiesDbContext> options)
 		: base(options)
