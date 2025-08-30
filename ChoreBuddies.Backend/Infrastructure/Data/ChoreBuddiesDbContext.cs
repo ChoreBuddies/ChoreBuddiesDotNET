@@ -1,5 +1,5 @@
 ﻿using ChoreBuddies.Backend.Domain;
-
+using ChoreBuddies.Backend.Features.Chores;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +9,7 @@ namespace ChoreBuddies.Database;
 public class ChoreBuddiesDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>, int>
 {
     public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+    public DbSet<Chore> Chore { get; set; }
 
     public ChoreBuddiesDbContext(DbContextOptions<ChoreBuddiesDbContext> options)
         : base(options)
