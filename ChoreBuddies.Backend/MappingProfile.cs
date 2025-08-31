@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 
 using ChoreBuddies.Backend.Chores;
+using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Chores;
+using ChoreBuddies.Backend.Features.DefaultChores;
 
 namespace ChoreBuddies.Backend
 {
@@ -13,6 +15,7 @@ namespace ChoreBuddies.Backend
             CreateMap<ChoreDto, Chore>();
             CreateMap<Chore, ChoreOverviewDto>();
             CreateMap<ChoreOverviewDto, Chore>();
+            CreateMap<DefaultChore, DefaultChoreDto>().ReverseMap();
         }
     }
 }
