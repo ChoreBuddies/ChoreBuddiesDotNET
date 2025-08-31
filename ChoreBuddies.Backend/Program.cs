@@ -1,5 +1,6 @@
 using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Chores;
+using ChoreBuddies.Backend.Features.DefaultChores;
 using ChoreBuddies.Database;
 
 using Microsoft.AspNetCore.Identity;
@@ -50,6 +51,10 @@ public class Program
         // Add services to the container.
         builder.Services.AddRazorPages();
         builder.Services.AddScoped<IChoresService, ChoresService>();
+        // Default chores
+        builder.Services.AddScoped<IDefaultChoreRepository, DefaultChoreRepository>();
+        builder.Services.AddScoped<IDefaultChoreService, DefaultChoreService>();
+
         builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
         var app = builder.Build();
