@@ -14,7 +14,7 @@ namespace ChoreBuddies.Backend.Features.DefaultChores
         public async Task<IActionResult> GetAllDefaultChores()
         {
             var chores = await _service.GetAllDefaultChoresAsync();
-            return Ok(_mapper.Map<DefaultChoreDto>(chores));
+            return Ok(_mapper.Map<List<DefaultChoreDto>>(chores));
         }
     }
 }
