@@ -5,14 +5,14 @@ namespace ChoreBuddies.Backend.Features.DefaultChores
 {
     public interface IDefaultChoreRepository
     {
-        public Task<ICollection<DeafultChore>> GetAllDefaultChores();
+        public Task<ICollection<DefaultChore>> GetAllDefaultChores();
     }
 
     public class DefaultChoreRepository(ChoreBuddiesDbContext dbContext) : IDefaultChoreRepository
     {
         private ChoreBuddiesDbContext _dbContext = dbContext;
 
-        public Task<ICollection<DeafultChore>> GetAllDefaultChores()
+        public Task<ICollection<DefaultChore>> GetAllDefaultChores()
         {
             throw new NotImplementedException();
         }

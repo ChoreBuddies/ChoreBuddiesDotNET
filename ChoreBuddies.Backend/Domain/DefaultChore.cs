@@ -1,6 +1,6 @@
 ﻿namespace ChoreBuddies.Backend.Domain
 {
-    public class DeafultChore(
+    public class DefaultChore(
         int id,
         string name,
         string description,
