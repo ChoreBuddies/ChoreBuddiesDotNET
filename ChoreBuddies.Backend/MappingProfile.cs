@@ -11,10 +11,8 @@ namespace ChoreBuddies.Backend
     {
         public MappingProfile()
         {
-            CreateMap<Chore, ChoreDto>();
-            CreateMap<ChoreDto, Chore>();
-            CreateMap<Chore, ChoreOverviewDto>();
-            CreateMap<ChoreOverviewDto, Chore>();
+            CreateMap<Chore, ChoreDto>().ReverseMap();
+            CreateMap<Chore, ChoreOverviewDto>().ReverseMap();
             CreateMap<DefaultChore, DefaultChoreDto>().ReverseMap();
         }
     }
