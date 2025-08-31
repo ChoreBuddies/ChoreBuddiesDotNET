@@ -1,6 +1,7 @@
 using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Chores;
 using ChoreBuddies.Backend.Features.DefaultChores;
+using ChoreBuddies.Backend.Features.Households;
 using ChoreBuddies.Database;
 
 using Microsoft.AspNetCore.Identity;
@@ -54,6 +55,8 @@ public class Program
         // Default chores
         builder.Services.AddScoped<IDefaultChoreRepository, DefaultChoreRepository>();
         builder.Services.AddScoped<IDefaultChoreService, DefaultChoreService>();
+        builder.Services.AddScoped<IHouseholdRepository, HouseholdRepository>();
+        builder.Services.AddScoped<IHouseholdService, HouseholdService>();
 
         builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 

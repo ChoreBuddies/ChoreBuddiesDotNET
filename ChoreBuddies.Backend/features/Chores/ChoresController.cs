@@ -20,7 +20,7 @@ namespace ChoreBuddies.Backend.Features.Chores
         {
             return Ok(_tasksService.GetChores());
         }
-        [HttpGet("/{id}")]
+        [HttpGet("{id}")]
         public ActionResult<IEnumerable<ChoreDto>> GetChore(string id)
         {
             return Ok(_tasksService.GetChoreDetails(id));
