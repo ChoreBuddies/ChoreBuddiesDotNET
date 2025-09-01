@@ -1,0 +1,18 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36401.2 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "ChoreBuddies_SharedModels", "ChoreBuddies_SharedModels\ChoreBuddies_SharedModels.shproj", "{851D259E-BA39-4E5F-894F-171E4DCA97F2}"
+EndProject
+Global
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {30749D41-6A43-4D4F-B2F1-CC32028CE10A}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		ChoreBuddies_SharedModels\ChoreBuddies_SharedModels.projitems*{851d259e-ba39-4e5f-894f-171e4dca97f2}*SharedItemsImports = 13
+	EndGlobalSection
+EndGlobal
