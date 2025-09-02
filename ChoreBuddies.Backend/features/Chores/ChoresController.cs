@@ -1,5 +1,4 @@
-﻿using ChoreBuddies.Backend.Chores;
-
+﻿using ChoreBuddies_SharedModels.Chores;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChoreBuddies.Backend.Features.Chores

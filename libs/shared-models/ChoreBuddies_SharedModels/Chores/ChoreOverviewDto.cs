@@ -1,6 +1,4 @@
-﻿using ChoreBuddies.Backend.Features.Chores;
-
-namespace ChoreBuddies.Backend.Chores
+﻿namespace ChoreBuddies_SharedModels.Chores
 {
     public record ChoreOverviewDto(
     string Id,

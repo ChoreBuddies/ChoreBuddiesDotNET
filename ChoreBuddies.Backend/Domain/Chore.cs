@@ -1,6 +1,6 @@
-﻿using ChoreBuddies.Backend.Domain;
+﻿using ChoreBuddies_SharedModels.Chores;
 
-namespace ChoreBuddies.Backend.Features.Chores
+namespace ChoreBuddies.Backend.Domain
 {
     public class Chore(
         string id,

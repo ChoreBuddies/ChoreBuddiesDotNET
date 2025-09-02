@@ -1,5 +1,4 @@
-﻿using ChoreBuddies.Backend.Features.Chores;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace ChoreBuddies.Backend.Domain
