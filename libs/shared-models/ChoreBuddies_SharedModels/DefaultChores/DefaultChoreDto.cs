@@ -1,4 +1,4 @@
-﻿namespace ChoreBuddies.Backend.Features.DefaultChores
+﻿namespace ChoreBuddies_SharedModels.DefalutChores
 {
     public record DefaultChoreDto(
         string name,

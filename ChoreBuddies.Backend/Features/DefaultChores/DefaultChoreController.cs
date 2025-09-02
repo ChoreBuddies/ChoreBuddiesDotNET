@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ChoreBuddies_SharedModels.DefalutChores;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChoreBuddies.Backend.Features.DefaultChores

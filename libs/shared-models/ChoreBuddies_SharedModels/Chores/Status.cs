@@ -1,4 +1,4 @@
-﻿namespace ChoreBuddies.Backend.Features.Chores
+﻿namespace ChoreBuddies_SharedModels.Chores
 {
     public enum Status
     {

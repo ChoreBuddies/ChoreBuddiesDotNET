@@ -1,5 +1,4 @@
 ﻿using ChoreBuddies.Backend.Domain;
-using ChoreBuddies.Backend.Features.Chores;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
