@@ -1,9 +1,8 @@
-﻿namespace ChoreBuddies_SharedModels.Chores
+﻿namespace ChoreBuddies_SharedModels.Chores;
+
+public enum Status
 {
-    public enum Status
-    {
-        Unassigned,
-        Assigned,
-        Completed
-    }
+    Unassigned,
+    Assigned,
+    Completed
 }
