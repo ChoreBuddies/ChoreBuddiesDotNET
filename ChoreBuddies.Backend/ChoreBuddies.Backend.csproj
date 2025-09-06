@@ -42,6 +42,10 @@
     <ProjectReference Include="..\ChoreBuddies.Backend.ServiceDefaults\ChoreBuddies.Backend.ServiceDefaults.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Users\" />
+  </ItemGroup>
+
   <Import Project="..\libs\shared-models\ChoreBuddies_SharedModels\ChoreBuddies_SharedModels.projitems" Label="Shared" />
 
 </Project>
