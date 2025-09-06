@@ -9,7 +9,7 @@ public interface IAppUserService
 
     public Task<AppUser?> GetUserByIdAsync(int id);
 
-    public Task<bool> UpdateUserAsync(int userId, UpdateUserDto userDto);
+    public Task<bool> UpdateUserAsync(int userId, UpdateAppUserDto userDto);
 }
 
 public class AppUserService(IAppUserRepository userRepository) : IAppUserService
@@ -26,7 +26,7 @@ public class AppUserService(IAppUserRepository userRepository) : IAppUserService
         return await _userRepository.GetUserByIdAsync(id);
     }
 
-    public async Task<bool> UpdateUserAsync(int userId, UpdateUserDto userDto)
+    public async Task<bool> UpdateUserAsync(int userId, UpdateAppUserDto userDto)
     {
         var user = await _userRepository.GetUserByIdAsync(userId);
         if (user == null) return false;
