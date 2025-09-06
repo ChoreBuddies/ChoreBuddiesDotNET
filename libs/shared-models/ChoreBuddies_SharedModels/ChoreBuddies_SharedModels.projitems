@@ -9,6 +9,9 @@
     <Import_RootNamespace>ChoreBuddies_SharedModels</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Authentication\AuthResultDto.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Authentication\LoginRequestDto.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Authentication\RegisterRequestDto.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Chores\ChoreDto.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Chores\ChoreOverviewDto.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Chores\Status.cs" />
