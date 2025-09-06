@@ -1,6 +1,13 @@
 #!/bin/sh
 echo "Running dotnet format..."
-cd "$(pwd)"
-echo "$(pwd)/../ChoreBuddies.Backend/ChoreBuddies.Backend.csproj"
-dotnet format "$(pwd)/../ChoreBuddies.Backend/ChoreBuddies.Backend.csproj" --verbosity quiet 
-git add . # Add the formatted files back to the commit
+
+# Always run relative to repo root (instead of weird pwd juggling)
+cd "$(git rev-parse --show-toplevel)" || exit 1
+
+PROJECT_PATH="ChoreBuddies.Backend/ChoreBuddies.Backend.csproj"
+
+echo "Formatting project: $PROJECT_PATH"
+dotnet format "$PROJECT_PATH" --verbosity diagnostic
+
+# Add formatted files back
+git add .
