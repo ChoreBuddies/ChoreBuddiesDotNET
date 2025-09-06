@@ -32,7 +32,7 @@ public class AppUserService(IAppUserRepository userRepository) : IAppUserService
         if (user == null) return false;
 
         user.UserName = userDto.UserName;
-        user.Email = userDto.Email;
+        user.Email = userDto.Email; // Consider adding email confirmation logic - issue #34
 
         await _userRepository.UpdateUserAsync(user);
         await _userRepository.SaveChangesAsync();
