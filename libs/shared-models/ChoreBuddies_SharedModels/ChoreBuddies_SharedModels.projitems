@@ -16,5 +16,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Chores\ChoreOverviewDto.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Chores\Status.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DefaultChores\DefaultChoreDto.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Users\UpdateUserDto.cs" />
   </ItemGroup>
 </Project>
