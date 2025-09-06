@@ -2,5 +2,5 @@
 echo "Running dotnet format..."
 cd "$(pwd)"
 echo "$(pwd)/../ChoreBuddies.Backend/ChoreBuddies.Backend.csproj"
-dotnet format "$(pwd)/../ChoreBuddies.Backend/ChoreBuddies.Backend.csproj" --include . --verbosity quiet
+dotnet format "$(pwd)/../ChoreBuddies.Backend/ChoreBuddies.Backend.csproj" --verbosity quiet 
 git add . # Add the formatted files back to the commit
