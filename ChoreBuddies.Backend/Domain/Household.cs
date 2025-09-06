@@ -20,7 +20,7 @@ public class Household
     // Navigation properties
 
     [JsonIgnore]
-    public virtual ICollection<ApplicationUser> Users { get; set; } = [];
+    public virtual ICollection<AppUser> Users { get; set; } = [];
 
     [JsonIgnore]
     public virtual ICollection<Chore> Chores { get; set; } = [];

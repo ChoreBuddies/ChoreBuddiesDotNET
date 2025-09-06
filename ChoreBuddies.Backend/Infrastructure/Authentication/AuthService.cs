@@ -11,9 +11,9 @@ public interface IAuthService
     public Task<AuthResultDto> LoginUserAsync(LoginRequestDto loginRequest);
 }
 
-public class AuthService(UserManager<ApplicationUser> userManager) : IAuthService
+public class AuthService(UserManager<AppUser> userManager) : IAuthService
 {
-    private readonly UserManager<ApplicationUser> _userManager = userManager;
+    private readonly UserManager<AppUser> _userManager = userManager;
 
     public async Task<AuthResultDto> LoginUserAsync(LoginRequestDto loginRequest)
     {
@@ -51,7 +51,7 @@ public class AuthService(UserManager<ApplicationUser> userManager) : IAuthServic
             throw new UserAlreadyExistsException(registerRequest.Email);
         }
 
-        var newUser = new ApplicationUser
+        var newUser = new AppUser
         {
             Email = registerRequest.Email,
             UserName = registerRequest.UserName
