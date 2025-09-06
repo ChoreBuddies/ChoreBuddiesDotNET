@@ -7,15 +7,15 @@ namespace ChoreBuddies.Backend.Infrastructure.Authentication;
 
 public interface IAuthService
 {
-    public Task RegisterUser(RegisterRequestDto registerRequest);
-    public Task<AuthResultDto> LoginUser(LoginRequestDto loginRequest);
+    public Task RegisterUserAsync(RegisterRequestDto registerRequest);
+    public Task<AuthResultDto> LoginUserAsync(LoginRequestDto loginRequest);
 }
 
 public class AuthService(UserManager<ApplicationUser> userManager) : IAuthService
 {
     private readonly UserManager<ApplicationUser> _userManager = userManager;
 
-    public async Task<AuthResultDto> LoginUser(LoginRequestDto loginRequest)
+    public async Task<AuthResultDto> LoginUserAsync(LoginRequestDto loginRequest)
     {
         var user = await _userManager.FindByEmailAsync(loginRequest.Email);
 
@@ -43,7 +43,7 @@ public class AuthService(UserManager<ApplicationUser> userManager) : IAuthServic
         return new AuthResultDto("", DateTime.Now, "", DateTime.Now);
     }
 
-    public async Task RegisterUser(RegisterRequestDto registerRequest)
+    public async Task RegisterUserAsync(RegisterRequestDto registerRequest)
     {
         var userExists = await _userManager.FindByEmailAsync(registerRequest.Email) != null;
         if (userExists)
