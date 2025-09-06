@@ -2,58 +2,57 @@
 
 #nullable disable
 
-namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
+namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations;
+
+/// <inheritdoc />
+public partial class AddMissingRelations : Migration
 {
     /// <inheritdoc />
-    public partial class AddMissingRelations : Migration
+    protected override void Up(MigrationBuilder migrationBuilder)
     {
-        /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Chores_Households_HouseholdId",
-                table: "Chores");
+        migrationBuilder.DropForeignKey(
+            name: "FK_Chores_Households_HouseholdId",
+            table: "Chores");
 
-            migrationBuilder.AlterColumn<int>(
-                name: "HouseholdId",
-                table: "Chores",
-                type: "int",
-                nullable: false,
-                defaultValue: 0,
-                oldClrType: typeof(int),
-                oldType: "int",
-                oldNullable: true);
+        migrationBuilder.AlterColumn<int>(
+            name: "HouseholdId",
+            table: "Chores",
+            type: "int",
+            nullable: false,
+            defaultValue: 0,
+            oldClrType: typeof(int),
+            oldType: "int",
+            oldNullable: true);
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Chores_Households_HouseholdId",
-                table: "Chores",
-                column: "HouseholdId",
-                principalTable: "Households",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
-        }
+        migrationBuilder.AddForeignKey(
+            name: "FK_Chores_Households_HouseholdId",
+            table: "Chores",
+            column: "HouseholdId",
+            principalTable: "Households",
+            principalColumn: "Id",
+            onDelete: ReferentialAction.Cascade);
+    }
 
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Chores_Households_HouseholdId",
-                table: "Chores");
+    /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.DropForeignKey(
+            name: "FK_Chores_Households_HouseholdId",
+            table: "Chores");
 
-            migrationBuilder.AlterColumn<int>(
-                name: "HouseholdId",
-                table: "Chores",
-                type: "int",
-                nullable: true,
-                oldClrType: typeof(int),
-                oldType: "int");
+        migrationBuilder.AlterColumn<int>(
+            name: "HouseholdId",
+            table: "Chores",
+            type: "int",
+            nullable: true,
+            oldClrType: typeof(int),
+            oldType: "int");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Chores_Households_HouseholdId",
-                table: "Chores",
-                column: "HouseholdId",
-                principalTable: "Households",
-                principalColumn: "Id");
-        }
+        migrationBuilder.AddForeignKey(
+            name: "FK_Chores_Households_HouseholdId",
+            table: "Chores",
+            column: "HouseholdId",
+            principalTable: "Households",
+            principalColumn: "Id");
     }
 }

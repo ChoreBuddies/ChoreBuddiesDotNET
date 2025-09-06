@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChoreBuddies.Database;
 
-public class ChoreBuddiesDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>, int>
+public class ChoreBuddiesDbContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
 {
-    public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+    public DbSet<AppUser> ApplicationUsers { get; set; }
     public DbSet<Chore> Chores { get; set; }
     public DbSet<DefaultChore> DefaultChores { get; set; }
     public DbSet<Household> Households { get; set; }

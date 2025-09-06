@@ -1,6 +1,8 @@
 using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Chores;
 using ChoreBuddies.Backend.Features.DefaultChores;
+using ChoreBuddies.Backend.Features.Users;
+using ChoreBuddies.Backend.Infrastructure.Authentication;
 using ChoreBuddies.Database;
 
 using Microsoft.AspNetCore.Identity;
@@ -34,7 +36,7 @@ public class Program
         });
 
         // Asp.net Identity
-        builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>(opt =>
+        builder.Services.AddIdentity<AppUser, IdentityRole<int>>(opt =>
             {
                 opt.Password.RequireDigit = true;
                 opt.Password.RequiredLength = 8;
@@ -54,6 +56,10 @@ public class Program
         // Default chores
         builder.Services.AddScoped<IDefaultChoreRepository, DefaultChoreRepository>();
         builder.Services.AddScoped<IDefaultChoreService, DefaultChoreService>();
+        //Users
+        builder.Services.AddScoped<IAuthService, AuthService>();
+        builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
+        builder.Services.AddScoped<IAppUserService, AppUserService>();
 
         builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 

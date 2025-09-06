@@ -1,10 +1,9 @@
 ﻿using ChoreBuddies_SharedModels.Chores;
 
-namespace ChoreBuddies.Backend.Features.Chores
+namespace ChoreBuddies.Backend.Features.Chores;
+
+public interface IChoresService
 {
-    public interface IChoresService
-    {
-        IEnumerable<ChoreOverviewDto> GetChores();
-        ChoreDto GetChoreDetails(string id);
-    }
+    IEnumerable<ChoreOverviewDto> GetChores();
+    ChoreDto GetChoreDetails(string id);
 }
