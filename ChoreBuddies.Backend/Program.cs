@@ -56,8 +56,9 @@ public class Program
         // Default chores
         builder.Services.AddScoped<IDefaultChoreRepository, DefaultChoreRepository>();
         builder.Services.AddScoped<IDefaultChoreService, DefaultChoreService>();
-
+        //Users
         builder.Services.AddScoped<IAuthService, AuthService>();
+        builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
         builder.Services.AddScoped<IAppUserService, AppUserService>();
 
         builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
