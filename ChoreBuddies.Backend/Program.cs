@@ -1,6 +1,7 @@
 using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Chores;
 using ChoreBuddies.Backend.Features.DefaultChores;
+using ChoreBuddies.Backend.Features.Users;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using ChoreBuddies.Database;
 
@@ -57,6 +58,7 @@ public class Program
         builder.Services.AddScoped<IDefaultChoreService, DefaultChoreService>();
 
         builder.Services.AddScoped<IAuthService, AuthService>();
+        builder.Services.AddScoped<IAppUserService, AppUserService>();
 
         builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
