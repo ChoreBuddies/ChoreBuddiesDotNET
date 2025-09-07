@@ -1,4 +1,4 @@
-﻿namespace ChoreBuddies_SharedModels.Authentication;
+﻿namespace Shared.Authentication;
 
 public record AuthResultDto(
     string JwtToken,

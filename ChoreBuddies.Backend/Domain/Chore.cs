@@ -1,4 +1,4 @@
-﻿using ChoreBuddies_SharedModels.Chores;
+﻿using Shared.Chores;
 
 namespace ChoreBuddies.Backend.Domain;
 

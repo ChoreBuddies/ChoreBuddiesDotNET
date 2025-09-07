@@ -1,7 +1,7 @@
 ﻿using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Infrastructure.Authentication.Exceptions;
-using ChoreBuddies_SharedModels.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Shared.Authentication;
 
 namespace ChoreBuddies.Backend.Infrastructure.Authentication;
 

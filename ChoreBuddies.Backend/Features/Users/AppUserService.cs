@@ -1,5 +1,5 @@
 ﻿using ChoreBuddies.Backend.Domain;
-using ChoreBuddies_SharedModels.Users;
+using Shared.Users;
 
 namespace ChoreBuddies.Backend.Features.Users;
 

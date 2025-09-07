@@ -1,4 +1,4 @@
-﻿using ChoreBuddies_SharedModels.Authentication;
+﻿using Shared.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChoreBuddies.Backend.Infrastructure.Authentication;

@@ -15,9 +15,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
+    <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>
 
-  <Import Project="..\libs\shared-models\ChoreBuddies_SharedModels\ChoreBuddies_SharedModels.projitems" Label="Shared" />
+  <ItemGroup>
+    <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
+  </ItemGroup>
 
 </Project>

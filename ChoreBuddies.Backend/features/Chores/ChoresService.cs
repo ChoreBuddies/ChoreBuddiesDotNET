@@ -1,7 +1,7 @@
 ﻿
 using AutoMapper;
 using ChoreBuddies.Backend.Domain;
-using ChoreBuddies_SharedModels.Chores;
+using Shared.Chores;
 
 namespace ChoreBuddies.Backend.Features.Chores;
 

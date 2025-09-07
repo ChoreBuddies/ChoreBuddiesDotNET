@@ -16,9 +16,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Editor Configuration", "Edi
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "ChoreBuddies_SharedModels", "libs\shared-models\ChoreBuddies_SharedModels\ChoreBuddies_SharedModels.shproj", "{851D259E-BA39-4E5F-894F-171E4DCA97F2}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChoreBuddies.Frontend", "ChoreBuddies.Frontend\ChoreBuddies.Frontend.csproj", "{189275F1-8D57-4B18-B1E2-C43004D4FCB4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{C51F0A80-623A-4433-A3ED-DB556357BCDE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -86,16 +86,23 @@ Global
 		{189275F1-8D57-4B18-B1E2-C43004D4FCB4}.Release|x64.Build.0 = Release|Any CPU
 		{189275F1-8D57-4B18-B1E2-C43004D4FCB4}.Release|x86.ActiveCfg = Release|Any CPU
 		{189275F1-8D57-4B18-B1E2-C43004D4FCB4}.Release|x86.Build.0 = Release|Any CPU
+		{C51F0A80-623A-4433-A3ED-DB556357BCDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C51F0A80-623A-4433-A3ED-DB556357BCDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C51F0A80-623A-4433-A3ED-DB556357BCDE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C51F0A80-623A-4433-A3ED-DB556357BCDE}.Debug|x64.Build.0 = Debug|Any CPU
+		{C51F0A80-623A-4433-A3ED-DB556357BCDE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C51F0A80-623A-4433-A3ED-DB556357BCDE}.Debug|x86.Build.0 = Debug|Any CPU
+		{C51F0A80-623A-4433-A3ED-DB556357BCDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C51F0A80-623A-4433-A3ED-DB556357BCDE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C51F0A80-623A-4433-A3ED-DB556357BCDE}.Release|x64.ActiveCfg = Release|Any CPU
+		{C51F0A80-623A-4433-A3ED-DB556357BCDE}.Release|x64.Build.0 = Release|Any CPU
+		{C51F0A80-623A-4433-A3ED-DB556357BCDE}.Release|x86.ActiveCfg = Release|Any CPU
+		{C51F0A80-623A-4433-A3ED-DB556357BCDE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {79F706B6-7590-441F-BC71-08A8A8AE88D2}
-	EndGlobalSection
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		libs\shared-models\ChoreBuddies_SharedModels\ChoreBuddies_SharedModels.projitems*{149cb185-0fc2-41ea-f149-8dbc202b8d71}*SharedItemsImports = 5
-		libs\shared-models\ChoreBuddies_SharedModels\ChoreBuddies_SharedModels.projitems*{189275f1-8d57-4b18-b1e2-c43004d4fcb4}*SharedItemsImports = 5
-		libs\shared-models\ChoreBuddies_SharedModels\ChoreBuddies_SharedModels.projitems*{851d259e-ba39-4e5f-894f-171e4dca97f2}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

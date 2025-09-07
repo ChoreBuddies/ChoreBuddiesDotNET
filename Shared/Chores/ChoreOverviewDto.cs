@@ -1,4 +1,4 @@
-﻿namespace ChoreBuddies_SharedModels.Chores;
+﻿namespace Shared.Chores;
 
 public record ChoreOverviewDto(
 string Id,
