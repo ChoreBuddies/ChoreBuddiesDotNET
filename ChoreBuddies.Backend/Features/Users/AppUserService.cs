@@ -26,6 +26,10 @@ public class AppUserService(IAppUserRepository userRepository) : IAppUserService
         return await _userRepository.GetUserByIdAsync(id);
     }
 
+
+
+
+
     public async Task<bool> UpdateUserAsync(int userId, UpdateAppUserDto userDto)
     {
         var user = await _userRepository.GetUserByIdAsync(userId);
@@ -40,4 +44,10 @@ public class AppUserService(IAppUserRepository userRepository) : IAppUserService
         return true;
     }
 }
+
+
+
+
+
+
 
