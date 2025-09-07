@@ -1,0 +1,30 @@
+﻿@page "/"
+@inject HttpClient Http
+
+<PageTitle>Home</PageTitle>
+
+
+@if (homeObject == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <p>@homeObject.message</p>
+}
+
+@code {
+    HomeObject? homeObject;
+    protected override async Task OnInitializedAsync()
+    {
+        homeObject = await Http.GetFromJsonAsync<HomeObject>("api/Home");
+    }
+    protected class HomeObject
+    {
+        public string? message { get; set; }
+        public HomeObject(string? Message)
+        {
+            message = Message;
+        }
+    }
+}
