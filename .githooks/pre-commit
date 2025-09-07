@@ -1,13 +1,19 @@
 #!/bin/sh
-echo "Running dotnet format..."
+echo "Running dotnet format on staged files..."
 
-# Always run relative to repo root (instead of weird pwd juggling)
+# Always run relative to repo root
 cd "$(git rev-parse --show-toplevel)" || exit 1
 
-PROJECT_PATH="ChoreBuddies.Backend/ChoreBuddies.Backend.csproj"
+# Get staged .cs files
+CHANGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep '\.cs$')
 
-echo "Formatting project: $PROJECT_PATH"
-dotnet format "$PROJECT_PATH" --verbosity diagnostic
+if [ -z "$CHANGED_FILES" ]; then
+  echo "No C# files staged. Skipping dotnet format."
+  exit 0
+fi
 
-# Add formatted files back
-git add .
+# Run dotnet format only on changed files
+dotnet format --include $CHANGED_FILES --verbosity minimal
+
+# Add any reformatted files back to the commit
+git add $CHANGED_FILES
