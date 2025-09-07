@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using Shared.Users;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Users;
 
 namespace ChoreBuddies.Backend.Features.Users;
 

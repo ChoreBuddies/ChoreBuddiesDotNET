@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using Shared.DefalutChores;
 using Microsoft.AspNetCore.Mvc;
+using Shared.DefalutChores;
 
 namespace ChoreBuddies.Backend.Features.DefaultChores;
 

@@ -1,5 +1,5 @@
-﻿using Shared.Authentication;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Shared.Authentication;
 
 namespace ChoreBuddies.Backend.Infrastructure.Authentication;
 
