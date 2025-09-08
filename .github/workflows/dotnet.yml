@@ -19,18 +19,23 @@ jobs:
         dotnet-version: 8.0.x
 
     - name: Restore dependencies
-      run: dotnet restore ChoreBuddies.Backend/ChoreBuddies.Backend.csproj
+      run: dotnet restore ChoreBuddies.Backend.sln 
 
     - name: Build
-      run: dotnet build ChoreBuddies.Backend/ChoreBuddies.Backend.csproj --no-restore --configuration Release
+      run: dotnet build ChoreBuddies.Backend.sln --no-restore --configuration Release
 
     - name: Test
-      run: dotnet test ChoreBuddies.Backend/ChoreBuddies.Backend.csproj --no-build --verbosity normal
+      run: dotnet test ChoreBuddies.Backend.sln --no-build --verbosity normal
       
     - name: Install dotnet-format tool
       run: dotnet tool install -g dotnet-format
       
-    - name: Check code formatting
+    - name: Check code formatting backend
       run: |
         # This command will fail (exit code 1) if any files are not formatted correctly.
         dotnet format ChoreBuddies.Backend/ChoreBuddies.Backend.csproj --verify-no-changes --verbosity detailed
+        
+    - name: Check code formatting frontend
+      run: |
+        # This command will fail (exit code 1) if any files are not formatted correctly.
+        dotnet format ChoreBuddies.Frontend/ChoreBuddies.Frontend.csproj --verify-no-changes --verbosity detailed

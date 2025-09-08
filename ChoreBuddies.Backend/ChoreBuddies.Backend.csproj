@@ -40,6 +40,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ChoreBuddies.Backend.ServiceDefaults\ChoreBuddies.Backend.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>
-
 </Project>

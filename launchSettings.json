@@ -4,16 +4,18 @@
       "commandName": "DockerCompose",
       "commandVersion": "1.0",
       "serviceActions": {
-        "chorebuddies.backend": "StartDebugging",
-        "sqlserver": "StartWithoutDebugging"
+        "backend": "StartWithoutDebugging",
+        "sqlserver": "StartWithoutDebugging",
+        "frontend": "StartWithoutDebugging"
       }
     },
     "Database Only": {
       "commandName": "DockerCompose",
       "commandVersion": "1.0",
       "serviceActions": {
-        "chorebuddies.backend": "DoNotStart",
-        "sqlserver": "StartWithoutDebugging"
+        "backend": "DoNotStart",
+        "sqlserver": "StartWithoutDebugging",
+        "frontend": "DoNotStart"
       }
     }
   }

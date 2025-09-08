@@ -15,8 +15,7 @@ services:
         - sqlserver_data:/var/opt/mssql
     networks: 
         - app-network
-  chorebuddies.backend:
-    image: ${DOCKER_REGISTRY-}chorebuddiesbackend
+  backend:
     build:
       context: .
       dockerfile: ChoreBuddies.Backend/Dockerfile
@@ -29,7 +28,19 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=HobbyDB;User=sa;Password=Password123!;TrustServerCertificate=True;MultipleActiveResultSets=true;
     networks:
-      - app-network     
+      - app-network   
+  frontend:
+    build:
+      context: .
+      dockerfile: ChoreBuddies.Frontend/Dockerfile
+    ports:
+      - "5001:8080"
+    depends_on:
+      - backend
+    environment: 
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - app-network  
 networks:
   app-network:
     driver: bridge
