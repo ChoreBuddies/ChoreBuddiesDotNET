@@ -2,69 +2,68 @@
 using ChoreBuddies.Backend.Domain;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ChoreBuddies.Backend.Features.Households
+namespace ChoreBuddies.Backend.Features.Households;
+
+[ApiController]
+[Route("api/household")]
+public class HouseholdController(IHouseholdService service, IMapper mapper) : Controller
 {
-    [ApiController]
-    [Route("api/household")]
-    public class HouseholdController(IHouseholdService service, IMapper mapper) : Controller
+    private readonly IHouseholdService _service = service;
+    private readonly IMapper _mapper = mapper;
+    // Create
+    [HttpPost("create")]
+    public async Task<IActionResult> CreateHousehold([FromBody] CreateHouseholdDto createHouseholdDto)
     {
-        private readonly IHouseholdService _service = service;
-        private readonly IMapper _mapper = mapper;
-        // Create
-        [HttpPost("create")]
-        public async Task<IActionResult> CreateHousehold([FromBody]CreateHouseholdDto createHouseholdDto)
+        var household = await _service.CreateHouseholdAsync(createHouseholdDto);
+        if (household != null)
         {
-            var household = await _service.CreateHouseholdAsync(createHouseholdDto);
-            if (household != null)
-            {
-                return Ok(_mapper.Map<HouseholdDto>(household));
-            }
-            else
-            {
-                return BadRequest();
-            }
+            return Ok(_mapper.Map<HouseholdDto>(household));
         }
-        // Read
-        [HttpGet("{householdId}")]
-        public async Task<IActionResult> GetUsersHousehold(int householdId)
+        else
         {
-            var household = await _service.GetUsersHouseholdAsync(householdId);
-            if (household != null)
-            {
-                return Ok(_mapper.Map<HouseholdDto>(household));
-            }
-            else
-            {
-                return BadRequest();
-            }
+            return BadRequest();
         }
-        // Update
-        [HttpPut("update/{householdId}")]
-        public async Task<IActionResult> UpdateHousehold(int householdId, [FromBody] CreateHouseholdDto createHouseholdDto)
+    }
+    // Read
+    [HttpGet("{householdId}")]
+    public async Task<IActionResult> GetUsersHousehold(int householdId)
+    {
+        var household = await _service.GetUsersHouseholdAsync(householdId);
+        if (household != null)
         {
-            var household = await _service.UpdateHouseholdAsync(householdId, createHouseholdDto);
-            if (household != null)
-            {
-                return Ok(_mapper.Map<HouseholdDto>(household));
-            }
-            else
-            {
-                return BadRequest();
-            }
+            return Ok(_mapper.Map<HouseholdDto>(household));
         }
-        // Delete
-        [HttpDelete("{householdId}")]
-        public async Task<IActionResult> DeleteHousehold(int householdId)
+        else
         {
-            var household = await _service.DeleteHouseholdAsync(householdId);
-            if (household != null)
-            {
-                return Ok(_mapper.Map<HouseholdDto>(household));
-            }
-            else 
-            { 
-                return BadRequest(); 
-            }
+            return BadRequest();
+        }
+    }
+    // Update
+    [HttpPut("update/{householdId}")]
+    public async Task<IActionResult> UpdateHousehold(int householdId, [FromBody] CreateHouseholdDto createHouseholdDto)
+    {
+        var household = await _service.UpdateHouseholdAsync(householdId, createHouseholdDto);
+        if (household != null)
+        {
+            return Ok(_mapper.Map<HouseholdDto>(household));
+        }
+        else
+        {
+            return BadRequest();
+        }
+    }
+    // Delete
+    [HttpDelete("{householdId}")]
+    public async Task<IActionResult> DeleteHousehold(int householdId)
+    {
+        var household = await _service.DeleteHouseholdAsync(householdId);
+        if (household != null)
+        {
+            return Ok(_mapper.Map<HouseholdDto>(household));
+        }
+        else
+        {
+            return BadRequest();
         }
     }
 }
