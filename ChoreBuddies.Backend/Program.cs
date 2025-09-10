@@ -1,6 +1,7 @@
 using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Chores;
 using ChoreBuddies.Backend.Features.DefaultChores;
+using ChoreBuddies.Backend.Features.Households;
 using ChoreBuddies.Backend.Features.Users;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using ChoreBuddies.Database;
@@ -56,6 +57,9 @@ public class Program
         // Default chores
         builder.Services.AddScoped<IDefaultChoreRepository, DefaultChoreRepository>();
         builder.Services.AddScoped<IDefaultChoreService, DefaultChoreService>();
+        // Household
+        builder.Services.AddScoped<IHouseholdRepository, HouseholdRepository>();
+        builder.Services.AddScoped<IHouseholdService, HouseholdService>();
         //Users
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
