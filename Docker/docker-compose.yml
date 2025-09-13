@@ -17,7 +17,7 @@ services:
         - app-network
   backend:
     build:
-      context: .
+      context: ../
       dockerfile: ChoreBuddies.Backend/Dockerfile
     ports:
       - "5000:8080"
@@ -26,17 +26,18 @@ services:
     restart: on-failure
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=HobbyDB;User=sa;Password=Password123!;TrustServerCertificate=True;MultipleActiveResultSets=true;
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=ChoreBuddiesDB;User=sa;Password=Password123!;TrustServerCertificate=True;MultipleActiveResultSets=true;
     networks:
       - app-network   
   frontend:
     build:
-      context: .
+      context: ../
       dockerfile: ChoreBuddies.Frontend/Dockerfile
     ports:
       - "5001:8080"
     depends_on:
       - backend
+    restart: on-failure
     environment: 
       - ASPNETCORE_ENVIRONMENT=Development
     networks:

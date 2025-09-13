@@ -9,6 +9,7 @@
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/swagger</DockerServiceUrl>
     <DockerServiceName>chorebuddies.backend</DockerServiceName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='NEW|AnyCPU'" />
   <ItemGroup>
     <None Include="docker-compose.yml" />
     <None Include=".dockerignore" />

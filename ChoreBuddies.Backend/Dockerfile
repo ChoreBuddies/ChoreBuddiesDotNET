@@ -1,6 +1,6 @@
-# Zobacz https://aka.ms/customizecontainer, aby dowiedzieƒá siƒô, jak dostosowaƒá kontener debugowania i jak program Visual Studio u≈ºywa tego pliku Dockerfile do kompilowania obraz√≥w w celu szybszego debugowania.
+# Zobacz https://aka.ms/customizecontainer, aby dowiedzieÊ siÍ, jak dostosowaÊ kontener debugowania i jak program Visual Studio uøywa tego pliku Dockerfile do kompilowania obrazÛw w celu szybszego debugowania.
 
-# Ten etap jest u≈ºywany podczas uruchamiania z programu VS w trybie szybkim (domy≈õlnie dla konfiguracji debugowania)
+# Ten etap jest uøywany podczas uruchamiania z programu VS w trybie szybkim (domyúlnie dla konfiguracji debugowania)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 80
@@ -11,22 +11,23 @@ RUN apt-get update && apt-get install -y \
  && rm -rf /var/lib/apt/lists/*
 
 
-# Ten etap s≈Çu≈ºy do kompilowania projektu us≈Çugi
+# Ten etap s≥uøy do kompilowania projektu us≥ugi
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Development
 WORKDIR /src
 COPY ["ChoreBuddies.Backend/ChoreBuddies.Backend.csproj", "ChoreBuddies.Backend/"]
-RUN dotnet restore "./ChoreBuddies.Backend/ChoreBuddies.Backend.csproj"
+COPY ["Shared/Shared.csproj", "Shared/"]
+RUN dotnet restore "ChoreBuddies.Backend/ChoreBuddies.Backend.csproj"
 COPY . .
 WORKDIR "/src/ChoreBuddies.Backend"
-RUN dotnet build "./ChoreBuddies.Backend.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "ChoreBuddies.Backend.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# Ten etap s≈Çu≈ºy do publikowania projektu us≈Çugi do skopiowania do etapu ko≈Ñcowego
+# Ten etap s≥uøy do publikowania projektu us≥ugi do skopiowania do etapu koÒcowego
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Development
-RUN dotnet publish "./ChoreBuddies.Backend.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "ChoreBuddies.Backend.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-# Ten etap jest u≈ºywany w ≈õrodowisku produkcyjnym lub w przypadku uruchamiania z programu VS w trybie regularnym (domy≈õlnie, gdy nie jest u≈ºywana konfiguracja debugowania)
+# Ten etap jest uøywany w úrodowisku produkcyjnym lub w przypadku uruchamiania z programu VS w trybie regularnym (domyúlnie, gdy nie jest uøywana konfiguracja debugowania)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
