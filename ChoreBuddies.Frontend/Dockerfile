@@ -1,22 +1,31 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-WORKDIR /app
-EXPOSE 80
-RUN apt-get update && apt-get install -y curl iputils-ping net-tools
-
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-ARG BUILD_CONFIGURATION=Development
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
+
+# Copy project files
 COPY ["ChoreBuddies.Frontend/ChoreBuddies.Frontend.csproj", "ChoreBuddies.Frontend/"]
-RUN dotnet restore "./ChoreBuddies.Frontend/ChoreBuddies.Frontend.csproj"
+COPY ["Shared/Shared.csproj", "Shared/"]
+RUN dotnet restore "ChoreBuddies.Frontend/ChoreBuddies.Frontend.csproj"
+
+# Copy everything else and build
 COPY . .
 WORKDIR "/src/ChoreBuddies.Frontend"
-RUN dotnet build "ChoreBuddies.Frontend.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet publish -c Release -o /app/publish
 
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Development
-RUN dotnet publish "ChoreBuddies.Frontend.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+# Runtime stage - use a lightweight web server
+FROM nginx:alpine AS final
+WORKDIR /usr/share/nginx/html
 
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "ChoreBuddies.Frontend.dll"]
+# Remove default nginx static files
+RUN rm -rf ./*
+
+# Copy published Blazor WASM files
+COPY --from=build /app/publish/wwwroot /usr/share/nginx/html
+
+# Copy nginx configuration (optional but recommended for Blazor WASM)
+COPY Docker/nginx.conf /etc/nginx/nginx.conf
+
+# Expose port 80
+EXPOSE 80
+
+# Nginx will start automatically with the base image
