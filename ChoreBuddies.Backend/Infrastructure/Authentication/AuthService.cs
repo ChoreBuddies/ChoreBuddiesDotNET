@@ -7,15 +7,16 @@ namespace ChoreBuddies.Backend.Infrastructure.Authentication;
 
 public interface IAuthService
 {
-    public Task RegisterUserAsync(RegisterRequestDto registerRequest);
-    public Task<AuthResultDto> LoginUserAsync(LoginRequestDto loginRequest);
+    public Task<AuthResponseDto> RegisterUserAsync(RegisterRequestDto registerRequest);
+    public Task<AuthResponseDto> LoginUserAsync(LoginRequestDto loginRequest);
 }
 
-public class AuthService(UserManager<AppUser> userManager) : IAuthService
+public class AuthService(UserManager<AppUser> userManager, ITokenService tokenService) : IAuthService
 {
     private readonly UserManager<AppUser> _userManager = userManager;
+    private readonly ITokenService _tokenService = tokenService;
 
-    public async Task<AuthResultDto> LoginUserAsync(LoginRequestDto loginRequest)
+    public async Task<AuthResponseDto> LoginUserAsync(LoginRequestDto loginRequest)
     {
         var user = await _userManager.FindByEmailAsync(loginRequest.Email);
 
@@ -24,26 +25,18 @@ public class AuthService(UserManager<AppUser> userManager) : IAuthService
             throw new LoginFailedException(loginRequest.Email);
         }
 
-        //var (jwtToken, expiresAt) = _tokenGenerator.GenerateToken(user);
-        //var refreshToken = _tokenGenerator.GenerateRefreshToken();
+        var accessToken = await _tokenService.CreateAccessTokenAsync(user);
+        var refreshToken = _tokenService.CreateRefreshToken();
 
-        //var refreshTokenExpiration = DateTime.UtcNow.AddDays(7); // TIME PROVIDER and CONST
+        // TODO: Save the refreshToken to the database associated with the user
+        // user.RefreshToken = refreshToken;
+        // user.RefreshTokenExpiry = DateTime.Now.AddDays(7);
+        // await _userManager.UpdateAsync(user);
 
-        //user.RefreshToken = refreshToken;
-        //user.RefreshTokenExpiresAt = refreshTokenExpiration;
-
-        //await _userManager.UpdateAsync(user);
-
-        //return new AuthResultDto(
-        //    jwtToken,
-        //    expiresAt,
-        //    refreshToken,
-        //    refreshTokenExpiration
-        //    );
-        return new AuthResultDto("", DateTime.Now, "", DateTime.Now);
+        return new AuthResponseDto(accessToken, refreshToken);
     }
 
-    public async Task RegisterUserAsync(RegisterRequestDto registerRequest)
+    public async Task<AuthResponseDto> RegisterUserAsync(RegisterRequestDto registerRequest)
     {
         var userExists = await _userManager.FindByEmailAsync(registerRequest.Email) != null;
         if (userExists)
@@ -62,5 +55,15 @@ public class AuthService(UserManager<AppUser> userManager) : IAuthService
         {
             throw new RegistrationFailedException(result.Errors.Select(err => err.Description));
         }
+
+        var accessToken = await _tokenService.CreateAccessTokenAsync(newUser);
+        var refreshToken = _tokenService.CreateRefreshToken();
+
+        // TODO: Save the refreshToken to the database associated with the user
+        // user.RefreshToken = refreshToken;
+        // user.RefreshTokenExpiry = DateTime.Now.AddDays(7);
+        // await _userManager.UpdateAsync(user);
+
+        return new AuthResponseDto(accessToken, refreshToken);
     }
 }
