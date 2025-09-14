@@ -9,6 +9,7 @@ public interface IAuthService
 {
     public Task<AuthResponseDto> RegisterUserAsync(RegisterRequestDto registerRequest);
     public Task<AuthResponseDto> LoginUserAsync(LoginRequestDto loginRequest);
+    public Task<bool> RevokeRefreshTokenAsync(int userID);
 }
 
 public class AuthService(UserManager<AppUser> userManager, ITokenService tokenService, IConfiguration config, TimeProvider timeProvider) : IAuthService
@@ -65,5 +66,18 @@ public class AuthService(UserManager<AppUser> userManager, ITokenService tokenSe
         await _userManager.UpdateAsync(newUser);
 
         return new AuthResponseDto(accessToken, refreshToken);
+    }
+
+    public async Task<bool> RevokeRefreshTokenAsync(int userID)
+    {
+        var user = await _userManager.FindByIdAsync(userID.ToString());
+        if (user == null) return false;
+
+        // Revoke the refresh token by setting it to null and expiring it
+        user.RefreshToken = null;
+        user.RefreshTokenExpiry = _timeProvider.GetUtcNow().DateTime;
+        await _userManager.UpdateAsync(user);
+
+        return true;
     }
 }

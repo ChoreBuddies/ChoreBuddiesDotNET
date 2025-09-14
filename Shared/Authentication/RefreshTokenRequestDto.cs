@@ -1,2 +1,2 @@
 ﻿namespace Shared.Authentication;
-public record RefreshTokenRequestDto(string AccesToken, string RefreshToken);
+public record RefreshTokenRequestDto(string AccessToken, string RefreshToken);
