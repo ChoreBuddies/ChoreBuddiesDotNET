@@ -1,4 +1,11 @@
 ﻿@inherits LayoutComponentBase
+    
+@* Required by MudBlazor *@
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
 <div class="page">
     <div class="sidebar">
         <NavMenu />
@@ -13,14 +20,4 @@
             @Body
         </article>
     </main>
-    
-    @* Required *@
-    <MudThemeProvider />
-    <MudPopoverProvider />
-
-    @* Needed for dialogs *@
-    <MudDialogProvider />
-
-    @* Needed for snackbars *@
-    <MudSnackbarProvider />
 </div>
