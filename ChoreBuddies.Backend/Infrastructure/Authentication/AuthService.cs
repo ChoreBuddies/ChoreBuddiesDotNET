@@ -12,11 +12,10 @@ public interface IAuthService
     public Task<bool> RevokeRefreshTokenAsync(int userID);
 }
 
-public class AuthService(UserManager<AppUser> userManager, ITokenService tokenService, IConfiguration config, TimeProvider timeProvider) : IAuthService
+public class AuthService(UserManager<AppUser> userManager, ITokenService tokenService, TimeProvider timeProvider) : IAuthService
 {
     private readonly UserManager<AppUser> _userManager = userManager;
     private readonly ITokenService _tokenService = tokenService;
-    private readonly IConfiguration _config = config;
     private readonly TimeProvider _timeProvider = timeProvider;
 
     public async Task<AuthResponseDto> LoginUserAsync(LoginRequestDto loginRequest)
@@ -32,7 +31,7 @@ public class AuthService(UserManager<AppUser> userManager, ITokenService tokenSe
         var refreshToken = _tokenService.CreateRefreshToken();
 
         user.RefreshToken = refreshToken;
-        user.RefreshTokenExpiry = _timeProvider.GetUtcNow().DateTime.AddMinutes(Convert.ToDouble(_config["JwtSettings:AccessTokenExpirationMinutes"])); //TODO cleanup in token service too
+        user.RefreshTokenExpiry = _tokenService.GetRefreshTokenExpiration();
         await _userManager.UpdateAsync(user);
 
         return new AuthResponseDto(accessToken, refreshToken);
@@ -62,7 +61,7 @@ public class AuthService(UserManager<AppUser> userManager, ITokenService tokenSe
         var refreshToken = _tokenService.CreateRefreshToken();
 
         newUser.RefreshToken = refreshToken;
-        newUser.RefreshTokenExpiry = _timeProvider.GetUtcNow().DateTime.AddMinutes(Convert.ToDouble(_config["JwtSettings:AccessTokenExpirationMinutes"]));
+        newUser.RefreshTokenExpiry = _tokenService.GetRefreshTokenExpiration();
         await _userManager.UpdateAsync(newUser);
 
         return new AuthResponseDto(accessToken, refreshToken);

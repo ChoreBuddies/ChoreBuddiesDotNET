@@ -10,9 +10,11 @@ using System.Text;
 namespace ChoreBuddies.Backend.Infrastructure.Authentication;
 public interface ITokenService
 {
-    Task<string> CreateAccessTokenAsync(AppUser user);
-    string CreateRefreshToken();
-    Task<AuthResponseDto> RefreshAccessToken(string accessToken, string refreshToken);
+    public Task<string> CreateAccessTokenAsync(AppUser user);
+    public string CreateRefreshToken();
+    public Task<AuthResponseDto> RefreshAccessToken(string accessToken, string refreshToken);
+    public DateTime GetAccessTokenExpiration();
+    public DateTime GetRefreshTokenExpiration();
 }
 
 public class TokenService : ITokenService
@@ -53,7 +55,7 @@ public class TokenService : ITokenService
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = _timeProvider.GetUtcNow().DateTime.AddMinutes(Convert.ToDouble(_config["JwtSettings:AccessTokenExpirationMinutes"])),
+            Expires = GetAccessTokenExpiration(),
             Issuer = _config["JwtSettings:Issuer"],
             Audience = _config["JwtSettings:Audience"],
             SigningCredentials = creds
@@ -103,11 +105,17 @@ public class TokenService : ITokenService
 
         // 5. Update user with new refresh token (refresh token rotation)
         user.RefreshToken = newRefreshToken;
-        user.RefreshTokenExpiry = _timeProvider.GetUtcNow().DateTime.AddDays(Convert.ToDouble(_config["JwtSettings:RefreshTokenExpirationDays"]));
+        user.RefreshTokenExpiry = GetRefreshTokenExpiration();
         await _userManager.UpdateAsync(user);
 
         return new AuthResponseDto(newAccessToken, newRefreshToken);
     }
+
+    public DateTime GetAccessTokenExpiration() =>
+        _timeProvider.GetUtcNow().DateTime.AddMinutes(Convert.ToDouble(_config["JwtSettings:AccessTokenExpirationMinutes"]));
+
+    public DateTime GetRefreshTokenExpiration() =>
+        _timeProvider.GetUtcNow().DateTime.AddDays(Convert.ToDouble(_config["JwtSettings:RefreshTokenExpirationDays"]));
 
     private ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
     {
