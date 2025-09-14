@@ -1,3 +1,6 @@
+using Blazored.LocalStorage;
+using ChoreBuddies.Frontend.Features.Authentication;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
@@ -10,8 +13,26 @@ public class Program
         var builder = WebAssemblyHostBuilder.CreateDefault(args);
         builder.RootComponents.Add<App>("#app");
         builder.RootComponents.Add<HeadOutlet>("head::after");
+        builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
 
-        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:32769") });
+        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7014") });
+
+        builder.Services.AddBlazoredLocalStorage();
+
+        // Authorization
+        builder.Services.AddScoped<JwtAuthStateProvider>();
+        builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<JwtAuthStateProvider>());
+        builder.Services.AddScoped<IAuthService, AuthService>();
+
+        // Register the custom HttpMessageHandler and configure the HttpClient
+        builder.Services.AddTransient<AuthorizedHttpClient>();
+        builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("AuthorizedClient"));
+        builder.Services.AddHttpClient("AuthorizedClient", client =>
+        {
+            client.BaseAddress = new Uri("https://localhost:7014");
+        }).AddHttpMessageHandler<AuthorizedHttpClient>(); // This adds the auth header to all requests made by this client
+
+        builder.Services.AddAuthorizationCore();
 
         var app = builder.Build();
 

@@ -5,9 +5,11 @@ using ChoreBuddies.Backend.Features.Households;
 using ChoreBuddies.Backend.Features.Users;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using ChoreBuddies.Database;
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace ChoreBuddies.Backend;
 
@@ -17,6 +19,7 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
         builder.AddServiceDefaults();
+        builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
 
         builder.Services.AddCors(options =>
         {
@@ -45,6 +48,32 @@ public class Program
             })
             .AddEntityFrameworkStores<ChoreBuddiesDbContext>()
             .AddDefaultTokenProviders();
+        builder.Services.AddScoped<ITokenService, TokenService>();
+
+        // Configure JWT Authentication
+        var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+        var secretKey = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]);
+
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            //options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(secretKey),
+                ValidateIssuer = true,
+                ValidIssuer = jwtSettings["Issuer"],
+                ValidateAudience = true,
+                ValidAudience = jwtSettings["Audience"],
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero // Optional: reduce clock skew for exact expiration validation
+            };
+        });
 
         //builder.Services.AddMvc();
         builder.Services.AddSwaggerGen();
