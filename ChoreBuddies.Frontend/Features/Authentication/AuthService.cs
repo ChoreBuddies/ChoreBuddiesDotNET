@@ -49,4 +49,29 @@ public class AuthService : IAuthService
     {
         throw new NotImplementedException();
     }
+
+    Task<IEnumerable<Claim>> IAuthService.GetClaims()
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<string> IAuthService.GetToken()
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<string> IAuthService.GetUserEmail()
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<string> IAuthService.GetUserId()
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<bool> IAuthService.IsAuthenticated()
+    {
+        throw new NotImplementedException();
+    }
 }
