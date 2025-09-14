@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace ChoreBuddies.Backend;
+namespace ChoreBuddies.Backend.Features.Home;
 
 [ApiController]
-[Route("api/{controller}")]
+[Route("api/[controller]")]
 public class HomeController : Controller
 {
     [HttpGet]

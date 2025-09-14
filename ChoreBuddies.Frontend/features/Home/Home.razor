@@ -17,7 +17,7 @@ else
     HomeObject? homeObject;
     protected override async Task OnInitializedAsync()
     {
-        homeObject = await Http.GetFromJsonAsync<HomeObject>("api/Home");
+        homeObject = await Http.GetFromJsonAsync<HomeObject>("https://localhost:7014/api/home");
     }
     protected class HomeObject
     {
