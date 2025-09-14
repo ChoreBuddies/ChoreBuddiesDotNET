@@ -11,11 +11,9 @@ public interface IAuthService
 {
     public Task<string?> GetTokenAsync();
     public Task<string?> GetRefreshTokenAsync();
-
     public Task<bool> RefreshTokenAsync();
     public Task<IEnumerable<Claim>> GetClaimsAsync();
     public Task<string> GetClaimValueAsync(string claimType);
-
     public Task<bool> IsAuthenticatedAsync();
     public Task LoginAsync(string token, string refreshToken);
     public Task LogoutAsync();
