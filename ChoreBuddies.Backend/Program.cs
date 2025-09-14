@@ -19,6 +19,7 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
         builder.AddServiceDefaults();
+        builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
 
         builder.Services.AddCors(options =>
         {

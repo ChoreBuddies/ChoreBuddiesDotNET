@@ -1,6 +1,7 @@
 ﻿using ChoreBuddies.Backend.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using Shared.Authentication;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -11,7 +12,7 @@ public interface ITokenService
 {
     Task<string> CreateAccessTokenAsync(AppUser user);
     string CreateRefreshToken();
-    Task<string> RefreshAccessToken(string accessToken, string refreshToken);
+    Task<AuthResponseDto> RefreshAccessToken(string accessToken, string refreshToken);
 }
 
 public class TokenService : ITokenService
@@ -19,13 +20,15 @@ public class TokenService : ITokenService
     private readonly IConfiguration _config;
     private readonly UserManager<AppUser> _userManager;
     private readonly SymmetricSecurityKey _key;
+    private readonly TimeProvider _timeProvider;
 
-    public TokenService(IConfiguration config, UserManager<AppUser> userManager)
+    public TokenService(IConfiguration config, UserManager<AppUser> userManager, TimeProvider timeProvider)
     {
         _config = config;
         _userManager = userManager;
         // Get the secret key and create a signing credential
         _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:SecretKey"]));
+        _timeProvider = timeProvider;
     }
 
     public async Task<string> CreateAccessTokenAsync(AppUser user)
@@ -50,7 +53,7 @@ public class TokenService : ITokenService
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.Now.AddMinutes(Convert.ToDouble(_config["JwtSettings:AccessTokenExpirationMinutes"])),
+            Expires = _timeProvider.GetUtcNow().DateTime.AddMinutes(Convert.ToDouble(_config["JwtSettings:AccessTokenExpirationMinutes"])),
             Issuer = _config["JwtSettings:Issuer"],
             Audience = _config["JwtSettings:Audience"],
             SigningCredentials = creds
@@ -71,17 +74,71 @@ public class TokenService : ITokenService
         return Convert.ToBase64String(randomNumber);
     }
 
-    public async Task<string> RefreshAccessToken(string expiredAccessToken, string refreshToken)
+    public async Task<AuthResponseDto> RefreshAccessToken(string expiredAccessToken, string refreshToken)
     {
-        // This is a simplified version. You would need to:
-        // 1. Validate the expired token to get the user's ID (ignoring expiration)
-        // 2. Retrieve the user from the database
-        // 3. Verify the stored refresh token for that user matches the provided one and hasn't expired
-        // 4. If valid, create a new access token and return it
-        // 5. Optionally, issue a new refresh token (refresh token rotation)
+        // 1. Get principal from expired token (ignore validation lifetime)
+        var principal = GetPrincipalFromExpiredToken(expiredAccessToken);
+        if (principal == null)
+        {
+            throw new SecurityTokenException("Invalid token");
+        }
 
-        throw new NotImplementedException("Implement refresh token validation logic here.");
-        // For a full implementation, you need a way to store refresh tokens (e.g., in your AppIdentityDbContext).
-        await _userManager.GetRolesAsync(new AppUser());
+        // 2. Get user ID from claims (using NameId claim which contains the user's ID)
+        var userIdClaim = principal.FindFirst(JwtRegisteredClaimNames.NameId);
+        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
+        {
+            throw new SecurityTokenException("Invalid token claims");
+        }
+
+        // 3. Find user in database
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null || user.RefreshToken != refreshToken || user.RefreshTokenExpiry <= _timeProvider.GetUtcNow().DateTime)
+        {
+            throw new SecurityTokenException("Invalid refresh token");
+        }
+
+        // 4. Create new tokens
+        var newAccessToken = await CreateAccessTokenAsync(user);
+        var newRefreshToken = CreateRefreshToken();
+
+        // 5. Update user with new refresh token (refresh token rotation)
+        user.RefreshToken = newRefreshToken;
+        user.RefreshTokenExpiry = _timeProvider.GetUtcNow().DateTime.AddDays(Convert.ToDouble(_config["JwtSettings:RefreshTokenExpirationDays"]));
+        await _userManager.UpdateAsync(user);
+
+        return new AuthResponseDto(newAccessToken, newRefreshToken);
+    }
+
+    private ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
+    {
+        var tokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateAudience = true,
+            ValidAudience = _config["JwtSettings:Audience"],
+            ValidateIssuer = true,
+            ValidIssuer = _config["JwtSettings:Issuer"],
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = _key,
+            ValidateLifetime = false // IMPORTANT: we want to validate the token even if it's expired
+        };
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        try
+        {
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);
+
+            // Additional validation: check if the token uses the expected algorithm
+            if (securityToken is not JwtSecurityToken jwtSecurityToken ||
+                !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha512Signature, StringComparison.InvariantCultureIgnoreCase))
+            {
+                throw new SecurityTokenException("Invalid token");
+            }
+
+            return principal;
+        }
+        catch
+        {
+            return null;
+        }
     }
 }
