@@ -1,5 +1,5 @@
 ﻿using ChoreBuddies.Backend.Domain;
-using ChoreBuddies.Database;
+using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChoreBuddies.Backend.Features.Households;

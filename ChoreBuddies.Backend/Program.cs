@@ -4,7 +4,7 @@ using ChoreBuddies.Backend.Features.DefaultChores;
 using ChoreBuddies.Backend.Features.Households;
 using ChoreBuddies.Backend.Features.Users;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
-using ChoreBuddies.Database;
+using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
