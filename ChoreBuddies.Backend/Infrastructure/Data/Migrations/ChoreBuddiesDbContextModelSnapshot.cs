@@ -146,7 +146,7 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
 
                     b.HasIndex("HouseholdId");
 
-                    b.ToTable("Chores");
+                    b.ToTable("Chores", (string)null);
                 });
 
             modelBuilder.Entity("ChoreBuddies.Backend.Domain.DefaultChore", b =>
@@ -184,7 +184,7 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DefaultChores");
+                    b.ToTable("DefaultChores", (string)null);
                 });
 
             modelBuilder.Entity("ChoreBuddies.Backend.Domain.Household", b =>
@@ -212,7 +212,7 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Households");
+                    b.ToTable("Households", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
