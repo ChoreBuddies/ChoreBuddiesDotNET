@@ -1,0 +1,11 @@
+﻿
+<MudContainer Class="d-flex align-center justify-center" Style="height: 100vh;">
+        <MudText Typo="Typo.h4" Align="Align.Center" Color="Color.Surface">
+            @Message
+        </MudText>
+</MudContainer>
+
+@code {
+    [Parameter]
+    public string Message { get; set; } = "Welcome to ChoreBuddies!";
+}

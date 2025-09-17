@@ -11,9 +11,13 @@ a, .btn-link {
 }
 
 .btn-primary {
-    color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
+    color: white;
+    background-color: #5B6FE6;
+    text-transform: none;
+    border-top-left-radius: 28px;
+    border-top-right-radius: 28px;
+    border-bottom-left-radius: 28px;
+    border-bottom-right-radius: 28px;
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
@@ -101,3 +105,31 @@ a, .btn-link {
 code {
     color: #c02d76;
 }
+
+
+.mud-drawer-sidebar {
+    background-color: #F8F9FA !important;
+}
+
+.chat-messages {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+    /* Custom scrollbar for chat */
+    .chat-messages::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .chat-messages::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 3px;
+    }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
