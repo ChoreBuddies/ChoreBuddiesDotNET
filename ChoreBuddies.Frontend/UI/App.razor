@@ -12,7 +12,7 @@
                     }
                     else
                     {
-                        <p role="alert">You are not authorized to access this resource.</p>
+                        <CenteredMessage Message="You are not authorized to access this resource."/>
                     }
                 </NotAuthorized>
             </AuthorizeRouteView>
@@ -21,7 +21,7 @@
         <NotFound>
             <PageTitle>Not found</PageTitle>
             <LayoutView Layout="@typeof(MainLayout)">
-                <p role="alert">Sorry, there's nothing at this address.</p>
+                <CenteredMessage Message="Sorry, there's nothing at this address." />
             </LayoutView>
         </NotFound>
     </Router>
