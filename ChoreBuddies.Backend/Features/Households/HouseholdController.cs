@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
-using ChoreBuddies.Backend.Domain;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChoreBuddies.Backend.Features.Households;
 
 [ApiController]
-[Route("api/household")]
+[Route("api/v1/household")]
 public class HouseholdController(IHouseholdService service, IMapper mapper) : Controller
 {
     private readonly IHouseholdService _service = service;
