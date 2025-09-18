@@ -4,7 +4,7 @@ using Shared.Chores;
 namespace ChoreBuddies.Backend.Features.Chores;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 public class ChoresController : ControllerBase
 {
     private readonly IChoresService _tasksService;
