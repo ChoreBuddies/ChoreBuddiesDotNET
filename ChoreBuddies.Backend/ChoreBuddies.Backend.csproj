@@ -43,4 +43,10 @@
     <ProjectReference Include="..\ChoreBuddies.Backend.ServiceDefaults\ChoreBuddies.Backend.ServiceDefaults.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Infrastructure\Data\Csv\default_chores.csv">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

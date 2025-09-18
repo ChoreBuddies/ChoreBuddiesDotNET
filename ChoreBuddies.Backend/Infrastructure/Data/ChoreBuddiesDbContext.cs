@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace ChoreBuddies.Database;
+namespace ChoreBuddies.Backend.Infrastructure.Data;
 
 public class ChoreBuddiesDbContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
 {
