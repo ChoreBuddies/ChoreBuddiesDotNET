@@ -5,7 +5,7 @@ using Shared.DefalutChores;
 namespace ChoreBuddies.Backend.Features.DefaultChores;
 
 [ApiController]
-[Route("api/defaultChores")]
+[Route("api/v1/defaultChores")]
 public class DefaultChoreController(IDefaultChoreService service, IMapper mapper) : Controller
 {
     private IDefaultChoreService _service = service;
