@@ -37,12 +37,12 @@ public class TokenService : ITokenService
     {
         // Create claims for the token
         var claims = new List<Claim>
-            {
-                new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName ?? ""),
-                new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName ?? ""),
-            };
+                {
+                    new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
+                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                    new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName ?? ""),
+                    new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName ?? ""),
+                };
 
         // Add user roles to the claims
         var roles = await _userManager.GetRolesAsync(user);
@@ -112,7 +112,9 @@ public class TokenService : ITokenService
     }
 
     public DateTime GetAccessTokenExpiration() =>
-        _timeProvider.GetUtcNow().DateTime.AddMinutes(Convert.ToDouble(_config["JwtSettings:AccessTokenExpirationMinutes"]));
+        _timeProvider.GetUtcNow().UtcDateTime.AddMinutes(
+            Convert.ToDouble(_config["JwtSettings:AccessTokenExpirationMinutes"])
+        );
 
     public DateTime GetRefreshTokenExpiration() =>
         _timeProvider.GetUtcNow().DateTime.AddDays(Convert.ToDouble(_config["JwtSettings:RefreshTokenExpirationDays"]));

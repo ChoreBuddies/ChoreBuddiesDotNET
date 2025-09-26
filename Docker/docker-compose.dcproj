@@ -10,6 +10,7 @@
     <DockerServiceName>chorebuddies.backend</DockerServiceName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='NEW|AnyCPU'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='test|AnyCPU'" />
   <ItemGroup>
     <None Include="docker-compose.yml" />
     <None Include=".dockerignore" />
