@@ -89,6 +89,7 @@ public class Program
         // Household
         builder.Services.AddScoped<IHouseholdRepository, HouseholdRepository>();
         builder.Services.AddScoped<IHouseholdService, HouseholdService>();
+        builder.Services.AddScoped<IInvitationCodeService, InvitationCodeService>();
         //Users
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();

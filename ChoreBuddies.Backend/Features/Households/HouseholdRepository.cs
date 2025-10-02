@@ -11,8 +11,10 @@ public interface IHouseholdRepository
     public Task<Household?> CreateHouseholdAsync(Household household);
     // Read
     public Task<Household?> GetHouseholdByIdAsync(int id);
+    public Task<Household?> GetHouseholdByInvitationCodeAsync(string invitationCode);
     // Update
     public Task<Household?> UpdateHouseholdAsync(Household household, string? name = null, string? description = null);
+    public Task<Household?> JoinHouseholdAsync(Household household, AppUser user);
     // Delete
     public Task<Household?> DeleteHouseholdAsync(Household household);
 }
@@ -38,6 +40,14 @@ public class HouseholdRepository(ChoreBuddiesDbContext dbContext) : IHouseholdRe
             return null;
         }
     }
+    public async Task<Household?> GetHouseholdByInvitationCodeAsync(string invitationCode)
+    {
+        if (string.IsNullOrWhiteSpace(invitationCode))
+            return null;
+
+        return await _dbContext.Households
+            .FirstOrDefaultAsync(h => h.InvitationCode == invitationCode);
+    }
 
     public async Task<Household?> UpdateHouseholdAsync(Household household, string? name = null, string? description = null)
     {
@@ -60,11 +70,24 @@ public class HouseholdRepository(ChoreBuddiesDbContext dbContext) : IHouseholdRe
         return household;
     }
 
+    public async Task<Household?> JoinHouseholdAsync(Household household, AppUser user)
+    {
+        try
+        {
+            household.Users.Add(user);
+        }
+        catch
+        {
+            throw new InvalidOperationException("User already belongs to the household");
+        }
+        await _dbContext.SaveChangesAsync();
+        return household;
+    }
+
     public async Task<Household?> DeleteHouseholdAsync(Household household)
     {
         _dbContext.Households.Remove(household);
         await _dbContext.SaveChangesAsync();
         return household;
     }
-
 }
