@@ -23,11 +23,12 @@ public class Program
 
         builder.Services.AddCors(options =>
         {
-            options.AddDefaultPolicy(builder =>
+            options.AddPolicy("AllowAll", policy =>
             {
-                builder.AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader();
+                policy
+                    .AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
             });
         });
 
@@ -128,11 +129,7 @@ public class Program
 
         app.UseRouting();
 
-        app.UseCors(policy => policy
-            .AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-        );
+        app.UseCors("AllowAll");
 
         app.UseAuthentication();
         app.UseAuthorization();
