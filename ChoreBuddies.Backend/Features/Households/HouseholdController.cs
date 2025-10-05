@@ -54,10 +54,10 @@ public class HouseholdController(IHouseholdService service, IMapper mapper) : Co
     }
 
     [HttpPut("join")]
-    public async Task<IActionResult> JoinHousehold([FromBody] string invitationCode)
+    public async Task<IActionResult> JoinHousehold([FromBody] JoinHouseholdDto joinHouseholdDto)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-        var household = await _service.JoinHouseholdAsync(invitationCode, userId);
+        var household = await _service.JoinHouseholdAsync(joinHouseholdDto.InvitationCode, userId);
         if (household != null)
         {
             return Ok(_mapper.Map<HouseholdDto>(household));
