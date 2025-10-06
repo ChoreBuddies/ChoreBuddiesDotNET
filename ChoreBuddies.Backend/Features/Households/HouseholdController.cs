@@ -56,7 +56,12 @@ public class HouseholdController(IHouseholdService service, IMapper mapper) : Co
     [HttpPut("join")]
     public async Task<IActionResult> JoinHousehold([FromBody] JoinHouseholdDto joinHouseholdDto)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(userIdClaim, out var userId))
+        {
+            throw new InvalidOperationException("Invalid user identifier.");
+        }
+
         var household = await _service.JoinHouseholdAsync(joinHouseholdDto.InvitationCode, userId);
         if (household != null)
         {
