@@ -36,8 +36,13 @@ public class HouseholdService(IHouseholdRepository repository, IInvitationCodeSe
     public async Task<Household?> JoinHouseholdAsync(string invitationCode, int userId)
     {
         var user = await _appUserRepository.GetUserByIdAsync(userId);
+        if (user is null)
+            throw new InvalidOperationException($"User not found for ID: {userId}");
 
         var household = await _repository.GetHouseholdByInvitationCodeAsync(invitationCode);
+        if (household is null)
+            throw new KeyNotFoundException($"No household found matching invitation code: {invitationCode}");
+
         await _repository.JoinHouseholdAsync(household, user);
         return household;
     }

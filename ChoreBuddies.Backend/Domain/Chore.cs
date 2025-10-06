@@ -10,7 +10,7 @@ public class Chore(
     DateTime dueDate,
     Status status,
     string room,
-    int rewardPointsCount)
+    int rewardPointsCount) // TODO: Add household to constructor
 {
     public string Id { get; set; } = id;
     public string Name { get; set; } = name;
@@ -24,5 +24,5 @@ public class Chore(
     public int HouseholdId { get; set; }
 
     // Navigation properties
-    public Household Household { get; set; }
+    public required Household Household { get; set; }
 }
