@@ -8,6 +8,7 @@ using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Protocols.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -53,7 +54,10 @@ public class Program
 
         // Configure JWT Authentication
         var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-        var secretKey = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]);
+        var secretKeyRaw = jwtSettings["SecretKey"];
+        if (secretKeyRaw is null)
+            throw new InvalidConfigurationException("Secret key not found");
+        var secretKey = Encoding.UTF8.GetBytes(secretKeyRaw);
 
         builder.Services.AddAuthentication(options =>
         {
@@ -90,6 +94,7 @@ public class Program
         // Household
         builder.Services.AddScoped<IHouseholdRepository, HouseholdRepository>();
         builder.Services.AddScoped<IHouseholdService, HouseholdService>();
+        builder.Services.AddScoped<IInvitationCodeService, InvitationCodeService>();
         //Users
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
