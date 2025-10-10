@@ -35,6 +35,11 @@ public class Program
             client.BaseAddress = new Uri("https://localhost:7014");
         }).AddHttpMessageHandler<AuthorizedHttpClient>(); // This adds the auth header to all requests made by this client
 
+        builder.Services.AddHttpClient("UnauthorizedClient", client =>
+        {
+            client.BaseAddress = new Uri("https://localhost:7014");
+        });
+
         builder.Services.AddAuthorizationCore();
 
         var app = builder.Build();
