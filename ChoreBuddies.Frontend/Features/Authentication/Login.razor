@@ -1,0 +1,88 @@
+﻿@page "/login"
+
+@using System.Threading
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+
+@inject NavigationManager navigationManager
+
+<AuthorizeView>
+    <Authorized>
+        @{
+            navigationManager.NavigateTo("/");
+        }
+    </Authorized>
+</AuthorizeView>
+
+<div class="row">
+    <MudContainer Style="justify-content: center" MaxWidth="MaxWidth.Small">
+
+        <MudPaper Class="pa-4">
+            <MudText Typo="Typo.h4" Align="Align.Center" Color="Color.Secondary" style="margin-bottom:16px">Login</MudText>
+            <MudForm @bind-IsValid="@success" @bind-Errors="@errors">
+                <MudTextField @ref="emailField" T="string" Label="Email" Required="true" RequiredError="Email is required!"
+                              Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})" style="margin-bottom:8px" />
+                <MudTextField @ref="passwordField" T="string" Label="Password" InputType="InputType.Password"
+                              Required="true" RequiredError="Password is required!" Style="margin-bottom:32px" />
+            </MudForm>
+            <MudText>Don’t have an account yet?  <MudLink Href="/signup">Sign up here</MudLink></MudText>
+            <div class="d-flex align-center justify-space-around pt-3">
+                <button disabled="@(!success)" Class="btn btn-primary" onclick="@SignInAction" style="padding-left: 25px; padding-right: 25px">  Login  </button>
+            </div>
+        </MudPaper>
+
+    </MudContainer>
+</div>
+@if (_showAlert)
+{
+    <MudCard Class="centered-top rounded-xl">
+        <MudAlert Class="rounded-xl" Severity="Severity.Error" ShowCloseIcon="true"
+                  CloseIconClicked="(() => CloseAlert(true))">@_alertText</MudAlert>
+    </MudCard>
+}
+
+
+@code {
+    bool success;
+    string[] errors = { };
+    MudTextField<string>? emailField;
+    MudTextField<string>? passwordField;
+
+    private bool _showAlert = false;
+    private string _alertText = "";
+
+    private async Task SignInAction()
+    {
+        if (emailField is null || passwordField is null) return;
+
+        var email = emailField.Value ?? "";
+        var password = passwordField.Value ?? "";
+        var result = await CustomAuthStateProvider.LoginAsync(email, password);
+        
+        if (!result)
+        {
+            await ShowAlert("Login failed!", 5000);
+            return;
+        }
+
+        navigationManager.NavigateTo("/");
+        StateHasChanged();
+    }
+
+    public async Task ShowAlert(string text, int delay)
+    {
+        _alertText = text;
+        _showAlert = true;
+        StateHasChanged();
+        await Task.Delay(delay);
+        CloseAlert(true);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void CloseAlert(bool value)
+    {
+        _showAlert = !value;
+    }
+}
