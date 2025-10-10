@@ -18,8 +18,6 @@ public class Program
         builder.Services.AddMudServices();
         builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
 
-        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7014") });
-
         builder.Services.AddBlazoredLocalStorage();
 
         // Authorization
@@ -30,14 +28,16 @@ public class Program
         // Register the custom HttpMessageHandler and configure the HttpClient
         builder.Services.AddTransient<AuthorizedHttpClient>();
         builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("AuthorizedClient"));
+        var apiUrl = builder.Configuration["ApiUrl"] ?? "https://localhost:7014";
         builder.Services.AddHttpClient("AuthorizedClient", client =>
         {
-            client.BaseAddress = new Uri("https://localhost:7014");
+            client.BaseAddress = new Uri(apiUrl);
         }).AddHttpMessageHandler<AuthorizedHttpClient>(); // This adds the auth header to all requests made by this client
 
+        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(apiUrl) });
         builder.Services.AddHttpClient("UnauthorizedClient", client =>
         {
-            client.BaseAddress = new Uri("https://localhost:7014");
+            client.BaseAddress = new Uri(apiUrl);
         });
 
         builder.Services.AddAuthorizationCore();
