@@ -1,8 +1,10 @@
-﻿@using ChoreBuddies.Frontend.UI.Components
+﻿@using ChoreBuddies.Frontend.Features.Authentication
+@using ChoreBuddies.Frontend.UI.Components
 @using Microsoft.AspNetCore.Components.Authorization
 @inherits LayoutComponentBase
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IAuthApiService authApiService
 
 @* Required by MudBlazor *@
 <MudThemeProvider Theme="_theme" />
@@ -14,7 +16,7 @@
     <Authorized>
         <!-- Layout for authenticated users -->
         <MudLayout>
-            <MudAppBar Elevation="1" Color="Color.Surface">
+            <MudAppBar Elevation="1" Color="Color.Transparent">
                 <AppTitleLogo />
                 <MudSpacer />
 
@@ -27,11 +29,11 @@
                     <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/settings"))">Settings</MudButton>
                 </MudHidden>
 
-                <MudIconButton Icon="@Icons.Material.Filled.Notifications" Color="Color.Inherit" />
-                <MudMenu Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight">
+                <MudIconButton Icon="@Icons.Material.Filled.Notifications" />
+                <MudMenu Icon="@Icons.Material.Filled.AccountCircle" AnchorOrigin="Origin.BottomRight">
                     <MudMenuItem OnClick="@(() => Navigation.NavigateTo("/profile"))">Profile</MudMenuItem>
                     <MudMenuItem OnClick="@(() => Navigation.NavigateTo("/settings"))">Settings</MudMenuItem>
-                    <MudDivider />
+                    <MudDivider Style="border-color: black"/>
                     <MudMenuItem OnClick="@Logout">Logout</MudMenuItem>
                 </MudMenu>
             </MudAppBar>
@@ -257,10 +259,10 @@
         }
     }
 
-    private void Logout()
+    private async void Logout()
     {
-        // Add your logout logic here
-        Navigation.NavigateTo("/logout");
+        await authApiService.RevokeAsync();
+        Navigation.NavigateTo("/");
     }
 
     private class ChatMessage
@@ -275,5 +277,9 @@
     .app-bar {
         color: #000;
         padding: 20px;
+    }
+
+    .mud-icon-root.mud-svg-icon {
+        fill: #000;
     }
 </style>
