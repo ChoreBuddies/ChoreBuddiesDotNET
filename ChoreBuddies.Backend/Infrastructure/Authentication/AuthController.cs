@@ -21,10 +21,10 @@ public class AuthController(IAuthService authService, ITokenService tokenService
         return Ok(result);
     }
 
-    [HttpPost("register")]
+    [HttpPost("signup")]
     public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterRequestDto request)
     {
-        var result = await _authService.RegisterUserAsync(request);
+        var result = await _authService.SignupUserAsync(request);
         return Ok(result);
     }
 
