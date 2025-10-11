@@ -1,6 +1,7 @@
 using Blazored.LocalStorage;
 using ChoreBuddies.Frontend.Features.Authentication;
 using ChoreBuddies.Frontend.UI;
+using ChoreBuddies.Frontend.Utilities;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -38,6 +39,7 @@ public class Program
         {
             client.BaseAddress = new Uri(apiUrl);
         });
+        builder.Services.AddScoped<HttpClientUtils>();
 
         builder.Services.AddAuthorizationCore();
 
