@@ -17,6 +17,15 @@
         "sqlserver": "StartWithoutDebugging",
         "frontend": "DoNotStart"
       }
+    },
+    "BackendPlusDB": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "serviceActions": {
+        "backend": "StartDebugging",
+        "frontend": "DoNotStart",
+        "sqlserver": "StartWithoutDebugging"
+      }
     }
   }
 }

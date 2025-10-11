@@ -29,8 +29,8 @@ public class AuthService(HttpClient httpClient, ILocalStorageService localStorag
 
     public async Task LoginAsync(string token, string refreshToken)
     {
-        await _localStorage.SetItemAsStringAsync("authToken", token); //TODO create const class
-        await _localStorage.SetItemAsStringAsync("refreshToken", refreshToken);
+        await _localStorage.SetItemAsStringAsync(AuthConstants.AuthTokenKey, token);
+        await _localStorage.SetItemAsStringAsync(AuthConstants.RefreshToken, refreshToken);
 
         if (_authStateProvider is JwtAuthStateProvider jwtAuthStateProvider)
         {
@@ -40,8 +40,8 @@ public class AuthService(HttpClient httpClient, ILocalStorageService localStorag
 
     public async Task LogoutAsync()
     {
-        await _localStorage.RemoveItemAsync("authToken");
-        await _localStorage.RemoveItemAsync("refreshToken");
+        await _localStorage.RemoveItemAsync(AuthConstants.AuthTokenKey);
+        await _localStorage.RemoveItemAsync(AuthConstants.RefreshToken);
 
         if (_authStateProvider is JwtAuthStateProvider jwtAuthStateProvider)
         {
@@ -51,12 +51,12 @@ public class AuthService(HttpClient httpClient, ILocalStorageService localStorag
 
     public async Task<string?> GetTokenAsync()
     {
-        return await _localStorage.GetItemAsStringAsync("authToken");
+        return await _localStorage.GetItemAsStringAsync(AuthConstants.AuthTokenKey);
     }
 
     public async Task<string?> GetRefreshTokenAsync()
     {
-        return await _localStorage.GetItemAsStringAsync("refreshToken");
+        return await _localStorage.GetItemAsStringAsync(AuthConstants.RefreshToken);
     }
 
     public async Task<bool> RefreshTokenAsync()
@@ -71,7 +71,7 @@ public class AuthService(HttpClient httpClient, ILocalStorageService localStorag
 
         try
         {
-            var response = await _httpClient.PostAsJsonAsync("api/v1/auth/refresh",
+            var response = await _httpClient.PostAsJsonAsync(AuthConstants.ApiEndpointRefresh,
                 new RefreshTokenRequestDto(token, refreshToken));
 
             if (response.IsSuccessStatusCode)
