@@ -3,4 +3,5 @@
 public static class AppConstants
 {
     public const string ApiUrl = "ApiUrl";
+    public const string DefaultApiUrl = "https://localhost:7014";
 }

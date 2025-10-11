@@ -29,7 +29,7 @@ public class Program
 
         // Register the custom HttpMessageHandler and configure the HttpClient
         builder.Services.AddTransient<AuthorizedHttpClient>();
-        var apiUrl = builder.Configuration[AppConstants.ApiUrl] ?? "https://localhost:7014";
+        var apiUrl = builder.Configuration[AppConstants.ApiUrl] ?? AppConstants.DefaultApiUrl;
         builder.Services.AddHttpClient(AuthConstants.AuthorizedClient, client =>
         {
             client.BaseAddress = new Uri(apiUrl);
