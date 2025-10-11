@@ -1,0 +1,52 @@
+;Name;Description;Frequency;MinAge;ChoreDuration;RewardPointsCount;Room
+1;Cleaning up toys;Putting toys into a box and arranging them in a designated place;Daily;4;10;5;Children's room
+2;Feeding fish;Adding the right amount of food to the aquarium;Daily;5;3;3;Living room
+3;Setting the table;Arranging plates, cutlery, and glasses on the table;Daily;6;8;4;Kitchen
+4;Tidying up after oneself;Putting things back in place after play;Daily;4;5;2;Children's room
+5;Watering plants;Watering potted plants with the right amount of water;Every 3 days;6;10;6;Living room
+6;Dusting;Wiping furniture surfaces with a dust cloth;Weekly;8;20;8;Living room
+7;Taking out the trash;Emptying trash bins and taking them to the container;Every 3 days;9;10;6;Kitchen
+8;Folding clothes;Folding clean laundry and arranging it in the wardrobe;Every 3 days;8;25;10;Bedroom
+9;Washing dishes;Washing plates, cups, and cutlery after meals;Daily;10;15;8;Kitchen
+10;Sweeping floors;Sweeping floors with a broom in designated rooms;Every 3 days;9;20;8;Whole house
+11;Vacuuming carpets;Vacuuming rugs and carpets throughout the house;Weekly;12;30;12;Whole house
+12;Doing laundry;Sorting, washing, and hanging clothes;Weekly;13;45;15;Laundry room
+13;Washing windows;Cleaning window panes inside and outside;Monthly;14;60;20;Whole house
+14;Cleaning the bathroom;Washing the sink, bathtub, mirror, and floor in the bathroom;Weekly;13;35;14;Bathroom
+15;Preparing simple meals;Making sandwiches, salads, and simple dishes;Every 3 days;14;40;15;Kitchen
+16;Cleaning shoes;Cleaning and polishing the family's footwear;Weekly;10;25;10;Hallway
+17;Ironing clothes;Ironing shirts, pants, and other clothing;Weekly;15;50;18;Laundry room
+18;Washing the car;Washing the car's exterior and interior;Every 14 days;16;90;25;Garage
+19;Cleaning the garage;Organizing and tidying the garage space;Monthly;14;120;30;Garage
+20;Cleaning the fridge;Cleaning the interior of the fridge and freezer;Monthly;12;40;15;Kitchen
+21;Mowing the lawn;Mowing the lawn with a lawnmower in the garden;Weekly;16;60;20;Garden
+22;Preparing breakfast;Making sandwiches and preparing drinks;Daily;12;20;8;Kitchen
+23;Cleaning the bedroom;Making the bed and tidying the room;Daily;8;15;6;Bedroom
+24;Washing floors;Mopping floors in all rooms;Every 3 days;13;45;15;Whole house
+25;Organizing the wardrobe;Arranging clothes in the wardrobe by category;Monthly;11;60;18;Bedroom
+26;Cleaning stovetops;Washing the stove and induction cooktop;Every 3 days;14;20;8;Kitchen
+27;Cleaning the balcony;Sweeping and washing the balcony or terrace;Weekly;12;30;10;Balcony
+28;Sorting mail;Sorting letters and bills by category;Daily;15;10;4;Office
+29;Cleaning mirrors;Cleaning all mirrors in the house;Weekly;10;20;8;Bathroom
+30;Cleaning the basement;Tidying and cleaning the basement room;Monthly;16;150;35;Basement
+31;Caring for garden plants;Trimming and tending to shrubs and flowers;Weekly;14;80;22;Garden
+32;Washing exterior windows;Cleaning window panes from the outside;Monthly;16;90;25;Whole house
+33;Cleaning the attic;Organizing and tidying items in the attic;Every 14 days;15;100;28;Attic
+34;Preparing dinner;Cooking a full meal for the whole family;Every 3 days;16;90;25;Kitchen
+35;Washing doors;Cleaning all interior and exterior doors;Every 14 days;12;40;12;Whole house
+36;Cleaning the kitchen;Thorough cleaning of countertops, cabinets, and kitchen appliances;Daily;13;35;12;Kitchen
+37;Grocery shopping;Buying groceries according to a list;Weekly;16;60;18;Kitchen
+38;Cleaning carpets;Professional cleaning of carpets with chemicals;Monthly;17;120;30;Whole house
+39;Washing furniture;Cleaning the surfaces of all furniture in the house;Weekly;11;50;16;Living room
+40;Cleaning the storage room;Organizing and tidying items in the storage room;Monthly;13;80;22;Storage room
+41;Preparing supper;Cooking a light evening meal;Every 3 days;14;45;15;Kitchen
+42;Cleaning the washing machine;Cleaning the interior and filters of the washing machine;Monthly;15;30;12;Laundry room
+43;Cleaning the office;Tidying the desk and books in the workroom;Weekly;12;40;14;Office
+44;Cleaning the oven;Washing the oven's interior with cleaning agents;Every 14 days;16;45;16;Kitchen
+45;Washing exterior doors;Cleaning entrance and terrace doors;Weekly;13;25;10;Hallway
+46;Cleaning stairs;Vacuuming and washing internal stairs;Weekly;14;35;12;Whole house
+47;Organizing documents;Sorting and archiving important papers;Monthly;18;90;25;Office
+48;Washing the awning;Cleaning the terrace or balcony awning;Every 14 days;16;60;18;Balcony
+49;Cleaning the closet;Organizing the closet with seasonal clothes;Every 14 days;13;70;20;Bedroom
+50;Cleaning the air conditioner;Washing the filters and housing of the air conditioning unit;Monthly;17;40;15;Whole house
+51;Washing garden furniture;Cleaning tables and chairs on the terrace;Weekly;14;45;16;Garden

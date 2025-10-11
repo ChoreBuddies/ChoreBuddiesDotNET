@@ -5,5 +5,6 @@ public record HouseholdDto(
     string Name,
     string Description,
     int OwnerId,
-    DateTime CreatedDate
+    DateTime CreatedDate,
+    string invitationCode
     );

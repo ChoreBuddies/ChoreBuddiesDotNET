@@ -3,7 +3,7 @@
 namespace ChoreBuddies.Backend.Features.Home;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 public class HomeController : Controller
 {
     [HttpGet]

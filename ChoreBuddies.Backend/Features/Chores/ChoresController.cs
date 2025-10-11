@@ -4,7 +4,7 @@ using Shared.Chores;
 namespace ChoreBuddies.Backend.Features.Chores;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 public class ChoresController : ControllerBase
 {
     private readonly IChoresService _tasksService;
@@ -19,7 +19,7 @@ public class ChoresController : ControllerBase
     {
         return Ok(_tasksService.GetChores());
     }
-    [HttpGet("/{id}")]
+    [HttpGet("{id}")]
     public ActionResult<IEnumerable<ChoreDto>> GetChore(string id)
     {
         return Ok(_tasksService.GetChoreDetails(id));
