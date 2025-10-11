@@ -6,7 +6,7 @@ namespace ChoreBuddies.Frontend.Features.Authentication;
 public interface IAuthApiService
 {
     Task<Result> LoginAsync(LoginRequestDto request);
-    Task<Result> RegisterAsync(RegisterRequestDto request);
+    Task<Result> SignupAsync(RegisterRequestDto request);
     Task RevokeAsync();
 }
 
@@ -36,7 +36,7 @@ public class AuthApiService : IAuthApiService
         return Result.Fail("Login failed. Please check your credentials.");
     }
 
-    public async Task<Result> RegisterAsync(RegisterRequestDto request)
+    public async Task<Result> SignupAsync(RegisterRequestDto request)
     {
         var response = await _httpUtils.TryRequestAsync(
              () => _httpUtils.PostAsync<RegisterRequestDto, AuthResponseDto>(AuthConstants.ApiEndpointSignup, request)
@@ -44,7 +44,7 @@ public class AuthApiService : IAuthApiService
 
         if (response?.AccessToken is not null && response?.RefreshToken is not null)
         {
-            await _authService.LoginAsync(response.AccessToken, response.RefreshToken);
+            await _authService.LoginAsync(response.AccessToken, response.RefreshToken); // TODO when we add email confirmation, we might not want to log in the user right away
             return Result.Success();
         }
 

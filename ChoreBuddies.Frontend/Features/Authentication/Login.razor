@@ -5,7 +5,9 @@
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Components.Authorization
 @using MudBlazor
+@using Shared.Authentication
 
+@inject IAuthApiService authApiService
 @inject NavigationManager navigationManager
 
 <AuthorizeView>
@@ -29,7 +31,7 @@
             </MudForm>
             <MudText>Don’t have an account yet?  <MudLink Href="/signup">Sign up here</MudLink></MudText>
             <div class="d-flex align-center justify-space-around pt-3">
-                <button disabled="@(!success)" Class="btn btn-primary" onclick="@SignInAction" style="padding-left: 25px; padding-right: 25px">  Login  </button>
+                <button disabled="@(!success)" Class="btn btn-primary" onclick="@LoginAction" style="padding-left: 25px; padding-right: 25px">  Login  </button>
             </div>
         </MudPaper>
 
@@ -53,15 +55,15 @@
     private bool _showAlert = false;
     private string _alertText = "";
 
-    private async Task SignInAction()
+    private async Task LoginAction()
     {
         if (emailField is null || passwordField is null) return;
 
         var email = emailField.Value ?? "";
         var password = passwordField.Value ?? "";
-        var result = await CustomAuthStateProvider.LoginAsync(email, password);
+        var result = await authApiService.LoginAsync(new LoginRequestDto(email, password));
         
-        if (!result)
+        if (!result.Succeeded)
         {
             await ShowAlert("Login failed!", 5000);
             return;

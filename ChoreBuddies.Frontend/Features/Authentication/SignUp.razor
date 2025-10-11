@@ -4,7 +4,9 @@
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Components.Authorization
 @using MudBlazor
+@using Shared.Authentication
 
+@inject IAuthApiService authApiService
 @inject NavigationManager navigationManager
 
 <AuthorizeView>
@@ -68,20 +70,19 @@
             passwordField is null ) 
             return;
 
-        var username = usernameField.Value;
-        var email = emailField.Value;
-        var password = passwordField.Value;
+        var username = usernameField.Value ?? "";
+        var email = emailField.Value ?? "";
+        var password = passwordField.Value ?? "";
 
-        HttpResponseMessage result = null;
-        // result = await AuthApiService.RegisterUserAsync(username ?? "", email ?? "", password ?? "");
+        var result = await authApiService.SignupAsync(new RegisterRequestDto(email, password, username));
 
-        if (result is null)
+        if (!result.Succeeded)
         {
             await ShowAlert("Registration failed!", 5000);
             return;
         }
 
-        navigationManager.NavigateTo("/SignIn");
+        navigationManager.NavigateTo("/");
         StateHasChanged();
     }
 
