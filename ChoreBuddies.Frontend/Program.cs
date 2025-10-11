@@ -34,7 +34,6 @@ public class Program
             client.BaseAddress = new Uri(apiUrl);
         }).AddHttpMessageHandler<AuthorizedHttpClient>(); // This adds the auth header to all requests made by this client
 
-        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(apiUrl) });
         builder.Services.AddHttpClient("UnauthorizedClient", client =>
         {
             client.BaseAddress = new Uri(apiUrl);
