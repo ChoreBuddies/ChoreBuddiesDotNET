@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using ChoreBuddies.Frontend.Features.Authentication;
+using System.Net.Http.Json;
 
 namespace ChoreBuddies.Frontend.Utilities;
 
@@ -8,7 +9,7 @@ public class HttpClientUtils(IHttpClientFactory httpClientFactory)
 
     private HttpClient CreateClient(bool authorized)
     {
-        return _httpClientFactory.CreateClient(authorized ? "AuthorizedClient" : "UnauthorizedClient");
+        return _httpClientFactory.CreateClient(authorized ? AuthConstants.AuthorizedClient : AuthConstants.UnauthorizedClient);
     }
 
     private async Task<T?> ProcessResponseAsync<T>(HttpResponseMessage response)

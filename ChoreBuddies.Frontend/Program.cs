@@ -2,6 +2,7 @@ using Blazored.LocalStorage;
 using ChoreBuddies.Frontend.Features.Authentication;
 using ChoreBuddies.Frontend.UI;
 using ChoreBuddies.Frontend.Utilities;
+using ChoreBuddies.Frontend.Utilities.Constants;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -28,14 +29,13 @@ public class Program
 
         // Register the custom HttpMessageHandler and configure the HttpClient
         builder.Services.AddTransient<AuthorizedHttpClient>();
-        builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("AuthorizedClient"));
-        var apiUrl = builder.Configuration["ApiUrl"] ?? "https://localhost:7014";
-        builder.Services.AddHttpClient("AuthorizedClient", client =>
+        var apiUrl = builder.Configuration[AppConstants.ApiUrl] ?? "https://localhost:7014";
+        builder.Services.AddHttpClient(AuthConstants.AuthorizedClient, client =>
         {
             client.BaseAddress = new Uri(apiUrl);
         }).AddHttpMessageHandler<AuthorizedHttpClient>(); // This adds the auth header to all requests made by this client
 
-        builder.Services.AddHttpClient("UnauthorizedClient", client =>
+        builder.Services.AddHttpClient(AuthConstants.UnauthorizedClient, client =>
         {
             client.BaseAddress = new Uri(apiUrl);
         });
