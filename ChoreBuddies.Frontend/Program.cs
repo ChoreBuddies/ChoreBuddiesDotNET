@@ -40,6 +40,7 @@ public class Program
             client.BaseAddress = new Uri(apiUrl);
         });
         builder.Services.AddScoped<HttpClientUtils>();
+        builder.Services.AddScoped<IAuthApiService, AuthApiService>();
 
         builder.Services.AddAuthorizationCore();
 
