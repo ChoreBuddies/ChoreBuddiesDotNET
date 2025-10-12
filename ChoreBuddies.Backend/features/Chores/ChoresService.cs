@@ -1,12 +1,15 @@
 ﻿
 using AutoMapper;
 using ChoreBuddies.Backend.Domain;
+using ChoreBuddies.Backend.Features.DefaultChores;
+using ChoreBuddies.Backend.Features.Households;
 using Shared.Chores;
 
 namespace ChoreBuddies.Backend.Features.Chores;
 
 public class ChoresService : IChoresService
 {
+    private readonly IChoresRepository _repository;
     private readonly IMapper _mapper;
     readonly IEnumerable<Chore> mockChores = new List<Chore>
    {
@@ -42,7 +45,11 @@ public class ChoresService : IChoresService
         )
     };
 
-    public ChoresService(IMapper mapper) => _mapper = mapper;
+    public ChoresService(IMapper mapper, IChoresRepository choresRepository)
+    {
+        _mapper = mapper;
+        _repository = choresRepository;
+    }
 
     public IEnumerable<ChoreOverviewDto> GetChores()
     {
@@ -52,5 +59,39 @@ public class ChoresService : IChoresService
     public ChoreDto GetChoreDetails(string id)
     {
         return _mapper.Map<ChoreDto>(mockChores.First(t => t.Id == id));
+    }
+
+    public async Task<Chore?> CreateChoreAsync(CreateChoreDto createChoreDto)
+    {
+        var newChore = _mapper.Map<Chore>(createChoreDto);
+        return await _repository.CreateChoreAsync(newChore);
+    }
+
+    public async Task<Chore?> UpdateChoreAsync(string choreId, CreateChoreDto createChoreDto)
+    {
+        var chore = await _repository.GetChoreByIdAsync(choreId);
+        if (chore != null)
+        {
+            var newChore = _mapper.Map<Chore>(createChoreDto);
+            newChore.Id = choreId;
+            return await _repository.UpdateChoreAsync(newChore);
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    public async Task<Chore?> DeleteChoreAsync(string choreId)
+    {
+        var chore = await _repository.GetChoreByIdAsync(choreId);
+        if (chore != null)
+        {
+            return await _repository.DeleteChoreAsync(chore);
+        }
+        else
+        {
+            return null;
+        }
     }
 }

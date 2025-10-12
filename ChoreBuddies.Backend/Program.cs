@@ -82,6 +82,8 @@ public class Program
 
         // Add services to the container.
         builder.Services.AddRazorPages();
+        // Chores
+        builder.Services.AddScoped<IChoresRepository, ChoresRepository>();
         builder.Services.AddScoped<IChoresService, ChoresService>();
         // Default chores
         builder.Services.AddScoped<IDefaultChoreRepository, DefaultChoreRepository>();
