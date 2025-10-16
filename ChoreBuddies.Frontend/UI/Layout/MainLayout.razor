@@ -1,12 +1,13 @@
-﻿@using ChoreBuddies.Frontend.Features.Authentication
+﻿@inherits LayoutComponentBase
+
+@using ChoreBuddies.Frontend.Features.Authentication
 @using ChoreBuddies.Frontend.UI.Components
 @using Microsoft.AspNetCore.Components.Authorization
-@inherits LayoutComponentBase
+
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IAuthApiService authApiService
 
-@* Required by MudBlazor *@
 <MudThemeProvider Theme="_theme" />
 <MudPopoverProvider />
 <MudDialogProvider />
@@ -16,30 +17,33 @@
     <Authorized>
         <!-- Layout for authenticated users -->
         <MudLayout>
-            <MudAppBar Elevation="1" Color="Color.Transparent">
+            <MudAppBar Elevation="1" Color="Color.Transparent" Fixed="true">
                 <AppTitleLogo />
                 <MudSpacer />
 
                 <!-- Top Navigation Items -->
-                <MudHidden Breakpoint="Breakpoint.SmAndDown">
+                <div class="d-none d-md-block">
                     <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/dashboard"))">Dashboard</MudButton>
                     <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/tasks"))">Tasks</MudButton>
                     <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/rewards"))">Rewards</MudButton>
                     <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/chat"))">Chat</MudButton>
                     <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/settings"))">Settings</MudButton>
-                </MudHidden>
+                </div>
 
-                <MudIconButton Icon="@Icons.Material.Filled.Notifications" />
-                <MudMenu Icon="@Icons.Material.Filled.AccountCircle" AnchorOrigin="Origin.BottomRight">
+                <MudIconButton Icon="@Icons.Material.Filled.Notifications" Class="black-icon" />
+                <MudMenu Icon="@Icons.Material.Filled.AccountCircle" AnchorOrigin="Origin.BottomRight" Class="black-icon">
                     <MudMenuItem OnClick="@(() => Navigation.NavigateTo("/profile"))">Profile</MudMenuItem>
                     <MudMenuItem OnClick="@(() => Navigation.NavigateTo("/settings"))">Settings</MudMenuItem>
                     <MudDivider Style="border-color: black"/>
                     <MudMenuItem OnClick="@Logout">Logout</MudMenuItem>
                 </MudMenu>
+                <div class="d-block d-md-none">
+                    <MudIconButton Icon="@Icons.Material.Filled.Menu" OnClick="@ToggleDrawer" />
+                </div>
             </MudAppBar>
 
             <!-- Drawer for mobile navigation -->
-            <MudDrawer @bind-Open="@_drawerOpen" Elevation="2" Variant="@DrawerVariant.Temporary">
+            <MudDrawer @bind-Open="@_drawerOpen" Anchor="Anchor.Right" Elevation="2" Variant="@DrawerVariant.Temporary">
                 <MudDrawerHeader>
                     <MudText Typo="Typo.h6">@AppTitle</MudText>
                 </MudDrawerHeader>
@@ -53,91 +57,93 @@
             </MudDrawer>
 
             <!-- Desktop Sidebar -->
-            <MudHidden Breakpoint="Breakpoint.SmAndDown" Invert="true">
+            <div class="d-block d-md-none">
                 <!-- Mobile view - no permanent sidebar -->
                 <MudMainContent>
                     <MudContainer MaxWidth="MaxWidth.Large" Class="py-6">
                         @Body
                     </MudContainer>
                 </MudMainContent>
-            </MudHidden>
+            </div>
 
-            <MudHidden Breakpoint="Breakpoint.MdAndUp" Invert="true">
+            <div Breakpoint="Breakpoint.MdAndUp" Invert="true">
                 <!-- Desktop view with sidebar -->
-                <MudDrawer Open="true" Variant="DrawerVariant.Mini" Elevation="0"
-                           Class="mud-drawer-sidebar" Width="240px">
-                    <div class="d-flex flex-column" style="height: 100%;">
-                        <!-- Quick Actions Section -->
-                        <div class="pa-4">
-                            <MudText Typo="Typo.subtitle2" Class="mb-3">Quick Actions</MudText>
-                            <MudButton StartIcon="@Icons.Material.Filled.Add"
-                                       Color="Color.Primary"
-                                       Variant="Variant.Filled"
-                                       FullWidth="true"
-                                       Class="mb-2"
-                                       OnClick="@AddNewTask">
-                                Add New Task
-                            </MudButton>
-                            <MudButton StartIcon="@Icons.Material.Filled.List"
-                                       Color="Color.Default"
-                                       Variant="Variant.Outlined"
-                                       FullWidth="true"
-                                       Class="mb-2"
-                                       OnClick="@ViewAllTasks">
-                                View All Tasks
-                            </MudButton>
-                            <MudButton StartIcon="@Icons.Material.Filled.CardGiftcard"
-                                       Color="Color.Default"
-                                       Variant="Variant.Outlined"
-                                       FullWidth="true"
-                                       OnClick="@RedeemRewards">
-                                Redeem Rewards
-                            </MudButton>
-                        </div>
+                <MudMainContent>
+                    <div class="d-none d-md-block main-container">
+                        <div class="fixed">
+                            <div class="d-flex flex-column" style="height: 100%;">
+                                <!-- Quick Actions Section -->
+                                <div class="pa-4">
+                                    <MudText Typo="Typo.subtitle2" Class="mb-3">Quick Actions</MudText>
+                                    <MudButton StartIcon="@Icons.Material.Filled.Add"
+                                               Color="Color.Primary"
+                                               Variant="Variant.Filled"
+                                               FullWidth="true"
+                                               Class="mb-2"
+                                               OnClick="@AddNewTask">
+                                        Add New Task
+                                    </MudButton>
+                                    <MudButton StartIcon="@Icons.Material.Filled.List"
+                                               Color="Color.Default"
+                                               Variant="Variant.Outlined"
+                                               FullWidth="true"
+                                               Class="mb-2"
+                                               OnClick="@ViewAllTasks">
+                                        View All Tasks
+                                    </MudButton>
+                                    <MudButton StartIcon="@Icons.Material.Filled.CardGiftcard"
+                                               Color="Color.Default"
+                                               Variant="Variant.Outlined"
+                                               FullWidth="true"
+                                               OnClick="@RedeemRewards">
+                                        Redeem Rewards
+                                    </MudButton>
+                                </div>
 
-                        <MudDivider />
+                                <MudDivider Style="border-color: #FFFFFF; color: #FFFFFF" />
 
-                        <!-- Recent Chat Section -->
-                        <div class="pa-4 flex-grow-1">
-                            <MudText Typo="Typo.subtitle2" Class="mb-3">Recent Chat</MudText>
-                            <div class="chat-messages">
-                                @if (_recentChats.Any())
-                                {
-                                    @foreach (var chat in _recentChats)
-                                    {
-                                        <MudPaper Class="pa-2 mb-2" Elevation="0" Style="background-color: var(--mud-palette-background-grey);">
-                                            <div class="d-flex align-center mb-1">
-                                                <MudAvatar Size="Size.Small" Class="mr-2">@chat.SenderInitial</MudAvatar>
-                                                <MudText Typo="Typo.caption">@chat.Sender</MudText>
+                                <!-- Recent Chat Section -->
+                                <div class="pa-4 flex-grow-1">
+                                    <MudText Typo="Typo.subtitle2" Class="mb-3">Recent Chat</MudText>
+                                    <div class="chat-messages">
+                                        @if (_recentChats.Any())
+                                        {
+                                            @foreach (var chat in _recentChats)
+                                            {
+                                                <MudPaper Class="pa-2 mb-2" Elevation="0">
+                                                    <div class="d-flex align-center mb-1">
+                                                        <MudAvatar Size="Size.Small" Class="mr-2">@chat.SenderInitial</MudAvatar>
+                                                        <MudText Typo="Typo.caption">@chat.Sender</MudText>
+                                                    </div>
+                                                    <MudText Typo="Typo.body2">@chat.Message</MudText>
+                                                </MudPaper>
+                                            }
+                                            <div class="mt-3 d-flex align-center">
+                                                <MudTextField T="string" @bind-Value="_chatMessage"
+                                                              Placeholder="Type a message..."
+                                                              Variant="Variant.Outlined"
+                                                              Margin="Margin.Dense"
+                                                              Adornment="Adornment.End"
+                                                              AdornmentIcon="@Icons.Material.Filled.Send"
+                                                              OnAdornmentClick="@SendMessage" />
                                             </div>
-                                            <MudText Typo="Typo.body2">@chat.Message</MudText>
-                                        </MudPaper>
-                                    }
-                                    <div class="mt-3 d-flex align-center">
-                                        <MudTextField T="string" @bind-Value="_chatMessage"
-                                                      Placeholder="Type a message..."
-                                                      Variant="Variant.Outlined"
-                                                      Margin="Margin.Dense"
-                                                      Adornment="Adornment.End"
-                                                      AdornmentIcon="@Icons.Material.Filled.Send"
-                                                      OnAdornmentClick="@SendMessage" />
+                                        }
+                                        else
+                                        {
+                                            <MudText Typo="Typo.caption" Color="Color.Tertiary">No recent messages</MudText>
+                                        }
                                     </div>
-                                }
-                                else
-                                {
-                                    <MudText Typo="Typo.caption" Color="Color.Tertiary">No recent messages</MudText>
-                                }
+                                    </div>
                             </div>
                         </div>
+                        <div class="flex">
+                            <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-6">
+                                @Body
+                            </MudContainer>
+                        </div>
                     </div>
-                </MudDrawer>
-
-                <MudMainContent>
-                    <MudContainer MaxWidth="MaxWidth.Large" Class="py-6">
-                        @Body
-                    </MudContainer>
                 </MudMainContent>
-            </MudHidden>
+            </div>
         </MudLayout>
     </Authorized>
 
@@ -147,7 +153,7 @@
             <MudAppBar Elevation="0" Color="Color.Transparent">
                 <AppTitleLogo />
                 <MudSpacer />
-                <MudHidden Breakpoint="Breakpoint.SmAndDown">
+                <div class="d-none d-md-block">
                     <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo(" /features"))">Features</MudButton>
                     <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/pricing"))">Pricing</MudButton>
                     <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/support"))">Support</MudButton>
@@ -157,14 +163,17 @@
                         Login
                     </MudButton>
                     <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/signup"))">Sign Up</MudButton>
-                </MudHidden>
-                <MudHidden Breakpoint="Breakpoint.MdAndUp">
-                    <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Dark" OnClick="@ToggleDrawer" />
-                </MudHidden>
+                </div>
+                <div class="d-block d-md-none">
+                    <MudIconButton Icon="@Icons.Material.Filled.Menu" OnClick="@ToggleDrawer" />
+                </div>
             </MudAppBar>
 
             <!-- Mobile drawer for non-authenticated users -->
             <MudDrawer @bind-Open="@_drawerOpen" Anchor="Anchor.Right" Elevation="2" Variant="@DrawerVariant.Temporary">
+                <MudDrawerHeader>
+                    <MudText Typo="Typo.h6">@AppTitle</MudText>
+                </MudDrawerHeader>
                 <MudNavMenu>
                     <MudNavLink Href="/features">Features</MudNavLink>
                     <MudNavLink Href="/pricing">Pricing</MudNavLink>
@@ -197,7 +206,7 @@
             Background = "#FFFFFF",
             Surface = "#FFFFFF",
             AppbarBackground = "#FFFFFF",
-            DrawerBackground = "#F5F5F5",
+            DrawerBackground = "#FFFFFF",
             DrawerText = "rgba(0,0,0, 0.87)",
             DrawerIcon = "rgba(0,0,0, 0.54)"
         },
@@ -279,7 +288,32 @@
         padding: 20px;
     }
 
-    .mud-icon-root.mud-svg-icon {
-        fill: #000;
+    .black-icon .mud-icon-root {
+        color: black;
+    }
+
+
+    .main-container {
+        display: flex;
+        flex-direction: row;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .fixed {
+        width: 240px;
+        height: 100%;
+        flex: 0 0 240px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .flex {
+        flex: 1 1 auto;
+        overflow-y: auto;
+        max-width: calc(100vw - 240px);
+        margin-left: 240px;
     }
 </style>
