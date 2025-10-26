@@ -1,3 +1,3 @@
 ﻿namespace Shared.Users;
 
-public record UpdateAppUserDto(string UserName, string Email);
+public record UpdateAppUserDto(int Id, string FirstName, string LastName, DateTime DateOfBirth, string UserName, string Email);
