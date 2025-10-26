@@ -46,17 +46,28 @@ public class AppUserController(IAppUserService userService, IMapper mapper) : Co
         return Ok(_mapper.Map<AppUserDto>(user));
     }
 
-    //[Authorize]
-    [HttpPut("{userId}")]
-    public async Task<IActionResult> UpdateUserAsync(int userId, [FromBody] UpdateAppUserDto user)
+    [Authorize]
+    [HttpPut("me")]
+    public async Task<IActionResult> UpdateMeAsync([FromBody] UpdateAppUserDto updateAppUserDto)
     {
-        //var emailJWT = User.FindFirst(ClaimTypes.Email)?.Value;
+        var user = await GetCurrentUser();
+        if (user == null)
+            return BadRequest();
 
-        //var userDb = await _userService.GetUserByIdAsync(userId);
-        //if (userDb == null || string.IsNullOrEmpty(emailJWT) || userDb.Email != emailJWT)
-        //    return BadRequest();
+        var result = await _userService.UpdateUserAsync(updateAppUserDto.Id, updateAppUserDto);
 
-        var result = await _userService.UpdateUserAsync(userId, user);
+        return Ok(result);
+    }
+
+    [Authorize]
+    [HttpPut("{userId}")]
+    public async Task<IActionResult> UpdateUserAsync(int userId, [FromBody] UpdateAppUserDto updateAppUserDto)
+    {
+        var user = await GetCurrentUser();
+        if (user == null)
+            return BadRequest();
+
+        var result = await _userService.UpdateUserAsync(userId, updateAppUserDto);
 
         return Ok(result);
     }
