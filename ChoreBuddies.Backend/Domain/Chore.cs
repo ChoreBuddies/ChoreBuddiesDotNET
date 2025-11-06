@@ -10,7 +10,7 @@ public class Chore(
     DateTime? dueDate,
     Status? status,
     string room,
-    int rewardPointsCount)
+    int rewardPointsCount) // TODO: Add household to constructor
 {
     public string Id { get; set; } = id;
     public string Name { get; set; } = name;

@@ -12,11 +12,11 @@ public class AuthorizedHttpClient(ILocalStorageService localStorage, IAuthServic
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         // Get the token from local storage
-        var token = await _localStorage.GetItemAsStringAsync("authToken");
+        var token = await _localStorage.GetItemAsStringAsync(AuthConstants.AuthTokenKey);
 
         // Add the token to the request header if it exists
         if (!string.IsNullOrWhiteSpace(token))
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            request.Headers.Authorization = new AuthenticationHeaderValue(AuthConstants.Bearer, token);
 
         // Proceed with the request
         var response = await base.SendAsync(request, cancellationToken);
@@ -29,10 +29,10 @@ public class AuthorizedHttpClient(ILocalStorageService localStorage, IAuthServic
             if (refreshSuccess)
             {
                 // Retry the original request with the new token
-                token = await _localStorage.GetItemAsStringAsync("authToken");
+                token = await _localStorage.GetItemAsStringAsync(AuthConstants.AuthTokenKey);
                 if (!string.IsNullOrWhiteSpace(token))
                 {
-                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                    request.Headers.Authorization = new AuthenticationHeaderValue(AuthConstants.Bearer, token);
                 }
 
                 response = await base.SendAsync(request, cancellationToken);

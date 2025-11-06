@@ -1,6 +1,8 @@
 using Blazored.LocalStorage;
 using ChoreBuddies.Frontend.Features.Authentication;
 using ChoreBuddies.Frontend.UI;
+using ChoreBuddies.Frontend.Utilities;
+using ChoreBuddies.Frontend.Utilities.Constants;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -13,12 +15,11 @@ public class Program
     public static async Task Main(string[] args)
     {
         var builder = WebAssemblyHostBuilder.CreateDefault(args);
+
         builder.RootComponents.Add<App>("#app");
         builder.RootComponents.Add<HeadOutlet>("head::after");
         builder.Services.AddMudServices();
         builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
-
-        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7014") });
 
         builder.Services.AddBlazoredLocalStorage();
 
@@ -29,11 +30,18 @@ public class Program
 
         // Register the custom HttpMessageHandler and configure the HttpClient
         builder.Services.AddTransient<AuthorizedHttpClient>();
-        builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("AuthorizedClient"));
-        builder.Services.AddHttpClient("AuthorizedClient", client =>
+        var apiUrl = builder.Configuration[AppConstants.ApiUrl] ?? AppConstants.DefaultApiUrl;
+        builder.Services.AddHttpClient(AuthConstants.AuthorizedClient, client =>
         {
-            client.BaseAddress = new Uri("https://localhost:7014");
+            client.BaseAddress = new Uri(apiUrl);
         }).AddHttpMessageHandler<AuthorizedHttpClient>(); // This adds the auth header to all requests made by this client
+
+        builder.Services.AddHttpClient(AuthConstants.UnauthorizedClient, client =>
+        {
+            client.BaseAddress = new Uri(apiUrl);
+        });
+        builder.Services.AddScoped<HttpClientUtils>();
+        builder.Services.AddScoped<IAuthApiService, AuthApiService>();
 
         builder.Services.AddAuthorizationCore();
 

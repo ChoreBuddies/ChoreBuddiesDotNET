@@ -7,7 +7,7 @@ namespace ChoreBuddies.Backend.Infrastructure.Authentication;
 
 public interface IAuthService
 {
-    public Task<AuthResponseDto> RegisterUserAsync(RegisterRequestDto registerRequest);
+    public Task<AuthResponseDto> SignupUserAsync(RegisterRequestDto registerRequest);
     public Task<AuthResponseDto> LoginUserAsync(LoginRequestDto loginRequest);
     public Task<bool> RevokeRefreshTokenAsync(int userID);
 }
@@ -37,7 +37,7 @@ public class AuthService(UserManager<AppUser> userManager, ITokenService tokenSe
         return new AuthResponseDto(accessToken, refreshToken);
     }
 
-    public async Task<AuthResponseDto> RegisterUserAsync(RegisterRequestDto registerRequest)
+    public async Task<AuthResponseDto> SignupUserAsync(RegisterRequestDto registerRequest)
     {
         var userExists = await _userManager.FindByEmailAsync(registerRequest.Email) != null;
         if (userExists)

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ChoreBuddies.Backend.Features.Households;
 
@@ -42,6 +43,26 @@ public class HouseholdController(IHouseholdService service, IMapper mapper) : Co
     public async Task<IActionResult> UpdateHousehold(int householdId, [FromBody] CreateHouseholdDto createHouseholdDto)
     {
         var household = await _service.UpdateHouseholdAsync(householdId, createHouseholdDto);
+        if (household != null)
+        {
+            return Ok(_mapper.Map<HouseholdDto>(household));
+        }
+        else
+        {
+            return BadRequest();
+        }
+    }
+
+    [HttpPut("join")]
+    public async Task<IActionResult> JoinHousehold([FromBody] JoinHouseholdDto joinHouseholdDto)
+    {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(userIdClaim, out var userId))
+        {
+            throw new InvalidOperationException("Invalid user identifier.");
+        }
+
+        var household = await _service.JoinHouseholdAsync(joinHouseholdDto.InvitationCode, userId);
         if (household != null)
         {
             return Ok(_mapper.Map<HouseholdDto>(household));

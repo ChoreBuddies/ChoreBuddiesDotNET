@@ -31,6 +31,9 @@ public class AppUserService(IAppUserRepository userRepository) : IAppUserService
         var user = await _userRepository.GetUserByIdAsync(userId);
         if (user == null) return false;
 
+        user.FirstName = userDto.FirstName;
+        user.LastName = userDto.LastName;
+        user.DateOfBirth = userDto.DateOfBirth;
         user.UserName = userDto.UserName;
         user.Email = userDto.Email; // Consider adding email confirmation logic - issue #34
 
