@@ -25,7 +25,7 @@ COPY --from=build /app/publish/wwwroot /usr/share/nginx/html
 # Copy nginx configuration (optional but recommended for Blazor WASM)
 COPY Docker/nginx.conf /etc/nginx/nginx.conf
 
-# Expose port 80
-EXPOSE 80
+# Expose port 8080
+EXPOSE 8080
 
 # Nginx will start automatically with the base image
