@@ -45,7 +45,6 @@ services:
     restart: on-failure
     environment: 
       - ASPNETCORE_ENVIRONMENT=Development
-      - ApiUrl=https://localhost:5000
     networks:
       - app-network  
 networks:

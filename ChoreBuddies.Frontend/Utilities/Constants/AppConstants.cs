@@ -3,5 +3,5 @@
 public static class AppConstants
 {
     public const string ApiUrl = "ApiUrl";
-    public const string DefaultApiUrl = "https://localhost:5000";
+    public const string DefaultApiUrl = "http://localhost:5000";
 }
