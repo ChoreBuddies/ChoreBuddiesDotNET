@@ -22,7 +22,7 @@
       "commandName": "DockerCompose",
       "commandVersion": "1.0",
       "serviceActions": {
-        "backend": "StartDebugging",
+        "backend": "StartWithoutDebugging",
         "frontend": "DoNotStart",
         "sqlserver": "StartWithoutDebugging"
       }
