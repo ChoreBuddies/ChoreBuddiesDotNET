@@ -11,7 +11,7 @@ public class Chore(
     string room,
     int rewardPointsCount) // TODO: Add household to constructor
 {
-    public Chore(string id, string name, string description, string? assignedTo, DateTime? dueDate, Status? status, string room, int rewardPointsCount, int householdId, Household? household): this(name, description, assignedTo, dueDate, status, room, rewardPointsCount)
+    public Chore(string id, string name, string description, string? assignedTo, DateTime? dueDate, Status? status, string room, int rewardPointsCount, int householdId, Household? household) : this(name, description, assignedTo, dueDate, status, room, rewardPointsCount)
     {
         Id = id;
     }
