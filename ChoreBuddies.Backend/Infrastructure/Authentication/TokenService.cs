@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace ChoreBuddies.Backend.Infrastructure.Authentication;
+
 public interface ITokenService
 {
     public Task<string> CreateAccessTokenAsync(AppUser user);
