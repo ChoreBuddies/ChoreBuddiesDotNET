@@ -1,4 +1,5 @@
 ﻿namespace ChoreBuddies.Backend.Features.Households;
+
 public interface IInvitationCodeService
 {
     Task<string> GenerateUniqueInvitationCodeAsync();
