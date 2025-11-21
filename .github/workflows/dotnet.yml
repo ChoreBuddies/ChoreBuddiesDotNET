@@ -17,6 +17,9 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+        
+    - name: Enforce .NET 8 for CI
+      run: echo '{"sdk":{"version":"8.0.100","rollForward":"latestFeature"}}' > global.json
 
     - name: Verify .NET Version
       run: dotnet --info
