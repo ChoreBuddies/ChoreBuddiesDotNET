@@ -1,4 +1,5 @@
 using ChoreBuddies.Backend.Domain;
+using ChoreBuddies.Backend.Features.Chat;
 using ChoreBuddies.Backend.Features.Chores;
 using ChoreBuddies.Backend.Features.DefaultChores;
 using ChoreBuddies.Backend.Features.Households;
@@ -21,6 +22,7 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         builder.AddServiceDefaults();
         builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
+        builder.Services.AddSignalR();
 
         builder.Services.AddCors(options =>
         {
@@ -76,7 +78,23 @@ public class Program
                 ValidateAudience = true,
                 ValidAudience = jwtSettings["Audience"],
                 ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero // Optional: reduce clock skew for exact expiration validation
+                ClockSkew = TimeSpan.Zero
+            };
+
+            // For SignalR authentication
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    var accessToken = context.Request.Query["access_token"];
+
+                    var path = context.HttpContext.Request.Path;
+                    if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
+                    {
+                        context.Token = accessToken;
+                    }
+                    return Task.CompletedTask;
+                }
             };
         });
 
@@ -144,6 +162,8 @@ public class Program
 
         app.UseSwagger();
         app.UseSwaggerUI();
+
+        app.MapHub<ChatHub>("/chatHub");
 
         app.Run();
     }

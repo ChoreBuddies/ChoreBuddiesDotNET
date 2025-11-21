@@ -4,6 +4,6 @@ public record ChatMessageDto(
     int Id,
     string SenderName,
     string Content,
-    bool IsMine,
-    DateTimeOffset SentAt
+    DateTimeOffset SentAt,
+    bool IsMine
 );
