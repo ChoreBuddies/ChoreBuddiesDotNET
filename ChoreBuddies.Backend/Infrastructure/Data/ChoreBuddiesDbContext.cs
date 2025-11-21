@@ -11,6 +11,7 @@ public class ChoreBuddiesDbContext : IdentityDbContext<AppUser, IdentityRole<int
     public DbSet<Chore> Chores { get; set; }
     public DbSet<DefaultChore> DefaultChores { get; set; }
     public DbSet<Household> Households { get; set; }
+    public DbSet<ChatMessage> ChatMessages { get; set; }
 
     public ChoreBuddiesDbContext(DbContextOptions<ChoreBuddiesDbContext> options)
         : base(options)
