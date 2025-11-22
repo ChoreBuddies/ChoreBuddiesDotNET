@@ -17,6 +17,7 @@ public interface IHouseholdRepository
     public Task<Household?> JoinHouseholdAsync(Household household, AppUser user);
     // Delete
     public Task<Household?> DeleteHouseholdAsync(Household household);
+    public Task<bool> CheckIfUserBelongsAsync(int householdId, int userId);
 }
 
 public class HouseholdRepository(ChoreBuddiesDbContext dbContext) : IHouseholdRepository
@@ -89,5 +90,12 @@ public class HouseholdRepository(ChoreBuddiesDbContext dbContext) : IHouseholdRe
         _dbContext.Households.Remove(household);
         await _dbContext.SaveChangesAsync();
         return household;
+    }
+
+    public async Task<bool> CheckIfUserBelongsAsync(int householdId, int userId)
+    {
+        return await _dbContext.Households
+            .AnyAsync(h => h.Id == householdId &&
+                           h.Users.Any(u => u.Id == userId));
     }
 }

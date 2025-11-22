@@ -30,6 +30,8 @@ public class ChatHub(ChoreBuddiesDbContext context, TimeProvider timeProvider) :
         var user = await context.Users.FindAsync(userId);
         if (user == null) return;
 
+        // TODO check if user belongs to household
+
         // Save to database
         var newMessage = new ChatMessage(userId, householdId, messageContent, timeProvider.GetUtcNow());
 
