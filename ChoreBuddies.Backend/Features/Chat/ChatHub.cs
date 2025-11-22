@@ -1,4 +1,5 @@
 ﻿using ChoreBuddies.Backend.Domain;
+using ChoreBuddies.Backend.Features.Households;
 using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -8,11 +9,16 @@ using System.Security.Claims;
 namespace ChoreBuddies.Backend.Features.Chat;
 
 [Authorize]
-public class ChatHub(ChoreBuddiesDbContext context, TimeProvider timeProvider) : Hub
+public class ChatHub(ChoreBuddiesDbContext context, IHouseholdService householdService, TimeProvider timeProvider) : Hub
 {
     public async Task JoinHouseholdChat(int householdId)
     {
-        // TODO dodać weryfikację, czy user faktycznie należy do tego domu!
+        // Check if user belongs to the household
+        bool hasAccess = await householdService.CheckIfUserBelongsAsync(householdId, userId);
+
+        if (!hasAccess)
+            throw new HubException("Unauthorized");
+
         string groupName = GetGroupName(householdId);
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
     }
@@ -30,7 +36,11 @@ public class ChatHub(ChoreBuddiesDbContext context, TimeProvider timeProvider) :
         var user = await context.Users.FindAsync(userId);
         if (user == null) return;
 
-        // TODO check if user belongs to household
+        // Check if user belongs to the household
+        bool hasAccess = await householdService.CheckIfUserBelongsAsync(householdId, userId);
+
+        if (!hasAccess)
+            throw new HubException("Unauthorized");
 
         // Save to database
         var newMessage = new ChatMessage(userId, householdId, messageContent, timeProvider.GetUtcNow());

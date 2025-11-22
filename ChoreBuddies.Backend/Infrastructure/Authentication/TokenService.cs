@@ -16,6 +16,7 @@ public interface ITokenService
     public Task<AuthResponseDto> RefreshAccessToken(string accessToken, string refreshToken);
     public DateTime GetAccessTokenExpiration();
     public DateTime GetRefreshTokenExpiration();
+    public int GetUserIdFromToken(ClaimsPrincipal claims);
 }
 
 public class TokenService : ITokenService
@@ -151,5 +152,15 @@ public class TokenService : ITokenService
         {
             return null;
         }
+    }
+
+    public int GetUserIdFromToken(ClaimsPrincipal claims)
+    {
+        var userIdClaim = claims.FindFirstValue(JwtRegisteredClaimNames.NameId);
+        if (!int.TryParse(userIdClaim, out var userId))
+        {
+            throw new InvalidOperationException("Invalid user identifier.");
+        }
+        return userId;
     }
 }

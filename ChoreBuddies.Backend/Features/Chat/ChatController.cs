@@ -1,4 +1,5 @@
-﻿using ChoreBuddies.Backend.Infrastructure.Data;
+﻿using ChoreBuddies.Backend.Features.Households;
+using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,7 @@ namespace ChoreBuddies.Backend.Features.Chat;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class ChatController(ChoreBuddiesDbContext context) : ControllerBase
+public class ChatController(ChoreBuddiesDbContext context, IHouseholdService householdService) : ControllerBase
 {
     [HttpGet("{householdId}")]
     public async Task<ActionResult<IEnumerable<ChatMessageDto>>> GetMessages(int householdId)
@@ -22,9 +23,7 @@ public class ChatController(ChoreBuddiesDbContext context) : ControllerBase
         }
 
         // Check if user belongs to the household
-        bool hasAccess = await context.Households
-            .AnyAsync(h => h.Id == householdId &&
-                           h.Users.Any(u => u.Id == currentUserId));
+        bool hasAccess = await householdService.CheckIfUserBelongsAsync(householdId, currentUserId);
 
         if (!hasAccess)
             return Forbid();
