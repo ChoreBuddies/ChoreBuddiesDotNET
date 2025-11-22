@@ -1,0 +1,175 @@
+﻿@page "/chat-test" 
+
+@inject IChatService ChatService 
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+<MudPaper Elevation="3" Class="d-flex flex-column" Style="height: 500px; width: 100%; max-width: 600px; margin: auto;">
+    
+    <MudToolBar Dense="true" Class="mud-theme-primary">
+        <MudIcon Icon="@Icons.Material.Filled.Forum" Class="mr-2"/>
+        <MudText Typo="Typo.h6">Czat Gospodarstwa</MudText>
+    </MudToolBar>
+
+    <MudPaper Class="flex-grow-1 pa-4 overflow-auto" Elevation="0" ID="chat-scroll-container">
+        <MudStack Spacing="2">
+            @if (_messages == null)
+            {
+                <MudProgressCircular Indeterminate="true" />
+            }
+            else if (!_messages.Any())
+            {
+                <MudText Typo="Typo.body2" Align="Align.Center" Color="Color.Default">Brak wiadomości. Napisz coś!</MudText>
+            }
+            else
+            {
+                @foreach (var msg in _messages)
+                {
+                    // Ustawienie dymka: Prawo (moje) / Lewo (inne)
+                    var align = msg.IsMine ? Align.End : Align.Start;
+                    var color = msg.IsMine ? Color.Primary : Color.Surface;
+                    var textColor = msg.IsMine ? Color.Inherit : Color.Default;
+                    
+                    <MudStack AlignItems="@(msg.IsMine ? AlignItems.End : AlignItems.Start)" Spacing="0">
+                        @if (!msg.IsMine)
+                        {
+                            <MudText Typo="Typo.caption" Class="ml-1">@msg.SenderName</MudText>
+                        }
+                        
+                        <MudPaper Elevation="1" Class="pa-2 rounded-lg" Style="max-width: 80%; width: fit-content;" Color="@color">
+                            <MudText Typo="Typo.body2" Color="@(msg.IsMine ? Color.Surface : Color.Default)">@msg.Content</MudText>
+                        </MudPaper>
+                        
+                        <MudText Typo="Typo.caption" Class="mt-1 mr-1" Color="Color.Default" Style="font-size: 0.6rem;">
+                            @msg.SentAt.ToLocalTime().ToString("HH:mm")
+                        </MudText>
+                    </MudStack>
+                }
+            }
+        </MudStack>
+    </MudPaper>
+
+    <div style="min-height: 20px;" class="px-4">
+        @if (!string.IsNullOrEmpty(_typingInfo))
+        {
+            <MudText Typo="Typo.caption" Class="mud-text-secondary">@_typingInfo pisze...</MudText>
+        }
+    </div>
+
+    <MudPaper Elevation="0" Class="d-flex align-center pa-2 border-t">
+        <MudTextField @bind-Value="_newMessageInput" 
+                      Placeholder="Wpisz wiadomość..." 
+                      Variant="Variant.Outlined" 
+                      Margin="Margin.Dense"
+                      Immediate="true"
+                      OnKeyDown="HandleKeyDown"
+                      OnKeyUp="HandleTyping"
+                      Class="flex-grow-1 mr-2"/>
+        
+        <MudIconButton Icon="@Icons.Material.Filled.Send" 
+                       Color="Color.Primary" 
+                       OnClick="SendMessage" 
+                       Disabled="@(string.IsNullOrWhiteSpace(_newMessageInput) || !ChatService.IsConnected)" />
+    </MudPaper>
+
+</MudPaper>
+
+@code {
+    [Parameter] public int HouseholdId { get; set; } // Przekaż ID gospodarstwa jako parametr
+
+    private List<ChatMessageDto> _messages = new();
+    private string _newMessageInput = string.Empty;
+    private string _typingInfo = string.Empty;
+    private System.Timers.Timer? _typingTimer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // 1. Pobierz token (logika zależna od twojego auth providera)
+        var token = await AuthService.GetAccessToken(); 
+
+        // 2. Załaduj historię
+        _messages = await ChatService.GetHistoryAsync(HouseholdId);
+
+        // 3. Podepnij eventy
+        ChatService.OnMessageReceived += HandleMessageReceived;
+        ChatService.OnUserTyping += HandleUserTyping;
+
+        // 4. Połącz z SignalR
+        await ChatService.InitializeAsync(HouseholdId, token);
+        
+        await ScrollToBottom();
+    }
+
+    private async void HandleMessageReceived(ChatMessageDto message)
+    {
+        _messages.Add(message);
+        _typingInfo = string.Empty; // Reset typing indicator jeśli ktoś wysłał
+        await InvokeAsync(StateHasChanged);
+        await ScrollToBottom();
+    }
+
+    private void HandleUserTyping(string userName)
+    {
+        _typingInfo = userName;
+        InvokeAsync(StateHasChanged);
+
+        // Ukryj napis po 3 sekundach braku aktywności
+        _typingTimer?.Stop();
+        _typingTimer = new System.Timers.Timer(3000);
+        _typingTimer.Elapsed += (s, e) => { 
+            _typingInfo = string.Empty; 
+            InvokeAsync(StateHasChanged); 
+        };
+        _typingTimer.AutoReset = false;
+        _typingTimer.Start();
+    }
+
+    private async Task SendMessage()
+    {
+        if (!string.IsNullOrWhiteSpace(_newMessageInput) && ChatService.IsConnected)
+        {
+            var contentToSend = _newMessageInput;
+            _newMessageInput = string.Empty; // Wyczyść input natychmiast (UX)
+            
+            // Dodajemy "optymistycznie" do listy (opcjonalnie), 
+            // ALE backend w naszej implementacji nie odsyła wiadomości do nadawcy przez SignalR (Clients.Others),
+            // więc musimy dodać ją tutaj ręcznie, żeby ją zobaczyć.
+            
+            // Uwaga: normalnie pobrałbym User Name z AuthState, tu hardcoduję "Ja" dla przykładu
+            var optimisticMsg = new ChatMessageDto(0, "Ja", contentToSend, true, DateTimeOffset.Now);
+            _messages.Add(optimisticMsg); 
+            
+            await ChatService.SendMessageAsync(HouseholdId, contentToSend);
+            await ScrollToBottom();
+        }
+    }
+
+    private async Task HandleTyping()
+    {
+         await ChatService.SendTypingAsync(HouseholdId);
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await SendMessage();
+        }
+    }
+
+    // Prosty JS do scrollowania
+    private async Task ScrollToBottom()
+    {
+        // Daj czas na wyrenderowanie DOM
+        await Task.Delay(50); 
+        await JSRuntime.InvokeVoidAsync("scrollToBottom", "chat-scroll-container");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        ChatService.OnMessageReceived -= HandleMessageReceived;
+        ChatService.OnUserTyping -= HandleUserTyping;
+        _typingTimer?.Dispose();
+        await ChatService.DisposeAsync();
+    }
+}
