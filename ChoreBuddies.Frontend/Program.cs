@@ -1,5 +1,6 @@
 using Blazored.LocalStorage;
 using ChoreBuddies.Frontend.Features.Authentication;
+using ChoreBuddies.Frontend.Features.Chat;
 using ChoreBuddies.Frontend.UI;
 using ChoreBuddies.Frontend.Utilities;
 using ChoreBuddies.Frontend.Utilities.Constants;
@@ -42,6 +43,9 @@ public class Program
         });
         builder.Services.AddScoped<HttpClientUtils>();
         builder.Services.AddScoped<IAuthApiService, AuthApiService>();
+
+        // Chat service
+        builder.Services.AddScoped<IChatService, ChatService>();
 
         builder.Services.AddAuthorizationCore();
 
