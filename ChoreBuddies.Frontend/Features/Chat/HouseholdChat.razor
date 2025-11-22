@@ -1,6 +1,6 @@
 ﻿@page "/chat-test" 
 
-@inject IChatService ChatService 
+@inject IChatService ChatService
 @inject IJSRuntime JSRuntime
 @implements IAsyncDisposable
 
@@ -25,7 +25,7 @@
             {
                 @foreach (var msg in _messages)
                 {
-                    // Ustawienie dymka: Prawo (moje) / Lewo (inne)
+                    // Chat messages alignment and color based on sender
                     var align = msg.IsMine ? Align.End : Align.Start;
                     var color = msg.IsMine ? Color.Primary : Color.Surface;
                     var textColor = msg.IsMine ? Color.Inherit : Color.Default;
@@ -75,7 +75,7 @@
 </MudPaper>
 
 @code {
-    [Parameter] public int HouseholdId { get; set; } // Przekaż ID gospodarstwa jako parametr
+    [Parameter] public int HouseholdId { get; set; }
 
     private List<ChatMessageDto> _messages = new();
     private string _newMessageInput = string.Empty;
@@ -84,26 +84,20 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // 1. Pobierz token (logika zależna od twojego auth providera)
-        var token = await AuthService.GetAccessToken(); 
-
-        // 2. Załaduj historię
         _messages = await ChatService.GetHistoryAsync(HouseholdId);
 
-        // 3. Podepnij eventy
-        ChatService.OnMessageReceived += HandleMessageReceived;
-        ChatService.OnUserTyping += HandleUserTyping;
+        ChatService.MessageReceived += HandleMessageReceived;
+        ChatService.UserTyping += HandleUserTyping;
 
-        // 4. Połącz z SignalR
-        await ChatService.InitializeAsync(HouseholdId, token);
-        
+        await ChatService.ConnectAsync(HouseholdId);
+
         await ScrollToBottom();
     }
 
     private async void HandleMessageReceived(ChatMessageDto message)
     {
         _messages.Add(message);
-        _typingInfo = string.Empty; // Reset typing indicator jeśli ktoś wysłał
+        _typingInfo = string.Empty; 
         await InvokeAsync(StateHasChanged);
         await ScrollToBottom();
     }
@@ -113,7 +107,6 @@
         _typingInfo = userName;
         InvokeAsync(StateHasChanged);
 
-        // Ukryj napis po 3 sekundach braku aktywności
         _typingTimer?.Stop();
         _typingTimer = new System.Timers.Timer(3000);
         _typingTimer.Elapsed += (s, e) => { 
@@ -129,14 +122,15 @@
         if (!string.IsNullOrWhiteSpace(_newMessageInput) && ChatService.IsConnected)
         {
             var contentToSend = _newMessageInput;
-            _newMessageInput = string.Empty; // Wyczyść input natychmiast (UX)
+            _newMessageInput = string.Empty; 
             
+            // TODO zmeinic
             // Dodajemy "optymistycznie" do listy (opcjonalnie), 
             // ALE backend w naszej implementacji nie odsyła wiadomości do nadawcy przez SignalR (Clients.Others),
             // więc musimy dodać ją tutaj ręcznie, żeby ją zobaczyć.
             
             // Uwaga: normalnie pobrałbym User Name z AuthState, tu hardcoduję "Ja" dla przykładu
-            var optimisticMsg = new ChatMessageDto(0, "Ja", contentToSend, true, DateTimeOffset.Now);
+            var optimisticMsg = new ChatMessageDto(0, "Ja", contentToSend, DateTimeOffset.Now, true);
             _messages.Add(optimisticMsg); 
             
             await ChatService.SendMessageAsync(HouseholdId, contentToSend);
@@ -157,19 +151,17 @@
         }
     }
 
-    // Prosty JS do scrollowania
     private async Task ScrollToBottom()
     {
-        // Daj czas na wyrenderowanie DOM
+        // Time to generate DOM
         await Task.Delay(50); 
         await JSRuntime.InvokeVoidAsync("scrollToBottom", "chat-scroll-container");
     }
 
     public async ValueTask DisposeAsync()
     {
-        ChatService.OnMessageReceived -= HandleMessageReceived;
-        ChatService.OnUserTyping -= HandleUserTyping;
         _typingTimer?.Dispose();
-        await ChatService.DisposeAsync();
+        ChatService.MessageReceived -= HandleMessageReceived;
+        ChatService.UserTyping -= HandleUserTyping;
     }
 }
