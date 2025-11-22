@@ -1,0 +1,139 @@
+﻿@page "/profile"
+@using Shared.Users
+@inject IUserService UserService
+@using MudBlazor
+
+<MudText Typo="Typo.h4" Class="mb-4">Profile Page</MudText>
+
+@if (User == null)
+{
+    <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+}
+else
+{
+    <MudPaper Class="p-4" Elevation="4">
+        <MudGrid>
+            <MudItem xs="12" sm="4" Class="d-flex flex-column align-center">
+                <MudAvatar Size="Size.Large"
+                           Color="Color.Primary"
+                           Variant="Variant.Filled"
+                           Class="mb-2" >
+                    <MudIcon Icon="@Icons.Material.Filled.Person" />
+                </MudAvatar>
+                @if (IsEditing)
+                {
+                    <MudButton Color="Color.Primary" Variant="Variant.Outlined">
+                        Change Picture
+                    </MudButton>
+                }
+            </MudItem>
+
+            <MudItem xs="12" sm="8">
+                <MudGrid Spacing="2">
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="EditedFirstName"
+                                      Label="First Name"
+                                      Disabled="!IsEditing"
+                                      Variant="Variant.Outlined"
+                                      FullWidth="true" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="EditedLastName"
+                                      Label="Last Name"
+                                      Disabled="!IsEditing"
+                                      Variant="Variant.Outlined"
+                                      FullWidth="true" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudDatePicker @bind-Date="EditedDateOfBirth"
+                                       Label="Date of Birth"
+                                       Disabled="!IsEditing"
+                                       Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="EditedUserName"
+                                      Label="User Name"
+                                      Disabled="!IsEditing"
+                                      Variant="Variant.Outlined"
+                                      FullWidth="true" />
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="EditedEmail"
+                                      Label="Email"
+                                      Disabled="!IsEditing"
+                                      Variant="Variant.Outlined"
+                                      FullWidth="true" />
+                    </MudItem>
+                </MudGrid>
+
+                <MudStack Direction="Row" Spacing="2" Class="mt-4">
+                    @if (!IsEditing)
+                    {
+                        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="EnableEditing">Edit</MudButton>
+                    }
+                    else
+                    {
+                        <MudButton Color="Color.Success" Variant="Variant.Filled" OnClick="Save">Save</MudButton>
+                        <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="Cancel">Cancel</MudButton>
+                    }
+                </MudStack>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+}
+
+@code {
+    private bool IsEditing = false;
+    private AppUserDto User;
+
+    private string EditedFirstName;
+    private string EditedLastName;
+    private DateTime? EditedDateOfBirth;
+    private string EditedUserName;
+    private string EditedEmail;
+
+    protected override async Task OnInitializedAsync()
+    {
+        User = await UserService.GetCurrentUserAsync();
+        if (User is null)
+            return;
+        LoadEditedFields();
+    }
+
+    private void EnableEditing()
+    {
+        IsEditing = true;
+        LoadEditedFields();
+    }
+
+    private void LoadEditedFields()
+    {
+        EditedFirstName = User.FirstName;
+        EditedLastName = User.LastName;
+        EditedDateOfBirth = User.DateOfBirth;
+        EditedUserName = User.UserName;
+        EditedEmail = User.Email;
+    }
+
+    private async Task Save()
+    {
+        var updatedUser = User with
+        {
+            FirstName = EditedFirstName,
+            LastName = EditedLastName,
+            DateOfBirth = EditedDateOfBirth ?? DateTime.Now,
+            UserName = EditedUserName,
+            Email = EditedEmail
+        };
+
+        await UserService.UpdateUserAsync(updatedUser);
+        User = updatedUser;
+        IsEditing = false;
+    }
+
+    private void Cancel()
+    {
+        IsEditing = false;
+        LoadEditedFields();
+    }
+}
