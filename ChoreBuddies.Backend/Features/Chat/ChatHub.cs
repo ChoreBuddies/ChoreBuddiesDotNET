@@ -1,5 +1,7 @@
 ﻿using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Households;
+using ChoreBuddies.Backend.Features.Users;
+using ChoreBuddies.Backend.Infrastructure.Authentication;
 using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -9,11 +11,19 @@ using System.Security.Claims;
 namespace ChoreBuddies.Backend.Features.Chat;
 
 [Authorize]
-public class ChatHub(ChoreBuddiesDbContext context, IHouseholdService householdService, TimeProvider timeProvider) : Hub
+public class ChatHub(ChoreBuddiesDbContext context,
+    ITokenService tokenService,
+    IAppUserService userService,
+    IHouseholdService householdService,
+    TimeProvider timeProvider) : Hub
 {
     public async Task JoinHouseholdChat(int householdId)
     {
+        if (Context == null)
+            throw new HubException("Unauthorized");
+
         // Check if user belongs to the household
+        var userId = tokenService.GetUserIdFromToken(Context.User ?? new ClaimsPrincipal());
         bool hasAccess = await householdService.CheckIfUserBelongsAsync(householdId, userId);
 
         if (!hasAccess)
@@ -25,22 +35,17 @@ public class ChatHub(ChoreBuddiesDbContext context, IHouseholdService householdS
 
     public async Task SendMessage(int householdId, string messageContent)
     {
-        var userIdStr = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
-        {
-            throw new HubException("Unauthorized");
-        }
-
-        // TODO brać z ClaimTypes.Name, jeśli tam jest
-        var user = await context.Users.FindAsync(userId);
-        if (user == null) return;
 
         // Check if user belongs to the household
+        var userId = tokenService.GetUserIdFromToken(Context?.User ?? new ClaimsPrincipal());
         bool hasAccess = await householdService.CheckIfUserBelongsAsync(householdId, userId);
 
         if (!hasAccess)
             throw new HubException("Unauthorized");
+
+        var user = await userService.GetUserByIdAsync(userId);
+        if (user == null)
+            throw new HubException("User not found");
 
         // Save to database
         var newMessage = new ChatMessage(userId, householdId, messageContent, timeProvider.GetUtcNow());
@@ -58,7 +63,6 @@ public class ChatHub(ChoreBuddiesDbContext context, IHouseholdService householdS
             false // receiver will see as not mine
         );
 
-        // TODO wyślij do wszystkich (Clients.Group), wtedy nadawca dostanie potwierdzenie "z serwera"
         string groupName = GetGroupName(householdId);
         await Clients.Group(groupName).SendAsync("ReceiveMessage", messageDto);
     }
@@ -73,6 +77,5 @@ public class ChatHub(ChoreBuddiesDbContext context, IHouseholdService householdS
                      .SendAsync("UserIsTyping", userName);
     }
 
-    // Pomocnicza metoda do tworzenia nazw grup
     private static string GetGroupName(int householdId) => $"Household_{householdId}";
 }
