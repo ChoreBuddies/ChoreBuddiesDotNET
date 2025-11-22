@@ -6,7 +6,7 @@ namespace ChoreBuddies.Frontend.Features.User;
 
 public interface IUserService
 {
-    public Task<AppUserDto> GetCurrentUserAsync();
+    public Task<AppUserDto?> GetCurrentUserAsync();
     public Task<bool> UpdateUserAsync(AppUserDto user);
 }
 

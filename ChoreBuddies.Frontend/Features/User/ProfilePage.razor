@@ -66,7 +66,7 @@ else
                     </MudItem>
                 </MudGrid>
 
-                <MudStack Direction="Row" Spacing="2" Class="mt-4">
+                <MudStack Row Spacing="2" Class="mt-4">
                     @if (!IsEditing)
                     {
                         <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="EnableEditing">Edit</MudButton>
@@ -84,13 +84,13 @@ else
 
 @code {
     private bool IsEditing = false;
-    private AppUserDto User;
+    private AppUserDto? User;
 
-    private string EditedFirstName;
-    private string EditedLastName;
+    private string EditedFirstName = "";
+    private string EditedLastName= "";
     private DateTime? EditedDateOfBirth;
-    private string EditedUserName;
-    private string EditedEmail;
+    private string EditedUserName= "";
+    private string EditedEmail= "";
 
     protected override async Task OnInitializedAsync()
     {
