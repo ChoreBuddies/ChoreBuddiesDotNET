@@ -25,17 +25,18 @@
                 {
                     // Chat messages alignment and color based on sender
                     var align = msg.IsMine ? AlignItems.End : AlignItems.Start;
-                    var color = msg.IsMine ? Color.Surface : Color.Primary;
-                    var textColor = msg.IsMine ? Color.Inherit : Color.Surface;
+                    var backgroundColor = msg.IsMine ? Color.Primary.ToDescriptionString() : Color.Surface.ToDescriptionString();
+                    var textColor = msg.IsMine ? Color.Surface.ToDescriptionString() : Color.Inherit.ToDescriptionString();
                     
                     <MudStack AlignItems="@align" Spacing="0">
                         @if (!msg.IsMine)
                         {
                             <MudText Typo="Typo.caption" Class="ml-1">@msg.SenderName</MudText>
                         }
-                        
-                        <MudPaper Elevation="1" Class="pa-2 rounded-lg" Style="max-width: 80%; width: fit-content;" Color="@color">
-                            <MudText Typo="Typo.body2" Color="@textColor">@msg.Content</MudText>
+
+                        <MudPaper Elevation="1" Class="pa-2 rounded-lg"
+                                  Style="@($"max-width: 85%; width: fit-content; background-color: var(--mud-palette-{backgroundColor}); color: var(--mud-palette-{textColor});")">
+                            <MudText Typo="Typo.body2" Style="@($"color: var(--mud-palette-{textColor});")">@msg.Content</MudText>
                         </MudPaper>
 
                         <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="mt-1 mr-1">
