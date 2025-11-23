@@ -156,7 +156,7 @@ public class TokenService : ITokenService
 
     public int GetUserIdFromToken(ClaimsPrincipal claims)
     {
-        var userIdClaim = claims.FindFirstValue(JwtRegisteredClaimNames.NameId);
+        var userIdClaim = claims.FindFirstValue(ClaimTypes.NameIdentifier);
         if (!int.TryParse(userIdClaim, out var userId))
         {
             throw new InvalidOperationException("Invalid user identifier.");

@@ -51,9 +51,9 @@
         }
     </div>
 
-    <MudPaper Elevation="0" Class="d-flex align-center pa-2 border-t">
+    <MudPaper Elevation="0" Class="d-flex align-center pa-2">
         <MudTextField @bind-Value="_newMessageInput" 
-                      Placeholder="Wpisz wiadomość..." 
+                      Placeholder="Type a message..."
                       Variant="Variant.Outlined" 
                       Margin="Margin.Dense"
                       Immediate="true"
@@ -70,8 +70,9 @@
 </div>
 
 @code {
-    [Parameter] public int HouseholdId { get; set; }
+    [Parameter] public int? HouseholdId { get; set; }
 
+    private int _householdId { get; set; }
     private List<ChatMessageDto> _messages = new();
     private string _newMessageInput = string.Empty;
     private string _typingInfo = string.Empty;
@@ -79,13 +80,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        HouseholdId = 2;
-        _messages = await ChatService.GetHistoryAsync(HouseholdId);
+        if (HouseholdId == null)
+            _householdId = 2;
+
+        _messages = await ChatService.GetHistoryAsync(_householdId);
 
         ChatService.MessageReceived += HandleMessageReceived;
         ChatService.UserTyping += HandleUserTyping;
 
-        await ChatService.ConnectAsync(HouseholdId);
+        await ChatService.ConnectAsync(_householdId);
 
         await ScrollToBottom();
     }
@@ -129,14 +132,14 @@
             var optimisticMsg = new ChatMessageDto(0, "Ja", contentToSend, DateTimeOffset.Now, true);
             _messages.Add(optimisticMsg); 
             
-            await ChatService.SendMessageAsync(HouseholdId, contentToSend);
+            await ChatService.SendMessageAsync(_householdId, contentToSend);
             await ScrollToBottom();
         }
     }
 
     private async Task HandleTyping()
     {
-         await ChatService.SendTypingAsync(HouseholdId);
+        await ChatService.SendTypingAsync(_householdId);
     }
 
     private async Task HandleKeyDown(KeyboardEventArgs e)
