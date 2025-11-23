@@ -126,8 +126,14 @@ public class Program
 
         builder.Services.AddSingleton(sp =>
         {
-            var config = sp.GetRequiredService<IConfiguration>();
-            return new MailerooClient(config["Maileroo:ApiKey"]);
+            var apiKey = builder.Configuration["MtaApiKey"];
+            if (string.IsNullOrWhiteSpace(apiKey))
+            {
+                throw new InvalidOperationException(
+                    "MailerooClient cannot be created: 'MtaApiKey:ApiKey' is missing or empty in configuration."
+                );
+            }
+            return new MailerooClient(apiKey);
         });
 
         builder.Services.Configure<EmailServiceOptions>(builder.Configuration.GetSection("Maileroo"));

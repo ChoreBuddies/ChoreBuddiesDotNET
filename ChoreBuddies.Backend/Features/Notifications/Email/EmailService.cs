@@ -68,7 +68,7 @@ public class EmailService : INotificationService, IEmailService
             recipientEmail,
             recipientName,
             MailerooConstants.NewChoreTemplate,
-            "You have got stuff to do!",
+            MailSubjects.NewChore,
             parameters,
             cancellationToken);
     }
@@ -82,12 +82,11 @@ public class EmailService : INotificationService, IEmailService
     {
         { "recipientName", recipientName }
     };
-
         return await SendTemplatedEmailAsync(
             recipientEmail,
             recipientName,
             MailerooConstants.RegisterConfirmationTemplate,
-            "Congratulations on your new journey",
+            MailSubjects.RegisterConfirmation,
             parameters,
             cancellationToken);
     }
@@ -108,7 +107,7 @@ public class EmailService : INotificationService, IEmailService
             recipientEmail,
             recipientName,
             MailerooConstants.NewRewardRequestTemplate,
-            "Your child redeemed reward!",
+            MailSubjects.NewRewardRequest,
             parameters,
             cancellationToken);
     }
