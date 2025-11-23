@@ -1,5 +1,6 @@
 ﻿@page "/no-household"
 @using MudBlazor
+@inject NavigationManager _navigationManager
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="mx-auto mt-12">
     <MudPaper Elevation="1" Class="p-6 d-flex flex-column align-items-center text-center">
@@ -36,13 +37,12 @@
 @code {
     private void CreateHousehold()
     {
-        Navigation.NavigateTo("/household/create");
+        _navigationManager.NavigateTo("/household/create");
     }
 
     private void JoinHousehold()
     {
-        Navigation.NavigateTo("/household/join");
+        _navigationManager.NavigateTo("/household/join");
     }
 
-    [Inject] NavigationManager Navigation { get; set; }
 }

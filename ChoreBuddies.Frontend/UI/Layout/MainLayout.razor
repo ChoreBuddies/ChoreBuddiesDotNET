@@ -172,7 +172,6 @@
 
 @code {
     private const string AppTitle = "ChoreBuddies"; // TODO make strings file
-    private int? _householdId;
 
     private bool _drawerOpen = false; 
     private bool _showMiniChat = true;
@@ -200,16 +199,18 @@
         }
     };
 
-    protected override async void OnInitialized()
+    protected override void OnInitialized()
     {
         Navigation.LocationChanged += OnLocationChanged;
 
         CheckMiniChatVisibility();
+        CheckLayoutVisibility();
     }
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
         CheckMiniChatVisibility();
+        CheckLayoutVisibility();
         StateHasChanged();
     }
 
