@@ -9,7 +9,7 @@ public class HttpClientUtils(IHttpClientFactory httpClientFactory)
 
     private HttpClient CreateClient(bool authorized)
     {
-        return _httpClientFactory.CreateClient(authorized ? AuthConstants.AuthorizedClient : AuthConstants.UnauthorizedClient);
+        return _httpClientFactory.CreateClient(authorized ? AuthFrontendConstants.AuthorizedClient : AuthFrontendConstants.UnauthorizedClient);
     }
 
     private async Task<T?> ProcessResponseAsync<T>(HttpResponseMessage response)

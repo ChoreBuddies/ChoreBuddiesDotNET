@@ -1,6 +1,6 @@
 ﻿namespace ChoreBuddies.Frontend.Features.Authentication;
 
-public static class AuthConstants
+public static class AuthFrontendConstants
 {
     public const string AuthTokenKey = "authToken";
     public const string RefreshToken = "refreshToken";

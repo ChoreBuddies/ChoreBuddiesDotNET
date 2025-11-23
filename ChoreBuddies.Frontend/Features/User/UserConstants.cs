@@ -1,0 +1,7 @@
+﻿namespace ChoreBuddies.Frontend.Features.User;
+
+public static class UserConstants
+{
+    public const string ApiEndpointMe = "api/v1/users/me";
+    public const string ApiEndpointUser = "api/v1/users";
+}

@@ -1,13 +1,18 @@
 using ChoreBuddies.Backend.Domain;
+using ChoreBuddies.Backend.Features.Chat;
 using ChoreBuddies.Backend.Features.Chores;
 using ChoreBuddies.Backend.Features.DefaultChores;
 using ChoreBuddies.Backend.Features.Households;
+using ChoreBuddies.Backend.Features.Notifications;
+using ChoreBuddies.Backend.Features.Notifications.Email;
 using ChoreBuddies.Backend.Features.Users;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using ChoreBuddies.Backend.Infrastructure.Data;
+using Maileroo.DotNet.SDK;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -21,6 +26,7 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         builder.AddServiceDefaults();
         builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
+        builder.Services.AddSignalR();
 
         builder.Services.AddCors(options =>
         {
@@ -76,7 +82,23 @@ public class Program
                 ValidateAudience = true,
                 ValidAudience = jwtSettings["Audience"],
                 ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero // Optional: reduce clock skew for exact expiration validation
+                ClockSkew = TimeSpan.Zero
+            };
+
+            // For SignalR authentication
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    var accessToken = context.Request.Query["access_token"];
+
+                    var path = context.HttpContext.Request.Path;
+                    if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
+                    {
+                        context.Token = accessToken;
+                    }
+                    return Task.CompletedTask;
+                }
             };
         });
 
@@ -101,6 +123,36 @@ public class Program
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
         builder.Services.AddScoped<IAppUserService, AppUserService>();
+
+        builder.Services.AddSingleton(sp =>
+        {
+            var apiKey = builder.Configuration["MtaApiKey"];
+            if (string.IsNullOrWhiteSpace(apiKey))
+            {
+                throw new InvalidOperationException(
+                    "MailerooClient cannot be created: 'MtaApiKey:ApiKey' is missing or empty in configuration."
+                );
+            }
+            return new MailerooClient(apiKey);
+        });
+
+        builder.Services.Configure<EmailServiceOptions>(builder.Configuration.GetSection("Maileroo"));
+
+        builder.Services.AddScoped<EmailService>(sp =>
+        {
+            var client = sp.GetRequiredService<MailerooClient>();
+            var options = sp.GetRequiredService<IOptions<EmailServiceOptions>>().Value;
+
+            return new EmailService(
+                client,
+                options.From,
+                options.FromName
+            );
+        });
+
+        // Interfejsy mapowane na tê sam¹ instancjê EmailService
+        builder.Services.AddScoped<IEmailService>(sp => sp.GetRequiredService<EmailService>());
+        builder.Services.AddScoped<INotificationService>(sp => sp.GetRequiredService<EmailService>());
 
         builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
@@ -144,6 +196,8 @@ public class Program
 
         app.UseSwagger();
         app.UseSwaggerUI();
+
+        app.MapHub<ChatHub>("/chatHub");
 
         app.Run();
     }
