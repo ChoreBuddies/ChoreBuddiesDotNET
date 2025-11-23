@@ -47,7 +47,7 @@ public class TokenService : ITokenService
                     new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName ?? ""),
                     new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName ?? ""),
                     new Claim(JwtRegisteredClaimNames.Name, user.UserName ?? ""),
-                    new Claim("HouseholdId", user.HouseholdId?.ToString() ?? ""),
+                    new Claim(AuthConstants.JwtHouseholdId, user.HouseholdId?.ToString() ?? ""),
                 };
 
         // Add user roles to the claims

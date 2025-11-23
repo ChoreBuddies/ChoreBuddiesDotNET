@@ -32,12 +32,12 @@ public class Program
         // Register the custom HttpMessageHandler and configure the HttpClient
         builder.Services.AddTransient<AuthorizedHttpClient>();
         var apiUrl = builder.Configuration[AppConstants.ApiUrl] ?? AppConstants.DefaultApiUrl;
-        builder.Services.AddHttpClient(AuthConstants.AuthorizedClient, client =>
+        builder.Services.AddHttpClient(AuthFrontendConstants.AuthorizedClient, client =>
         {
             client.BaseAddress = new Uri(apiUrl);
         }).AddHttpMessageHandler<AuthorizedHttpClient>(); // This adds the auth header to all requests made by this client
 
-        builder.Services.AddHttpClient(AuthConstants.UnauthorizedClient, client =>
+        builder.Services.AddHttpClient(AuthFrontendConstants.UnauthorizedClient, client =>
         {
             client.BaseAddress = new Uri(apiUrl);
         });

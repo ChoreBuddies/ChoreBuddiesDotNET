@@ -19,6 +19,7 @@ public interface IAuthService
     public Task LogoutAsync();
     public Task<int> GetUserIdAsync();
     public Task<string> GetUserEmailAsync();
+    public Task<string> GetUserNameAsync();
     public Task<int> GetHouseholdIdAsync();
 }
 
@@ -30,8 +31,8 @@ public class AuthService(HttpClient httpClient, ILocalStorageService localStorag
 
     public async Task LoginAsync(string token, string refreshToken)
     {
-        await _localStorage.SetItemAsStringAsync(AuthConstants.AuthTokenKey, token);
-        await _localStorage.SetItemAsStringAsync(AuthConstants.RefreshToken, refreshToken);
+        await _localStorage.SetItemAsStringAsync(AuthFrontendConstants.AuthTokenKey, token);
+        await _localStorage.SetItemAsStringAsync(AuthFrontendConstants.RefreshToken, refreshToken);
 
         if (_authStateProvider is JwtAuthStateProvider jwtAuthStateProvider)
         {
@@ -41,8 +42,8 @@ public class AuthService(HttpClient httpClient, ILocalStorageService localStorag
 
     public async Task LogoutAsync()
     {
-        await _localStorage.RemoveItemAsync(AuthConstants.AuthTokenKey);
-        await _localStorage.RemoveItemAsync(AuthConstants.RefreshToken);
+        await _localStorage.RemoveItemAsync(AuthFrontendConstants.AuthTokenKey);
+        await _localStorage.RemoveItemAsync(AuthFrontendConstants.RefreshToken);
 
         if (_authStateProvider is JwtAuthStateProvider jwtAuthStateProvider)
         {
@@ -52,12 +53,12 @@ public class AuthService(HttpClient httpClient, ILocalStorageService localStorag
 
     public async Task<string?> GetTokenAsync()
     {
-        return await _localStorage.GetItemAsStringAsync(AuthConstants.AuthTokenKey);
+        return await _localStorage.GetItemAsStringAsync(AuthFrontendConstants.AuthTokenKey);
     }
 
     public async Task<string?> GetRefreshTokenAsync()
     {
-        return await _localStorage.GetItemAsStringAsync(AuthConstants.RefreshToken);
+        return await _localStorage.GetItemAsStringAsync(AuthFrontendConstants.RefreshToken);
     }
 
     public async Task<bool> RefreshTokenAsync()
@@ -72,7 +73,7 @@ public class AuthService(HttpClient httpClient, ILocalStorageService localStorag
 
         try
         {
-            var response = await _httpClient.PostAsJsonAsync(AuthConstants.ApiEndpointRefresh,
+            var response = await _httpClient.PostAsJsonAsync(AuthFrontendConstants.ApiEndpointRefresh,
                 new RefreshTokenRequestDto(token, refreshToken));
 
             if (response.IsSuccessStatusCode)
@@ -98,7 +99,9 @@ public class AuthService(HttpClient httpClient, ILocalStorageService localStorag
 
     public async Task<string> GetUserEmailAsync() => await GetClaimValueAsync(JwtRegisteredClaimNames.Email);
 
-    public async Task<int> GetHouseholdIdAsync() => Int32.TryParse(await GetClaimValueAsync("HouseholdId"), out var x) ? x : -1;
+    public async Task<string> GetUserNameAsync() => await GetClaimValueAsync(JwtRegisteredClaimNames.Name);
+
+    public async Task<int> GetHouseholdIdAsync() => Int32.TryParse(await GetClaimValueAsync(AuthConstants.JwtHouseholdId), out var x) ? x : -1;
 
     public async Task<IEnumerable<Claim>> GetClaimsAsync()
     {
@@ -123,5 +126,4 @@ public class AuthService(HttpClient httpClient, ILocalStorageService localStorag
 
         return user.Identity?.IsAuthenticated ?? false;
     }
-
 }

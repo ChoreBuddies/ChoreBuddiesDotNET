@@ -95,6 +95,7 @@
 
 @code {
     private int _householdId { get; set; } = -1;
+    private string _username { get; set; } = "Me";
     private List<ChatMessageVm> _messages = new();
     private string _newMessageInput = string.Empty;
     private string _typingInfo = string.Empty;
@@ -105,6 +106,7 @@
     protected override async Task OnInitializedAsync()
     {
         _householdId = await authService.GetHouseholdIdAsync();
+        _username = await authService.GetUserNameAsync();
 
         // Load History
         var historyDtos = await chatService.GetHistoryAsync(_householdId);
@@ -134,7 +136,7 @@
             var optimisticMsg = new ChatMessageVm
             {
                 Id = 0,
-                SenderName = "Me", // TODO: Pobierz nazwę użytkownika z kontekstu
+                SenderName = _username,
                 Content = contentToSend,
                 IsMine = true,
                 SentAt = DateTimeOffset.Now,
