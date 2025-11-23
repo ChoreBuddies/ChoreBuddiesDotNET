@@ -1,0 +1,31 @@
+﻿<MudPaper Elevation="1" Class="pa-4 rounded-lg">
+    <MudGrid>
+        <MudItem xs="8">
+            <MudText Typo="Typo.caption" Color="Color.Secondary">@DueText</MudText>
+            <MudText Typo="Typo.h6">@Title</MudText>
+            <MudText Typo="Typo.body2">@Description</MudText>
+
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2">
+                View Task →
+            </MudButton>
+        </MudItem>
+
+        <MudItem xs="4" Class="d-flex justify-end align-center">
+            <MudStack>
+                <MudButton Color="Color.Default" Variant="Variant.Outlined" Class="mt-1">
+                    Set a reminder
+                </MudButton>
+                <MudButton Color="Color.Default" Variant="Variant.Outlined" Class="mt-1">
+                    Mark as done
+                </MudButton>
+            </MudStack>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@code {
+    [Parameter] public string? DueText { get; set; }
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public string? Description { get; set; }
+    [Parameter] public string? ImageUrl { get; set; }
+}
