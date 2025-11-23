@@ -14,12 +14,12 @@ public class JwtAuthStateProvider(ILocalStorageService localStorage) : Authentic
     {
         try
         {
-            var token = await _localStorage.GetItemAsStringAsync(AuthConstants.AuthTokenKey);
+            var token = await _localStorage.GetItemAsStringAsync(AuthFrontendConstants.AuthTokenKey);
             if (string.IsNullOrWhiteSpace(token))
                 return new AuthenticationState(_anonymous);
 
             var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
-            var identity = new ClaimsIdentity(jwt.Claims, AuthConstants.Jwt);
+            var identity = new ClaimsIdentity(jwt.Claims, AuthFrontendConstants.Jwt);
             var user = new ClaimsPrincipal(identity);
 
             return new AuthenticationState(user);
@@ -33,7 +33,7 @@ public class JwtAuthStateProvider(ILocalStorageService localStorage) : Authentic
     public void NotifyUserAuthentication(string token)
     {
         var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
-        var identity = new ClaimsIdentity(jwt.Claims, AuthConstants.Jwt);
+        var identity = new ClaimsIdentity(jwt.Claims, AuthFrontendConstants.Jwt);
         var user = new ClaimsPrincipal(identity);
         var authState = Task.FromResult(new AuthenticationState(user));
         NotifyAuthenticationStateChanged(authState);

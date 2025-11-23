@@ -14,6 +14,8 @@ public interface IHouseholdService
     public Task<Household?> JoinHouseholdAsync(string invitationCode, int userId);
     // Delete
     public Task<Household?> DeleteHouseholdAsync(int householdId);
+    // Validate
+    public Task<bool> CheckIfUserBelongsAsync(int householdId, int userId);
 }
 
 public class HouseholdService(IHouseholdRepository repository, IInvitationCodeService invitationCodeService, IAppUserRepository appUserRepository) : IHouseholdService
@@ -81,5 +83,10 @@ public class HouseholdService(IHouseholdRepository repository, IInvitationCodeSe
     public Task<Household?> JoinHouseholdAsync(string invitationCode, AppUser user)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<bool> CheckIfUserBelongsAsync(int householdId, int userId)
+    {
+        return await _repository.CheckIfUserBelongsAsync(householdId, userId);
     }
 }

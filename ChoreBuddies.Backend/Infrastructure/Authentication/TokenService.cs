@@ -16,6 +16,9 @@ public interface ITokenService
     public Task<AuthResponseDto> RefreshAccessToken(string accessToken, string refreshToken);
     public DateTime GetAccessTokenExpiration();
     public DateTime GetRefreshTokenExpiration();
+    public int GetUserIdFromToken(ClaimsPrincipal claims);
+
+    public string? GetUserNameFromToken(ClaimsPrincipal claims);
 }
 
 public class TokenService : ITokenService
@@ -43,6 +46,8 @@ public class TokenService : ITokenService
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
                     new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName ?? ""),
                     new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName ?? ""),
+                    new Claim(JwtRegisteredClaimNames.Name, user.UserName ?? ""),
+                    new Claim(AuthConstants.JwtHouseholdId, user.HouseholdId?.ToString() ?? ""),
                 };
 
         // Add user roles to the claims
@@ -151,5 +156,20 @@ public class TokenService : ITokenService
         {
             return null;
         }
+    }
+
+    public int GetUserIdFromToken(ClaimsPrincipal claims)
+    {
+        var userIdClaim = claims.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(userIdClaim, out var userId))
+        {
+            throw new InvalidOperationException("Invalid user identifier.");
+        }
+        return userId;
+    }
+
+    public string? GetUserNameFromToken(ClaimsPrincipal claims)
+    {
+        return claims.FindFirstValue(JwtRegisteredClaimNames.Name);
     }
 }

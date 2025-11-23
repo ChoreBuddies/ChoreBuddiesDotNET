@@ -24,7 +24,7 @@ public class AuthApiService : IAuthApiService
     public async Task<Result> LoginAsync(LoginRequestDto request)
     {
         var response = await _httpUtils.TryRequestAsync(
-            () => _httpUtils.PostAsync<LoginRequestDto, AuthResponseDto>(AuthConstants.ApiEndpointLogin, request)
+            () => _httpUtils.PostAsync<LoginRequestDto, AuthResponseDto>(AuthFrontendConstants.ApiEndpointLogin, request)
         );
 
         if (response?.AccessToken is not null && response?.RefreshToken is not null)
@@ -39,7 +39,7 @@ public class AuthApiService : IAuthApiService
     public async Task<Result> SignupAsync(RegisterRequestDto request)
     {
         var response = await _httpUtils.TryRequestAsync(
-             () => _httpUtils.PostAsync<RegisterRequestDto, AuthResponseDto>(AuthConstants.ApiEndpointSignup, request)
+             () => _httpUtils.PostAsync<RegisterRequestDto, AuthResponseDto>(AuthFrontendConstants.ApiEndpointSignup, request)
         );
 
         if (response?.AccessToken is not null && response?.RefreshToken is not null)
@@ -55,7 +55,7 @@ public class AuthApiService : IAuthApiService
     {
         await _httpUtils.TryRequestAsync<object>(async () =>
         {
-            await _httpUtils.PostAsync(AuthConstants.ApiEndpointRevoke, new { }, authorized: true);
+            await _httpUtils.PostAsync(AuthFrontendConstants.ApiEndpointRevoke, new { }, authorized: true);
             return null;
         });
 
