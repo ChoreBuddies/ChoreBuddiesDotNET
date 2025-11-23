@@ -24,6 +24,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="15.0.1" />
     <PackageReference Include="Docker.DotNet.Enhanced" Version="3.128.5" />
+    <PackageReference Include="Maileroo.DotNet.SDK" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.20" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.19" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.8" />
@@ -49,5 +50,9 @@
     <None Update="Infrastructure\Data\Csv\default_chores.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Notifications\Push\" />
   </ItemGroup>
 </Project>
