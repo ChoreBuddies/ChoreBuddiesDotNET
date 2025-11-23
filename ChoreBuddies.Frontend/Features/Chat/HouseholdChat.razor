@@ -2,42 +2,62 @@
 
 @inject IChatService ChatService
 @inject IJSRuntime JSRuntime
+@inject ISnackbar Snackbar
 @implements IAsyncDisposable
 
 <div class="d-flex flex-column" style="height: 500px; width: 100%; max-width: 600px; margin: auto;">
 
     <MudPaper Class="flex-grow-1 pa-4 overflow-auto" Elevation="0" ID="chat-scroll-container">
         <MudStack Spacing="2">
-            @if (_messages == null)
+            @if (_isLoading)
             {
                 <MudProgressCircular Indeterminate="true" />
             }
             else if (!_messages.Any())
             {
-                <MudText Typo="Typo.body2" Align="Align.Center" Color="Color.Default">Brak wiadomości. Napisz coś!</MudText>
+                <MudText Typo="Typo.body2" Align="Align.Center" Color="Color.Default">
+                    No messages yet. Start the conversation!
+                </MudText>
             }
             else
             {
                 @foreach (var msg in _messages)
                 {
                     // Chat messages alignment and color based on sender
-                    var align = msg.IsMine ? Align.End : Align.Start;
+                    var align = msg.IsMine ? AlignItems.End : AlignItems.Start;
                     var color = msg.IsMine ? Color.Surface : Color.Primary;
                     var textColor = msg.IsMine ? Color.Inherit : Color.Surface;
                     
-                    <MudStack AlignItems="@(msg.IsMine ? AlignItems.End : AlignItems.Start)" Spacing="0">
+                    <MudStack AlignItems="@align" Spacing="0">
                         @if (!msg.IsMine)
                         {
                             <MudText Typo="Typo.caption" Class="ml-1">@msg.SenderName</MudText>
                         }
                         
                         <MudPaper Elevation="1" Class="pa-2 rounded-lg" Style="max-width: 80%; width: fit-content;" Color="@color">
-                            <MudText Typo="Typo.body2" Color="@(msg.IsMine ? Color.Surface : Color.Default)">@msg.Content</MudText>
+                            <MudText Typo="Typo.body2" Color="@textColor">@msg.Content</MudText>
                         </MudPaper>
-                        
-                        <MudText Typo="Typo.caption" Class="mt-1 mr-1" Color="Color.Default" Style="font-size: 0.6rem;">
-                            @msg.SentAt.ToLocalTime().ToString("HH:mm")
-                        </MudText>
+
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="mt-1 mr-1">
+                            <MudText Typo="Typo.caption" Color="Color.Default" Style="font-size: 0.6rem;">
+                                @msg.SentAt.ToLocalTime().ToString("HH:mm")
+                            </MudText>
+
+                            @if (msg.IsMine && msg.Status != MessageStatus.None)
+                            {
+                                @if (msg.Status == MessageStatus.Sending)
+                                {
+                                    <MudIcon Icon="@Icons.Material.Filled.AccessTime" Size="Size.Small" Style="font-size: 0.8rem; color: grey;" />
+                                }
+                                else if (msg.Status == MessageStatus.Sent)
+                                {
+                                    <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Small" Style="font-size: 0.8rem; color: green;" />
+                                    <MudText Typo="Typo.caption" Style="font-size: 0.6rem; color: green;">
+                                        Sent
+                                    </MudText>
+                                }
+                            }
+                        </MudStack>
                     </MudStack>
                 }
             }
@@ -47,7 +67,9 @@
     <div style="min-height: 20px;" class="px-4">
         @if (!string.IsNullOrEmpty(_typingInfo))
         {
-            <MudText Typo="Typo.caption" Class="mud-text-secondary">@_typingInfo pisze...</MudText>
+            <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                @_typingInfo pisze...
+            </MudText>
         }
     </div>
 
@@ -73,9 +95,11 @@
     [Parameter] public int? HouseholdId { get; set; }
 
     private int _householdId { get; set; }
-    private List<ChatMessageDto> _messages = new();
+    private List<ChatMessageVm> _messages = new();
     private string _newMessageInput = string.Empty;
     private string _typingInfo = string.Empty;
+    private bool _isLoading = true;
+
     private System.Timers.Timer? _typingTimer;
 
     protected override async Task OnInitializedAsync()
@@ -83,22 +107,91 @@
         if (HouseholdId == null)
             _householdId = 2;
 
-        _messages = await ChatService.GetHistoryAsync(_householdId);
+        // 1. Load History
+        var historyDtos = await ChatService.GetHistoryAsync(_householdId);
+        _messages = historyDtos.Select(ChatMessageVm.FromDto).ToList();
+        _isLoading = false;
 
+        // 2. Subscribe events
         ChatService.MessageReceived += HandleMessageReceived;
         ChatService.UserTyping += HandleUserTyping;
 
+        // 3. Connect
         await ChatService.ConnectAsync(_householdId);
 
         await ScrollToBottom();
     }
 
-    private async void HandleMessageReceived(ChatMessageDto message)
+    private async Task SendMessage()
     {
-        _messages.Add(message);
-        _typingInfo = string.Empty; 
-        await InvokeAsync(StateHasChanged);
-        await ScrollToBottom();
+        if (!string.IsNullOrWhiteSpace(_newMessageInput) && ChatService.IsConnected)
+        {
+            var contentToSend = _newMessageInput;
+            _newMessageInput = string.Empty;
+
+            // Add optimistic message to UI
+            var tempId = Guid.NewGuid();
+
+            var optimisticMsg = new ChatMessageVm
+            {
+                Id = 0,
+                SenderName = "Me", // TODO: Pobierz nazwę użytkownika z kontekstu
+                Content = contentToSend,
+                IsMine = true,
+                SentAt = DateTimeOffset.Now,
+                Status = MessageStatus.Sending,
+                ClientUniqueId = tempId
+            };
+
+            _messages.Add(optimisticMsg);
+            await ScrollToBottom();
+
+            // Send to server
+            await ChatService.SendMessageAsync(_householdId, contentToSend, tempId);
+        }
+    }
+
+    private void HandleMessageReceived(ChatMessageDto messageDto)
+    {
+        InvokeAsync(async () =>
+        {
+            _typingInfo = string.Empty;
+
+            if (messageDto.IsMine)
+            {
+                // LOGIKA "SENDING -> SENT"
+                // Szukamy najstarszej wiadomości, która wisi jako "Sending"
+                var sendingMsg = _messages.FirstOrDefault(m => m.Status == MessageStatus.Sending && 
+                    m.ClientUniqueId == messageDto.ClientUniqueId);
+
+                if (sendingMsg != null)
+                {
+                    sendingMsg.Id = messageDto.Id;
+                    sendingMsg.SentAt = messageDto.SentAt;
+                    sendingMsg.Status = MessageStatus.Sent;
+
+                    // Uruchamiamy task, który wyczyści status "Sent" po 3 sekundach
+                    _ = Task.Delay(3000).ContinueWith(_ =>
+                    {
+                        sendingMsg.Status = MessageStatus.None;
+                        InvokeAsync(StateHasChanged);
+                    });
+                }
+                else
+                {
+                    // Jeśli nie znaleźliśmy "Sending" (np. wysłane z innego urządzenia), dodajemy normalnie
+                    _messages.Add(ChatMessageVm.FromDto(messageDto));
+                }
+            }
+            else
+            {
+                // Wiadomość od kogoś innego
+                _messages.Add(ChatMessageVm.FromDto(messageDto));
+            }
+
+            StateHasChanged();
+            await ScrollToBottom();
+        });
     }
 
     private void HandleUserTyping(string userName)
@@ -108,33 +201,13 @@
 
         _typingTimer?.Stop();
         _typingTimer = new System.Timers.Timer(3000);
-        _typingTimer.Elapsed += (s, e) => { 
-            _typingInfo = string.Empty; 
-            InvokeAsync(StateHasChanged); 
+        _typingTimer.Elapsed += (s, e) =>
+        {
+            _typingInfo = string.Empty;
+            InvokeAsync(StateHasChanged);
         };
         _typingTimer.AutoReset = false;
         _typingTimer.Start();
-    }
-
-    private async Task SendMessage()
-    {
-        if (!string.IsNullOrWhiteSpace(_newMessageInput) && ChatService.IsConnected)
-        {
-            var contentToSend = _newMessageInput;
-            _newMessageInput = string.Empty; 
-            
-            // TODO zmeinic
-            // Dodajemy "optymistycznie" do listy (opcjonalnie), 
-            // ALE backend w naszej implementacji nie odsyła wiadomości do nadawcy przez SignalR (Clients.Others),
-            // więc musimy dodać ją tutaj ręcznie, żeby ją zobaczyć.
-            
-            // Uwaga: normalnie pobrałbym User Name z AuthState, tu hardcoduję "Ja" dla przykładu
-            var optimisticMsg = new ChatMessageDto(0, "Ja", contentToSend, DateTimeOffset.Now, true);
-            _messages.Add(optimisticMsg); 
-            
-            await ChatService.SendMessageAsync(_householdId, contentToSend);
-            await ScrollToBottom();
-        }
     }
 
     private async Task HandleTyping()

@@ -5,5 +5,6 @@ public record ChatMessageDto(
     string SenderName,
     string Content,
     DateTimeOffset SentAt,
-    bool IsMine
+    bool IsMine,
+    Guid? ClientUniqueId = null
 );

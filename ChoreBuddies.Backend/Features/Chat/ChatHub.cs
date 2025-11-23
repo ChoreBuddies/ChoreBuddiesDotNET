@@ -33,7 +33,7 @@ public class ChatHub(ChoreBuddiesDbContext context,
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
     }
 
-    public async Task SendMessage(int householdId, string messageContent)
+    public async Task SendMessage(int householdId, string messageContent, Guid clientUniqueId)
     {
 
         // Check if user belongs to the household
@@ -60,20 +60,25 @@ public class ChatHub(ChoreBuddiesDbContext context,
             user.UserName ?? "Unknown",
             newMessage.Content,
             newMessage.SentAt,
-            false // receiver will see as not mine
+            false, // default
+            clientUniqueId
         );
 
         string groupName = GetGroupName(householdId);
-        await Clients.Group(groupName).SendAsync("ReceiveMessage", messageDto);
+
+        // 4. Send to receivers (IsMine = false)
+        await Clients.OthersInGroup(groupName).SendAsync("ReceiveMessage", messageDto);
+
+        // 5. Send to Caller (IsMine = true)
+        await Clients.Caller.SendAsync("ReceiveMessage", messageDto with { IsMine = true });
     }
 
     public async Task SendTyping(int householdId)
     {
-        // TODO poprawić
-        var userName = Context.User?.Identity?.Name ?? "Ktoś";
+        var userName = tokenService.GetUserNameFromToken(Context?.User ?? new ClaimsPrincipal()) ?? "Ktoś";
         string groupName = GetGroupName(householdId);
 
-        await Clients.GroupExcept(groupName, Context.ConnectionId)
+        await Clients.GroupExcept(groupName, Context?.ConnectionId ?? string.Empty)
                      .SendAsync("UserIsTyping", userName);
     }
 

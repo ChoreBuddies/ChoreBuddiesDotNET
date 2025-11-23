@@ -16,7 +16,7 @@ public interface IChatService : IAsyncDisposable
     Task ConnectAsync(int householdId);
     Task DisconnectAsync();
     Task<List<ChatMessageDto>> GetHistoryAsync(int householdId);
-    Task SendMessageAsync(int householdId, string content);
+    Task SendMessageAsync(int householdId, string content, Guid clientUniqueId);
     Task SendTypingAsync(int householdId);
 }
 
@@ -85,11 +85,11 @@ public class ChatService(
         return result ?? [];
     }
 
-    public async Task SendMessageAsync(int householdId, string content)
+    public async Task SendMessageAsync(int householdId, string content, Guid clientUniqueId)
     {
         if (_hubConnection is not null && IsConnected)
         {
-            await _hubConnection.InvokeAsync("SendMessage", householdId, content);
+            await _hubConnection.InvokeAsync("SendMessage", householdId, content, clientUniqueId);
         }
     }
 

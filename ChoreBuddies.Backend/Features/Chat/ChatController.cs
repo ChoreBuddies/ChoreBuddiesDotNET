@@ -36,7 +36,8 @@ public class ChatController(ChoreBuddiesDbContext context,
                 (m.Sender != null && m.Sender.UserName != null) ? m.Sender.UserName : "Unknown",
                 m.Content,
                 m.SentAt,
-                m.SenderId == userId
+                m.SenderId == userId,
+                null
             ))
             .ToListAsync();
 

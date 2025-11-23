@@ -17,6 +17,8 @@ public interface ITokenService
     public DateTime GetAccessTokenExpiration();
     public DateTime GetRefreshTokenExpiration();
     public int GetUserIdFromToken(ClaimsPrincipal claims);
+
+    public string? GetUserNameFromToken(ClaimsPrincipal claims);
 }
 
 public class TokenService : ITokenService
@@ -44,6 +46,7 @@ public class TokenService : ITokenService
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
                     new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName ?? ""),
                     new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName ?? ""),
+                    new Claim(JwtRegisteredClaimNames.Name, user.UserName ?? ""),
                 };
 
         // Add user roles to the claims
@@ -162,5 +165,10 @@ public class TokenService : ITokenService
             throw new InvalidOperationException("Invalid user identifier.");
         }
         return userId;
+    }
+
+    public string? GetUserNameFromToken(ClaimsPrincipal claims)
+    {
+        return claims.FindFirstValue(JwtRegisteredClaimNames.Name);
     }
 }
