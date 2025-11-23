@@ -100,37 +100,13 @@
                                 <MudDivider Style="border-color: #FFFFFF; color: #FFFFFF" />
 
                                 <!-- Recent Chat Section -->
-                                <div class="pa-4 flex-grow-1">
-                                    <MudText Typo="Typo.subtitle2" Class="mb-3">Recent Chat</MudText>
-                                    <div class="chat-messages">
-                                        @if (_recentChats.Any())
-                                        {
-                                            @foreach (var chat in _recentChats)
-                                            {
-                                                <MudPaper Class="pa-2 mb-2" Elevation="0">
-                                                    <div class="d-flex align-center mb-1">
-                                                        <MudAvatar Size="Size.Small" Class="mr-2">@chat.SenderInitial</MudAvatar>
-                                                        <MudText Typo="Typo.caption">@chat.Sender</MudText>
-                                                    </div>
-                                                    <MudText Typo="Typo.body2">@chat.Message</MudText>
-                                                </MudPaper>
-                                            }
-                                            <div class="mt-3 d-flex align-center">
-                                                <MudTextField T="string" @bind-Value="_chatMessage"
-                                                              Placeholder="Type a message..."
-                                                              Variant="Variant.Outlined"
-                                                              Margin="Margin.Dense"
-                                                              Adornment="Adornment.End"
-                                                              AdornmentIcon="@Icons.Material.Filled.Send"
-                                                              OnAdornmentClick="@SendMessage" />
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            <MudText Typo="Typo.caption" Color="Color.Tertiary">No recent messages</MudText>
-                                        }
+                                @if (_showMiniChat)
+                                {
+                                    <div class="pa-4 flex-grow-1">
+                                        <MudText Typo="Typo.subtitle2" Class="mb-3">Recent Chat</MudText>
+                                        <ChoreBuddies.Frontend.Features.Chat.HouseholdChat />
                                     </div>
-                                </div>
+                                }
                             </div>
                         </div>
                         <div class="flex">
@@ -189,10 +165,10 @@
 
 @code {
     private const string AppTitle = "ChoreBuddies"; // TODO make strings file
+    private int? _householdId;
 
-    private bool _drawerOpen = false;
-    private string _chatMessage = "";
-    private List<ChatMessage> _recentChats = new();
+    private bool _drawerOpen = false; 
+    private bool _showMiniChat = true;
 
     private MudTheme _theme = new MudTheme()
     {
@@ -216,29 +192,36 @@
         }
     };
 
-    protected override void OnInitialized()
+    protected override async void OnInitialized()
     {
-        // Initialize with sample data - replace with real data from your service
-        _recentChats = new List<ChatMessage>
-        {
-            new ChatMessage
-            {
-                Sender = "Mom",
-                SenderInitial = "M",
-                Message = "Hey everyone, remember to update your task progress by tonight!"
-            },
-            new ChatMessage
-            {
-                Sender = "Sarah",
-                SenderInitial = "S",
-                Message = "Got it, Mom! Will do."
-            }
-        };
+        Navigation.LocationChanged += OnLocationChanged;
+
+        CheckMiniChatVisibility();
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        CheckMiniChatVisibility();
+        StateHasChanged();
     }
 
     private void ToggleDrawer()
     {
         _drawerOpen = !_drawerOpen;
+    }
+
+    private void CheckMiniChatVisibility()
+    {
+        var relativePath = Navigation.ToBaseRelativePath(Navigation.Uri).ToLower();
+
+        if (relativePath.StartsWith("chat"))
+        {
+            _showMiniChat = false;
+        }
+        else
+        {
+            _showMiniChat = true;
+        }
     }
 
     private void AddNewTask()
@@ -256,26 +239,15 @@
         Navigation.NavigateTo("/rewards/redeem");
     }
 
-    private void SendMessage()
-    {
-        if (!string.IsNullOrWhiteSpace(_chatMessage))
-        {
-            // Add logic to send message
-            _chatMessage = "";
-        }
-    }
-
     private async void Logout()
     {
         await authApiService.RevokeAsync();
         Navigation.NavigateTo("/");
     }
 
-    private class ChatMessage
+    public async ValueTask DisposeAsync()
     {
-        public string Sender { get; set; } = "";
-        public string SenderInitial { get; set; } = "";
-        public string Message { get; set; } = "";
+        Navigation.LocationChanged -= OnLocationChanged;
     }
 }
 

@@ -19,6 +19,7 @@ public interface IAuthService
     public Task LogoutAsync();
     public Task<int> GetUserIdAsync();
     public Task<string> GetUserEmailAsync();
+    public Task<int> GetHouseholdIdAsync();
 }
 
 public class AuthService(HttpClient httpClient, ILocalStorageService localStorage, AuthenticationStateProvider authStateProvider) : IAuthService
@@ -97,6 +98,8 @@ public class AuthService(HttpClient httpClient, ILocalStorageService localStorag
 
     public async Task<string> GetUserEmailAsync() => await GetClaimValueAsync(JwtRegisteredClaimNames.Email);
 
+    public async Task<int> GetHouseholdIdAsync() => Int32.TryParse(await GetClaimValueAsync("HouseholdId"), out var x) ? x : -1;
+
     public async Task<IEnumerable<Claim>> GetClaimsAsync()
     {
         var authState = await _authStateProvider.GetAuthenticationStateAsync();
@@ -120,4 +123,5 @@ public class AuthService(HttpClient httpClient, ILocalStorageService localStorag
 
         return user.Identity?.IsAuthenticated ?? false;
     }
+
 }

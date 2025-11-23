@@ -1,6 +1,7 @@
-﻿@page "/chat-test" 
+﻿@page "/chat" 
 
-@inject IChatService ChatService
+@inject IChatService chatService
+@inject IAuthService authService
 @inject IJSRuntime JSRuntime
 @inject ISnackbar Snackbar
 @implements IAsyncDisposable
@@ -87,15 +88,13 @@
         <MudIconButton Icon="@Icons.Material.Filled.Send" 
                        Color="Color.Primary" 
                        OnClick="SendMessage" 
-                       Disabled="@(string.IsNullOrWhiteSpace(_newMessageInput) || !ChatService.IsConnected)" />
+                       Disabled="@(string.IsNullOrWhiteSpace(_newMessageInput) || !chatService.IsConnected)" />
     </MudPaper>
 
 </div>
 
 @code {
-    [Parameter] public int? HouseholdId { get; set; }
-
-    private int _householdId { get; set; }
+    private int _householdId { get; set; } = -1;
     private List<ChatMessageVm> _messages = new();
     private string _newMessageInput = string.Empty;
     private string _typingInfo = string.Empty;
@@ -105,27 +104,26 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (HouseholdId == null)
-            _householdId = 2;
+        _householdId = await authService.GetHouseholdIdAsync();
 
-        // 1. Load History
-        var historyDtos = await ChatService.GetHistoryAsync(_householdId);
+        // Load History
+        var historyDtos = await chatService.GetHistoryAsync(_householdId);
         _messages = historyDtos.Select(ChatMessageVm.FromDto).ToList();
         _isLoading = false;
 
-        // 2. Subscribe events
-        ChatService.MessageReceived += HandleMessageReceived;
-        ChatService.UserTyping += HandleUserTyping;
+        // Subscribe events
+        chatService.MessageReceived += HandleMessageReceived;
+        chatService.UserTyping += HandleUserTyping;
 
-        // 3. Connect
-        await ChatService.ConnectAsync(_householdId);
+        // Connect
+        await chatService.ConnectAsync(_householdId);
 
         await ScrollToBottom();
     }
 
     private async Task SendMessage()
     {
-        if (!string.IsNullOrWhiteSpace(_newMessageInput) && ChatService.IsConnected)
+        if (!string.IsNullOrWhiteSpace(_newMessageInput) && chatService.IsConnected)
         {
             var contentToSend = _newMessageInput;
             _newMessageInput = string.Empty;
@@ -148,7 +146,7 @@
             await ScrollToBottom();
 
             // Send to server
-            await ChatService.SendMessageAsync(_householdId, contentToSend, tempId);
+            await chatService.SendMessageAsync(_householdId, contentToSend, tempId);
         }
     }
 
@@ -213,7 +211,7 @@
 
     private async Task HandleTyping()
     {
-        await ChatService.SendTypingAsync(_householdId);
+        await chatService.SendTypingAsync(_householdId);
     }
 
     private async Task HandleKeyDown(KeyboardEventArgs e)
@@ -234,7 +232,7 @@
     public async ValueTask DisposeAsync()
     {
         _typingTimer?.Dispose();
-        ChatService.MessageReceived -= HandleMessageReceived;
-        ChatService.UserTyping -= HandleUserTyping;
+        chatService.MessageReceived -= HandleMessageReceived;
+        chatService.UserTyping -= HandleUserTyping;
     }
 }
