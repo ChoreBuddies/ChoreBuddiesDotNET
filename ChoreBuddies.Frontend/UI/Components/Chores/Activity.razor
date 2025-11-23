@@ -1,0 +1,36 @@
+﻿<MudPaper Elevation="0" Class="pa-2">
+    <MudGrid>
+        <MudItem xs="1">
+            <MudPaper Elevation="0" Class="icon-box">
+                <MudIcon Icon="@Icon" Size = "Size.Medium"/>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="7" Class="align-center">
+            <MudText Typo="Typo.body1" Class="fw-bold">@Title</MudText>
+            <MudText Typo="Typo.body2">@Status</MudText>
+        </MudItem>
+        <MudItem xs="4" Class="d-flex justify-end align-center">
+            <MudButton Variant="Variant.Outlined" Color="Color.Secondary">
+                View Task →
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@code {
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public string? Status { get; set; }
+    [Parameter] public string? Icon { get; set; }
+}
+
+<style>
+    .icon-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        background-color: #f0f0f0;
+        border-radius: 12px;
+    }
+</style>
