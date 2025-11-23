@@ -67,19 +67,19 @@ public class ChatHub(ChoreBuddiesDbContext context,
         string groupName = GetGroupName(householdId);
 
         // 4. Send to receivers (IsMine = false)
-        await Clients.OthersInGroup(groupName).SendAsync("ReceiveMessage", messageDto);
+        await Clients.OthersInGroup(groupName).SendAsync(ChatConstants.ReceiveMessage, messageDto);
 
         // 5. Send to Caller (IsMine = true)
-        await Clients.Caller.SendAsync("ReceiveMessage", messageDto with { IsMine = true });
+        await Clients.Caller.SendAsync(ChatConstants.ReceiveMessage, messageDto with { IsMine = true });
     }
 
     public async Task SendTyping(int householdId)
     {
-        var userName = tokenService.GetUserNameFromToken(Context?.User ?? new ClaimsPrincipal()) ?? "Ktoś";
+        var userName = tokenService.GetUserNameFromToken(Context?.User ?? new ClaimsPrincipal()) ?? "Somebody";
         string groupName = GetGroupName(householdId);
 
         await Clients.GroupExcept(groupName, Context?.ConnectionId ?? string.Empty)
-                     .SendAsync("UserIsTyping", userName);
+                     .SendAsync(ChatConstants.UserIsTyping, userName);
     }
 
     private static string GetGroupName(int householdId) => $"Household_{householdId}";

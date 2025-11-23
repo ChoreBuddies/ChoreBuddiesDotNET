@@ -52,14 +52,14 @@ public class ChatService(
             .Build();
 
         // Register event handlers
-        _hubConnection.On<ChatMessageDto>("ReceiveMessage", (msg) => MessageReceived?.Invoke(msg));
-        _hubConnection.On<string>("UserIsTyping", (user) => UserTyping?.Invoke(user));
+        _hubConnection.On<ChatMessageDto>(ChatConstants.ReceiveMessage, (msg) => MessageReceived?.Invoke(msg));
+        _hubConnection.On<string>(ChatConstants.UserIsTyping, (user) => UserTyping?.Invoke(user));
 
         // Start the connection
         await _hubConnection.StartAsync();
 
         // Join the household chat group
-        await _hubConnection.InvokeAsync("JoinHouseholdChat", householdId);
+        await _hubConnection.InvokeAsync(ChatConstants.JoinHouseholdChat, householdId);
     }
 
     public async Task DisconnectAsync()
@@ -89,7 +89,7 @@ public class ChatService(
     {
         if (_hubConnection is not null && IsConnected)
         {
-            await _hubConnection.InvokeAsync("SendMessage", householdId, content, clientUniqueId);
+            await _hubConnection.InvokeAsync(ChatConstants.SendMessage, householdId, content, clientUniqueId);
         }
     }
 
@@ -97,7 +97,7 @@ public class ChatService(
     {
         if (_hubConnection is not null && IsConnected)
         {
-            await _hubConnection.InvokeAsync("SendTyping", householdId);
+            await _hubConnection.InvokeAsync(ChatConstants.SendTyping, householdId);
         }
     }
 
