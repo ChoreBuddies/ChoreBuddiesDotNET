@@ -5,7 +5,12 @@
 
 <MudText Typo="Typo.h4" Class="mb-4">Profile Page</MudText>
 
-@if (User == null)
+@if (!string.IsNullOrEmpty(SaveError))
+{
+    <MudAlert Severity="Severity.Error">@SaveError</MudAlert>
+}
+
+@if (User is null)
 {
     <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
 }
@@ -86,6 +91,7 @@ else
     private bool IsEditing = false;
     private AppUserDto? User;
 
+    private string? SaveError;
     private string EditedFirstName = "";
     private string EditedLastName= "";
     private DateTime? EditedDateOfBirth;
@@ -95,8 +101,6 @@ else
     protected override async Task OnInitializedAsync()
     {
         User = await UserService.GetCurrentUserAsync();
-        if (User is null)
-            return;
         LoadEditedFields();
     }
 
@@ -108,6 +112,8 @@ else
 
     private void LoadEditedFields()
     {
+        if (User is null)
+            return;
         EditedFirstName = User.FirstName;
         EditedLastName = User.LastName;
         EditedDateOfBirth = User.DateOfBirth;
@@ -117,6 +123,8 @@ else
 
     private async Task Save()
     {
+        if (User is null)
+            return;
         var updatedUser = User with
         {
             FirstName = EditedFirstName,
@@ -126,8 +134,14 @@ else
             Email = EditedEmail
         };
 
-        await UserService.UpdateUserAsync(updatedUser);
-        User = updatedUser;
+        if (await UserService.UpdateUserAsync(updatedUser))
+        {
+            User = updatedUser;
+        }
+        else
+        {
+            SaveError = "Failed to save profile changes.";
+        }
         IsEditing = false;
     }
 
