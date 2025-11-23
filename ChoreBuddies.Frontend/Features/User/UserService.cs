@@ -16,7 +16,7 @@ public class UserService : IUserService
 
     public UserService(IHttpClientFactory httpClientFactory)
     {
-        _httpClient = httpClientFactory.CreateClient(AuthConstants.AuthorizedClient);
+        _httpClient = httpClientFactory.CreateClient(AuthFrontendConstants.AuthorizedClient);
     }
 
     public async Task<AppUserDto?> GetCurrentUserAsync()
