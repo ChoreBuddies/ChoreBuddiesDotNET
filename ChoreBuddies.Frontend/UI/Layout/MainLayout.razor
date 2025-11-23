@@ -4,6 +4,7 @@
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IAuthApiService authApiService
+@inject NavigationManager Navigation
 
 <MudThemeProvider Theme="_theme" />
 <MudPopoverProvider />
@@ -19,14 +20,16 @@
                 <MudSpacer />
 
                 <!-- Top Navigation Items -->
-                <div class="d-none d-md-block">
-                    <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/dashboard"))">Dashboard</MudButton>
-                    <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/tasks"))">Tasks</MudButton>
-                    <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/rewards"))">Rewards</MudButton>
-                    <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/chat"))">Chat</MudButton>
-                    <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/settings"))">Settings</MudButton>
-                </div>
-
+                @if (_showFullHouseLayout)
+                {
+                    <div class="d-none d-md-block">
+                        <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/dashboard"))">Dashboard</MudButton>
+                        <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/tasks"))">Tasks</MudButton>
+                        <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/rewards"))">Rewards</MudButton>
+                        <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/chat"))">Chat</MudButton>
+                        <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/settings"))">Settings</MudButton>
+                    </div>
+                }
                 <MudIconButton Icon="@Icons.Material.Filled.Notifications" Class="black-icon" />
                 <MudMenu Icon="@Icons.Material.Filled.AccountCircle" AnchorOrigin="Origin.BottomRight" Class="black-icon">
                     <MudMenuItem OnClick="@(() => Navigation.NavigateTo("/profile"))">Profile</MudMenuItem>
@@ -45,11 +48,12 @@
                     <MudText Typo="Typo.h6">@AppTitle</MudText>
                 </MudDrawerHeader>
                 <MudNavMenu>
-                    <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
-                    <MudNavLink Href="/tasks" Icon="@Icons.Material.Filled.Task">Tasks</MudNavLink>
-                    <MudNavLink Href="/rewards" Icon="@Icons.Material.Filled.Star">Rewards</MudNavLink>
-                    <MudNavLink Href="/chat" Icon="@Icons.Material.Filled.Chat">Chat</MudNavLink>
-                    <MudNavLink Href="/settings" Icon="@Icons.Material.Filled.Settings">Settings</MudNavLink>
+                    @if (_showFullHouseLayout)
+                    {
+                        <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+                        <MudNavLink Href="/tasks" Icon="@Icons.Material.Filled.Task">Tasks</MudNavLink>                    <MudNavLink Href="/rewards" Icon="@Icons.Material.Filled.Star">Rewards</MudNavLink>                    <MudNavLink Href="/chat" Icon="@Icons.Material.Filled.Chat">Chat</MudNavLink>
+                        <MudNavLink Href="/settings" Icon="@Icons.Material.Filled.Settings">Settings</MudNavLink>
+                    }
                 </MudNavMenu>
             </MudDrawer>
 
@@ -67,49 +71,52 @@
                 <!-- Desktop view with sidebar -->
                 <MudMainContent>
                     <div class="d-none d-md-block main-container">
-                        <div class="fixed">
-                            <div class="d-flex flex-column" style="height: 100%;">
-                                <!-- Quick Actions Section -->
-                                <div class="pa-4">
-                                    <MudText Typo="Typo.subtitle2" Class="mb-3">Quick Actions</MudText>
-                                    <MudButton StartIcon="@Icons.Material.Filled.Add"
-                                               Color="Color.Primary"
-                                               Variant="Variant.Filled"
-                                               FullWidth="true"
-                                               Class="mb-2"
-                                               OnClick="@AddNewTask">
-                                        Add New Task
-                                    </MudButton>
-                                    <MudButton StartIcon="@Icons.Material.Filled.List"
-                                               Color="Color.Default"
-                                               Variant="Variant.Outlined"
-                                               FullWidth="true"
-                                               Class="mb-2"
-                                               OnClick="@ViewAllTasks">
-                                        View All Tasks
-                                    </MudButton>
-                                    <MudButton StartIcon="@Icons.Material.Filled.CardGiftcard"
-                                               Color="Color.Default"
-                                               Variant="Variant.Outlined"
-                                               FullWidth="true"
-                                               OnClick="@RedeemRewards">
-                                        Redeem Rewards
-                                    </MudButton>
-                                </div>
-
-                                <MudDivider Style="border-color: #FFFFFF; color: #FFFFFF" />
-
-                                <!-- Recent Chat Section -->
-                                @if (_showMiniChat)
-                                {
-                                    <div class="pa-4 flex-grow-1">
-                                        <MudText Typo="Typo.subtitle2" Class="mb-3">Recent Chat</MudText>
-                                        <ChoreBuddies.Frontend.Features.Chat.HouseholdChat />
+                        @if (_showFullHouseLayout)
+                        {
+                                <div class= "fixed" >
+                                <div class="d-flex flex-column" style="height: 100%;">
+                                    <!-- Quick Actions Section -->
+                                    <div class="pa-4">
+                                        <MudText Typo="Typo.subtitle2" Class="mb-3">Quick Actions</MudText>
+                                        <MudButton StartIcon="@Icons.Material.Filled.Add"
+                                                   Color="Color.Primary"
+                                                   Variant="Variant.Filled"
+                                                   FullWidth="true"
+                                                   Class="mb-2"
+                                                   OnClick="@AddNewTask">
+                                            Add New Task
+                                        </MudButton>
+                                        <MudButton StartIcon="@Icons.Material.Filled.List"
+                                                   Color="Color.Default"
+                                                   Variant="Variant.Outlined"
+                                                   FullWidth="true"
+                                                   Class="mb-2"
+                                                   OnClick="@ViewAllTasks">
+                                            View All Tasks
+                                        </MudButton>
+                                        <MudButton StartIcon="@Icons.Material.Filled.CardGiftcard"
+                                                   Color="Color.Default"
+                                                   Variant="Variant.Outlined"
+                                                   FullWidth="true"
+                                                   OnClick="@RedeemRewards">
+                                            Redeem Rewards
+                                        </MudButton>
                                     </div>
-                                }
+
+                                    <MudDivider Style="border-color: #FFFFFF; color: #FFFFFF" />
+
+                                    <!-- Recent Chat Section -->
+                                    @if (_showMiniChat)
+                                    {
+                                        <div class="pa-4 flex-grow-1">
+                                            <MudText Typo="Typo.subtitle2" Class="mb-3">Recent Chat</MudText>
+                                            <ChoreBuddies.Frontend.Features.Chat.HouseholdChat />
+                                        </div>
+                                    }
+                                </div>
                             </div>
-                        </div>
-                        <div class="flex">
+                        }
+                        <div class="@(_showFullHouseLayout ? "flex" : "")">
                             <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-6">
                                 @Body
                             </MudContainer>
@@ -127,7 +134,7 @@
                 <AppTitleLogo />
                 <MudSpacer />
                 <div class="d-none d-md-block">
-                    <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo(" /features"))">Features</MudButton>
+                    <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/features"))">Features</MudButton>
                     <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/pricing"))">Pricing</MudButton>
                     <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/support"))">Support</MudButton>
                     <MudButton Class="rounded-lg" Variant="Variant.Filled" Size="Size.Large"
@@ -169,6 +176,7 @@
 
     private bool _drawerOpen = false; 
     private bool _showMiniChat = true;
+    private bool _showFullHouseLayout = false;
 
     private MudTheme _theme = new MudTheme()
     {
@@ -223,6 +231,21 @@
             _showMiniChat = true;
         }
     }
+
+    private void CheckLayoutVisibility()
+    {
+        var relativePath = Navigation.ToBaseRelativePath(Navigation.Uri).ToLower();
+
+        if (relativePath.StartsWith("no-household"))
+        {
+            _showFullHouseLayout = false;
+        }
+        else
+        {
+            _showFullHouseLayout = true;
+        }
+    }
+
 
     private void AddNewTask()
     {
