@@ -1,6 +1,7 @@
 using Blazored.LocalStorage;
 using ChoreBuddies.Frontend.Features.Authentication;
 using ChoreBuddies.Frontend.Features.Chat;
+using ChoreBuddies.Frontend.Features.Household;
 using ChoreBuddies.Frontend.Features.User;
 using ChoreBuddies.Frontend.UI;
 using ChoreBuddies.Frontend.Utilities;
@@ -30,6 +31,7 @@ public class Program
         builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<JwtAuthStateProvider>());
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IUserService, UserService>();
+        builder.Services.AddScoped<IHouseholdService, HouseholdService>();
 
         // Register the custom HttpMessageHandler and configure the HttpClient
         builder.Services.AddTransient<AuthorizedHttpClient>();

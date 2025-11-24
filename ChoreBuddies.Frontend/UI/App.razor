@@ -33,8 +33,7 @@
     {
         // Do NOT check for these routes (avoid redirect loop)
         var path = context.Path.ToLower();
-        Console.WriteLine("AAAAAA" + path);
-        if (path == "household/setup" || path == "login" || path == "join-household" || path == "create-household")
+        if (path == "household/setup" || path == "login" || path == "signup" || path == "household/join" || path == "household/create")
             return;
 
         var user = await _userService.GetCurrentUserAsync();

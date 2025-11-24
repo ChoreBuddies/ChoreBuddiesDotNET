@@ -230,7 +230,7 @@
     {
         var relativePath = Navigation.ToBaseRelativePath(Navigation.Uri).ToLower();
 
-        _showFullHouseLayout = !relativePath.StartsWith("/household/setup");
+        _showFullHouseLayout = !relativePath.StartsWith("household/setup") &&  !relativePath.StartsWith("household/join") &&  !relativePath.StartsWith("household/create");
     }
 
 

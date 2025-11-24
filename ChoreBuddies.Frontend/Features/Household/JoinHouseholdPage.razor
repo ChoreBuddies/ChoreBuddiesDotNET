@@ -1,0 +1,64 @@
+﻿@page "/household/join"
+@inject NavigationManager Nav
+@inject IHouseholdService _householdService
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mx-auto mt-12">
+    <MudPaper Elevation="1" Class="p-6 d-flex flex-column align-items-center text-center">
+
+        <MudIcon Icon="@Icons.Material.Filled.GroupAdd" Size="Size.Large" Color="Color.Primary" />
+
+        <MudText Typo="Typo.h4" Class="mt-4 mb-2">
+            Join Household
+        </MudText>
+
+        <MudText Typo="Typo.body1" Class="mb-6">
+            Enter the 6-character invitation code to join an existing household.
+        </MudText>
+
+        <MudTextField @bind-Value="InvitationCode"
+                      MaxLength="6"
+                      Immediate="true"
+                      Class="mb-4"
+                      Placeholder="Enter code"
+                      Style="letter-spacing: 4px; text-transform: uppercase; font-size: 20px; text-align:center;">
+        </MudTextField>
+
+        <MudStack Row="true" Spacing="3" Justify="Justify.Center" Class="m-4">
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Primary"
+                       Size="Size.Large"
+                       OnClick="@GoBack">
+                Go Back
+            </MudButton>
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Size="Size.Large"
+                       Disabled="@(!CanJoin)"
+                       OnClick="@Join">
+                Join
+            </MudButton>
+        </MudStack>
+
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private string InvitationCode { get; set; } = "";
+
+    private bool CanJoin => InvitationCode?.Length == 6;
+
+    private void GoBack()
+    {
+        Nav.NavigateTo("/household/setup");
+    }
+
+    private async Task Join()
+    {
+        var result = await _householdService.JoinHouseholdAsync(InvitationCode);
+        if(result)
+        {
+            Nav.NavigateTo("/");
+        }
+    }
+}
