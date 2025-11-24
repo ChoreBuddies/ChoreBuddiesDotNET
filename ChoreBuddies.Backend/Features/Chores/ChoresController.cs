@@ -46,6 +46,7 @@ public class ChoresController : ControllerBase
         var result = await _tasksService.DeleteChoreAsync(id);
         return Ok(result);
     }
+    [HttpGet]
     public async Task<ActionResult<IEnumerable<ChoreDto>>> GetUsersChores([FromQuery] int? userId)
     {
         if (userId is not null)
