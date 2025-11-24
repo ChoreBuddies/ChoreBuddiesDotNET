@@ -22,38 +22,6 @@ public class ChoresController : ControllerBase
         var result = await _tasksService.GetChoreDetailsAsync(id);
         return Ok(result);
     }
-    [HttpGet("myChores")]
-    public async Task<ActionResult<IEnumerable<ChoreDto>>> GetMyChores()
-    {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (userId is null) 
-            return BadRequest();
-
-        var result = await _tasksService.GetUsersChoreDetailsAsync(userId);
-        return Ok(result);
-    }
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<ChoreDto>>> GetUsersChores([FromQuery] string? userId)
-    {
-        if (userId is not null)
-        {
-            var result = await _tasksService.GetUsersChoreDetailsAsync(userId);
-            return Ok(result);
-        }
-        return BadRequest();
-    }
-    [HttpGet("myHouseholdChores")]
-    public async Task<ActionResult<IEnumerable<ChoreDto>>> GetMyHouseholdChores(string householdId)
-    {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (userId is null)
-            return BadRequest();
-
-        var result = await _tasksService.GetMyHoueholdChoreDetailsAsync(userId);
-        return Ok(result);
-    }
     [HttpPost("update")]
     public async Task<ActionResult<ChoreDto>> UpdadeChore([FromBody] ChoreDto choreDto)
     {
@@ -72,22 +40,64 @@ public class ChoresController : ControllerBase
         var result = await _tasksService.CreateChoreListAsync(createChoreDtoList);
         return Ok(result);
     }
-    [HttpPost("assign")]
-    public async Task<ActionResult<ChoreDto>> AssignChore([FromBody] ChoreDto choreDto)
+    [HttpDelete("delete/{id}")]
+    public async Task<ActionResult<ChoreDto>> DeleteChore(string id)
     {
-        await _tasksService.AssignChoreAsync(choreDto);
-        return Ok();
+        var result = await _tasksService.DeleteChoreAsync(id);
+        return Ok(result);
+    }
+    public async Task<ActionResult<IEnumerable<ChoreDto>>> GetUsersChores([FromQuery] string? userId)
+    {
+        if (userId is not null)
+        {
+            var result = await _tasksService.GetUsersChoreDetailsAsync(userId);
+            return Ok(result);
+        }
+        else
+        {
+            var myUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (myUserId is null)
+                return BadRequest();
+
+            var result = await _tasksService.GetUsersChoreDetailsAsync(myUserId);
+            return Ok(result);
+        }
+    }
+    [HttpGet("HouseholdChores")]
+    public async Task<ActionResult<IEnumerable<ChoreDto>>> GetMyHouseholdChores(string householdId)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (userId is null)
+            return BadRequest();
+
+        var result = await _tasksService.GetMyHoueholdChoreDetailsAsync(userId);
+        return Ok(result);
+    }
+    [HttpPost("assign")]
+    public async Task<ActionResult<ChoreDto>> AssignChore([FromBody] ChoreDto choreDto, [FromQuery] int? userId)
+    {
+        if (userId is not null)
+        {
+            await _tasksService.AssignChoreAsync(choreDto, userId);
+            return Ok();
+        }
+        else
+        {
+            var myUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (myUserId is null)
+                return BadRequest();
+
+            await _tasksService.AssignChoreAsync(choreDto, myUserId);
+            return Ok();
+        }
     }
     [HttpPost("assignme")]
     public async Task<ActionResult<ChoreDto>> AssignMeChore([FromBody] ChoreDto choreDto)
     {
         await _tasksService.AssignMeChoreAsync(choreDto);
         return Ok();
-    }
-    [HttpDelete("delete/{id}")]
-    public async Task<ActionResult<ChoreDto>> DeleteChore(string id)
-    {
-        var result = await _tasksService.DeleteChoreAsync(id);
-        return Ok(result);
     }
 }
