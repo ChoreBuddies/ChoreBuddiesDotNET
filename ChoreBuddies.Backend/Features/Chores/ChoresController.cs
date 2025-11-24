@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Chores;
-using System.Threading.Tasks;
 
 namespace ChoreBuddies.Backend.Features.Chores;
 
@@ -24,7 +23,7 @@ public class ChoresController : ControllerBase
         return Ok(result);
     }
     [HttpPost("update")]
-    public async Task<ActionResult<ChoreDto>> UpdadeChore([FromBody] ChoreDto choreDto)
+    public async Task<ActionResult<ChoreDto>> UpdateChore([FromBody] ChoreDto choreDto)
     {
         var result = await _tasksService.UpdateChoreAsync(choreDto);
         return Ok(result);
