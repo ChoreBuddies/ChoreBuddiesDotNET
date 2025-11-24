@@ -9,6 +9,7 @@ namespace ChoreBuddies.Backend.Features.Users;
 
 [ApiController]
 [Route("/api/v1/users")]
+[Authorize]
 public class AppUserController(IAppUserService userService, IMapper mapper) : ControllerBase
 {
     private readonly IAppUserService _userService = userService;
@@ -22,7 +23,6 @@ public class AppUserController(IAppUserService userService, IMapper mapper) : Co
         return await _userService.GetUserByEmailAsync(emailJWT);
     }
 
-    //[Authorize]
     [HttpGet("{userId}")]
     public async Task<IActionResult> GetUserAsync(int userId)
     {
@@ -35,7 +35,6 @@ public class AppUserController(IAppUserService userService, IMapper mapper) : Co
         return Ok(_mapper.Map<AppUserDto>(user));
     }
 
-    [Authorize]
     [HttpGet("me")]
     public async Task<IActionResult> GetMeAsync()
     {
@@ -46,7 +45,6 @@ public class AppUserController(IAppUserService userService, IMapper mapper) : Co
         return Ok(_mapper.Map<AppUserDto>(user));
     }
 
-    [Authorize]
     [HttpPut("me")]
     public async Task<IActionResult> UpdateMeAsync([FromBody] UpdateAppUserDto updateAppUserDto)
     {
@@ -59,7 +57,6 @@ public class AppUserController(IAppUserService userService, IMapper mapper) : Co
         return Ok(result);
     }
 
-    [Authorize]
     [HttpPut("{userId}")]
     public async Task<IActionResult> UpdateUserAsync(int userId, [FromBody] UpdateAppUserDto updateAppUserDto)
     {
