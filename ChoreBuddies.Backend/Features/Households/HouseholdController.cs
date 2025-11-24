@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -6,6 +7,7 @@ namespace ChoreBuddies.Backend.Features.Households;
 
 [ApiController]
 [Route("api/v1/household")]
+[Authorize]
 public class HouseholdController(IHouseholdService service, IMapper mapper) : Controller
 {
     private readonly IHouseholdService _service = service;
