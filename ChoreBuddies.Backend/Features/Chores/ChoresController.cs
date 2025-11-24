@@ -9,41 +9,41 @@ namespace ChoreBuddies.Backend.Features.Chores;
 [Route("api/v1/chores")]
 public class ChoresController : ControllerBase
 {
-    private readonly IChoresService _tasksService;
+    private readonly IChoresService _choresService;
 
     public ChoresController(IChoresService tasksService)
     {
-        _tasksService = tasksService;
+        _choresService = tasksService;
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<ChoreDto>> GetChore(string id)
     {
-        var result = await _tasksService.GetChoreDetailsAsync(id);
+        var result = await _choresService.GetChoreDetailsAsync(id);
         return Ok(result);
     }
     [HttpPost("update")]
     public async Task<ActionResult<ChoreDto>> UpdadeChore([FromBody] ChoreDto choreDto)
     {
-        var result = await _tasksService.UpdateChoreAsync(choreDto);
+        var result = await _choresService.UpdateChoreAsync(choreDto);
         return Ok(result);
     }
     [HttpPost("add")]
     public async Task<ActionResult<ChoreDto>> AddChore([FromBody] CreateChoreDto createChoreDto)
     {
-        var result = await _tasksService.CreateChoreAsync(createChoreDto);
+        var result = await _choresService.CreateChoreAsync(createChoreDto);
         return Ok(result);
     }
     [HttpPost("addlist")]
     public async Task<ActionResult<IEnumerable<ChoreDto>>> AddChoreList([FromBody] IEnumerable<CreateChoreDto> createChoreDtoList)
     {
-        var result = await _tasksService.CreateChoreListAsync(createChoreDtoList);
+        var result = await _choresService.CreateChoreListAsync(createChoreDtoList);
         return Ok(result);
     }
     [HttpDelete("delete/{id}")]
     public async Task<ActionResult<ChoreDto>> DeleteChore(string id)
     {
-        var result = await _tasksService.DeleteChoreAsync(id);
+        var result = await _choresService.DeleteChoreAsync(id);
         return Ok(result);
     }
     [HttpGet]
@@ -51,7 +51,7 @@ public class ChoresController : ControllerBase
     {
         if (userId is not null)
         {
-            var result = await _tasksService.GetUsersChoreDetailsAsync((int)userId);
+            var result = await _choresService.GetUsersChoreDetailsAsync((int)userId);
             return Ok(result);
         }
         else
@@ -61,7 +61,7 @@ public class ChoresController : ControllerBase
             if (myUserId is null)
                 return Unauthorized();
 
-            var result = await _tasksService.GetUsersChoreDetailsAsync(int.Parse(myUserId));
+            var result = await _choresService.GetUsersChoreDetailsAsync(int.Parse(myUserId));
             return Ok(result);
         }
     }
@@ -73,7 +73,7 @@ public class ChoresController : ControllerBase
         if (userId is null)
             return Unauthorized();
 
-        var result = await _tasksService.GetMyHouseholdChoreDetailsAsync(int.Parse(userId));
+        var result = await _choresService.GetMyHouseholdChoreDetailsAsync(int.Parse(userId));
         return Ok(result);
     }
     [HttpPost("assign")]
@@ -81,7 +81,7 @@ public class ChoresController : ControllerBase
     {
         if (userId is not null)
         {
-            await _tasksService.AssignChoreAsync(choreDto, (int)userId);
+            await _choresService.AssignChoreAsync(choreDto, (int)userId);
             return Ok();
         }
         else
@@ -91,7 +91,7 @@ public class ChoresController : ControllerBase
             if (myUserId is null)
                 return Unauthorized();
 
-            await _tasksService.AssignChoreAsync(choreDto, int.Parse(myUserId));
+            await _choresService.AssignChoreAsync(choreDto, int.Parse(myUserId));
             return Ok();
         }
     }
