@@ -46,11 +46,11 @@ public class ChoresController : ControllerBase
         var result = await _tasksService.DeleteChoreAsync(id);
         return Ok(result);
     }
-    public async Task<ActionResult<IEnumerable<ChoreDto>>> GetUsersChores([FromQuery] string? userId)
+    public async Task<ActionResult<IEnumerable<ChoreDto>>> GetUsersChores([FromQuery] int? userId)
     {
         if (userId is not null)
         {
-            var result = await _tasksService.GetUsersChoreDetailsAsync(userId);
+            var result = await _tasksService.GetUsersChoreDetailsAsync((int)userId);
             return Ok(result);
         }
         else
@@ -58,9 +58,9 @@ public class ChoresController : ControllerBase
             var myUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (myUserId is null)
-                return BadRequest();
+                return Unauthorized();
 
-            var result = await _tasksService.GetUsersChoreDetailsAsync(myUserId);
+            var result = await _tasksService.GetUsersChoreDetailsAsync(int.Parse(myUserId));
             return Ok(result);
         }
     }
@@ -70,9 +70,9 @@ public class ChoresController : ControllerBase
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         if (userId is null)
-            return BadRequest();
+            return Unauthorized();
 
-        var result = await _tasksService.GetMyHoueholdChoreDetailsAsync(userId);
+        var result = await _tasksService.GetMyHouseholdChoreDetailsAsync(int.Parse(userId));
         return Ok(result);
     }
     [HttpPost("assign")]
@@ -80,7 +80,7 @@ public class ChoresController : ControllerBase
     {
         if (userId is not null)
         {
-            await _tasksService.AssignChoreAsync(choreDto, userId);
+            await _tasksService.AssignChoreAsync(choreDto, (int)userId);
             return Ok();
         }
         else
@@ -88,16 +88,10 @@ public class ChoresController : ControllerBase
             var myUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (myUserId is null)
-                return BadRequest();
+                return Unauthorized();
 
-            await _tasksService.AssignChoreAsync(choreDto, myUserId);
+            await _tasksService.AssignChoreAsync(choreDto, int.Parse(myUserId));
             return Ok();
         }
-    }
-    [HttpPost("assignme")]
-    public async Task<ActionResult<ChoreDto>> AssignMeChore([FromBody] ChoreDto choreDto)
-    {
-        await _tasksService.AssignMeChoreAsync(choreDto);
-        return Ok();
     }
 }

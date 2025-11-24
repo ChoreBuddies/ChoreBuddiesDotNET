@@ -1,6 +1,8 @@
 ﻿using ChoreBuddies.Backend.Domain;
+using ChoreBuddies.Backend.Features.Chores;
 using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Shared.Chores;
 
 namespace ChoreBuddies.Backend.Features.DefaultChores;
 
@@ -19,6 +21,10 @@ public interface IChoresRepository
 
     //Delete
     public Task<Chore?> DeleteChoreAsync(Chore chore);
+    Task<IEnumerable<Chore>?> GetUsersChoresAsync(int userId);
+    Task<IEnumerable<Chore>?> GetHouseholdChoresAsync(int userId);
+    Task<IEnumerable<Chore>?> CreateChoreListAsync(IEnumerable<Chore> createChoreDtoList);
+    Task AssignChoreAsync(int userId, Chore choreDto);
 }
 
 public class ChoresRepository(ChoreBuddiesDbContext dbContext) : IChoresRepository
@@ -97,4 +103,64 @@ public class ChoresRepository(ChoreBuddiesDbContext dbContext) : IChoresReposito
         return chore;
     }
 
+    public async Task<IEnumerable<Chore>?> GetUsersChoresAsync(int userId)
+    {
+        try
+        {
+            var user = await _dbContext.Users
+                .Include(u => u.Household)
+                .ThenInclude(h => h!.Chores)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user?.Household is null || user?.Household?.Chores is null)
+                return null;
+            return user?.Household?.Chores.Where(c => c.AssignedTo == user.FirstName);
+        }
+        catch (NullReferenceException)
+        {
+            return null;
+        }
+    }
+
+    public async Task<IEnumerable<Chore>?> GetHouseholdChoresAsync(int userId)
+    {
+        try
+        {
+            var user = await _dbContext.Users
+                .Include(u => u.Household)
+                .ThenInclude(h => h!.Chores)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user?.Household is null || user?.Household?.Chores is null)
+                return null;
+            return user?.Household?.Chores;
+        }
+        catch (NullReferenceException)
+        {
+            return null;
+        }
+    }
+
+    public async Task<IEnumerable<Chore>?> CreateChoreListAsync(IEnumerable<Chore> choreList)
+    {
+        List<Chore> chores = new List<Chore>();
+        foreach (var chore in choreList)
+        {
+            var newChore = await CreateChoreAsync(chore);
+            if (newChore != null)
+                chores.Add(chore);
+        }
+        return chores;
+    }
+
+    public async Task AssignChoreAsync(int userId, Chore chore)
+    {
+
+        var user = await _dbContext.Users
+            .FirstOrDefaultAsync(u => u.Id == userId);
+        if (user is null) return;
+        chore.AssignedTo = user.FirstName;
+        await _dbContext.SaveChangesAsync();
+
+    }
 }

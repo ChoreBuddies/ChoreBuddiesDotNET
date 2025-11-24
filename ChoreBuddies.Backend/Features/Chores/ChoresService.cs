@@ -60,23 +60,23 @@ public class ChoresService : IChoresService
         }
     }
 
-    public async Task<IEnumerable<ChoreDto>> GetUsersChoreDetailsAsync(string userId)
+    public async Task<IEnumerable<ChoreDto>> GetUsersChoreDetailsAsync(int userId)
     {
-        return await _repository.GetUsersChoresAsync(userId);
+        return _mapper.Map<List<ChoreDto>>(await _repository.GetUsersChoresAsync(userId));
     }
 
-    public async Task<IEnumerable<ChoreDto>> GetMyHoueholdChoreDetailsAsync(string userId)
+    public async Task<IEnumerable<ChoreDto>> GetMyHouseholdChoreDetailsAsync(int userId)
     {
-        return await _repository.GetHouseholdChoresAsync(userId);
+        return _mapper.Map<List<ChoreDto>>(await _repository.GetHouseholdChoresAsync(userId));
     }
 
     public async Task<IEnumerable<ChoreDto>> CreateChoreListAsync(IEnumerable<CreateChoreDto> createChoreDtoList)
     {
-        return await _repository.CreateChoreListAsync(createChoreDtoList);
+        return _mapper.Map<List<ChoreDto>>(await _repository.CreateChoreListAsync(_mapper.Map<List<Chore>>(createChoreDtoList)));
     }
 
     public async Task AssignChoreAsync(ChoreDto choreDto, int userId)
     {
-        await _repository.AssignChoreAsync(userId, choreDto);
+        await _repository.AssignChoreAsync(userId, _mapper.Map<Chore>(choreDto));
     }
 }
