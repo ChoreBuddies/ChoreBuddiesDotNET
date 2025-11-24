@@ -223,28 +223,14 @@
     {
         var relativePath = Navigation.ToBaseRelativePath(Navigation.Uri).ToLower();
 
-        if (relativePath.StartsWith("chat"))
-        {
-            _showMiniChat = false;
-        }
-        else
-        {
-            _showMiniChat = true;
-        }
+        _showMiniChat = !relativePath.StartsWith("chat");
     }
 
     private void CheckLayoutVisibility()
     {
         var relativePath = Navigation.ToBaseRelativePath(Navigation.Uri).ToLower();
 
-        if (relativePath.StartsWith("no-household"))
-        {
-            _showFullHouseLayout = false;
-        }
-        else
-        {
-            _showFullHouseLayout = true;
-        }
+        _showFullHouseLayout = !relativePath.StartsWith("/household/setup");
     }
 
 

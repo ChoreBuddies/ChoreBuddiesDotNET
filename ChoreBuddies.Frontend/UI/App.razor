@@ -34,13 +34,13 @@
         // Do NOT check for these routes (avoid redirect loop)
         var path = context.Path.ToLower();
         Console.WriteLine("AAAAAA" + path);
-        if (path == "no-household" || path == "login" || path == "join-household" || path == "create-household")
+        if (path == "household/setup" || path == "login" || path == "join-household" || path == "create-household")
             return;
 
         var user = await _userService.GetCurrentUserAsync();
         if (user is not null && user.householdId is null)
         {
-            _navigationManager.NavigateTo("/no-household", true);
+            _navigationManager.NavigateTo("/household/setup", true);
         }
     }
 }
