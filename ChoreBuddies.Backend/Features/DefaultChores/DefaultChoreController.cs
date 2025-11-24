@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.DefalutChores;
 
@@ -6,6 +7,7 @@ namespace ChoreBuddies.Backend.Features.DefaultChores;
 
 [ApiController]
 [Route("api/v1/defaultChores")]
+[Authorize]
 public class DefaultChoreController(IDefaultChoreService service, IMapper mapper) : Controller
 {
     private IDefaultChoreService _service = service;
