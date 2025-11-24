@@ -125,7 +125,7 @@ else
     {
         if (User is null)
             return;
-        var updatedUser = User with
+        var updatedUser = User with // TODO UpdateAppUserDTO
         {
             FirstName = EditedFirstName,
             LastName = EditedLastName,
@@ -134,7 +134,7 @@ else
             Email = EditedEmail
         };
 
-        if (await UserService.UpdateUserAsync(updatedUser))
+        if (await UserService.UpdateUserAsync(updatedUser)) 
         {
             User = updatedUser;
         }
