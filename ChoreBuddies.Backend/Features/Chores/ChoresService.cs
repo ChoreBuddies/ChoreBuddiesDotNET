@@ -3,6 +3,7 @@ using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.DefaultChores;
 using ChoreBuddies.Backend.Features.Households;
 using Shared.Chores;
+using System.Security.Claims;
 
 namespace ChoreBuddies.Backend.Features.Chores;
 
@@ -57,5 +58,25 @@ public class ChoresService : IChoresService
         {
             throw new Exception("Chore not found");
         }
+    }
+
+    public async Task<IEnumerable<ChoreDto>> GetUsersChoreDetailsAsync(string userId)
+    {
+        return await _repository.GetUsersChoresAsync(userId);
+    }
+
+    public async Task<IEnumerable<ChoreDto>> GetMyHoueholdChoreDetailsAsync(string userId)
+    {
+        return await _repository.GetHouseholdChoresAsync(userId);
+    }
+
+    public async Task<IEnumerable<ChoreDto>> CreateChoreListAsync(IEnumerable<CreateChoreDto> createChoreDtoList)
+    {
+        return await _repository.CreateChoreListAsync(createChoreDtoList);
+    }
+
+    public async Task AssignChoreAsync(ChoreDto choreDto, int userId)
+    {
+        await _repository.AssignChoreAsync(userId, choreDto);
     }
 }
