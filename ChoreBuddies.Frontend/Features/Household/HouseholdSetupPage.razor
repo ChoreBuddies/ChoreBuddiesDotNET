@@ -1,0 +1,48 @@
+﻿@page "/household/setup"
+@using MudBlazor
+@inject NavigationManager _navigationManager
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mx-auto mt-12">
+    <MudPaper Elevation="1" Class="p-6 d-flex flex-column align-items-center text-center">
+
+        <MudIcon Icon="@Icons.Material.Filled.Home" Size="Size.Large" Color="Color.Primary" />
+
+        <MudText Typo="Typo.h4" Class="mt-4 mb-2">
+            You are not part of any household
+        </MudText>
+
+        <MudText Typo="Typo.body1" Class="mb-6">
+            To start managing chores and sharing tasks, create a new household or join an existing one.
+        </MudText>
+
+        <MudStack Row="true" Spacing="3" Justify="Justify.Center" Class="m-4">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Size="Size.Large"
+                       OnClick="@CreateHousehold">
+                Create Household
+            </MudButton>
+
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Primary"
+                       Size="Size.Large"
+                       OnClick="@JoinHousehold">
+                Join Household
+            </MudButton>
+        </MudStack>
+
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private void CreateHousehold()
+    {
+        _navigationManager.NavigateTo("/household/create");
+    }
+
+    private void JoinHousehold()
+    {
+        _navigationManager.NavigateTo("/household/join");
+    }
+
+}

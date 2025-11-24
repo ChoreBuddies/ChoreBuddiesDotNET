@@ -1,7 +1,9 @@
-﻿
+﻿@using ChoreBuddies.Frontend.Features.User
+@inject IUserService _userService
+@inject NavigationManager _navigationManager
 
 <CascadingAuthenticationState>
-    <Router AppAssembly="@typeof(App).Assembly">
+    <Router AppAssembly="@typeof(App).Assembly" OnNavigateAsync="HandleNavigation">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
                 <NotAuthorized>
@@ -25,3 +27,20 @@
         </NotFound>
     </Router>
 </CascadingAuthenticationState>
+
+@code {
+    private async Task HandleNavigation(Microsoft.AspNetCore.Components.Routing.NavigationContext context)
+    {
+        // Do NOT check for these routes (avoid redirect loop)
+        var path = context.Path.ToLower();
+        Console.WriteLine("AAAAAA" + path);
+        if (path == "household/setup" || path == "login" || path == "join-household" || path == "create-household")
+            return;
+
+        var user = await _userService.GetCurrentUserAsync();
+        if (user is not null && user.householdId is null)
+        {
+            _navigationManager.NavigateTo("/household/setup", true);
+        }
+    }
+}
