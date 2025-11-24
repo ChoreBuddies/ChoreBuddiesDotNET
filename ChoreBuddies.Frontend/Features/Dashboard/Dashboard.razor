@@ -1,0 +1,77 @@
+﻿@page "/dashboard"
+
+@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
+@using ChoreBuddies.Frontend.UI.Components.Chores
+@using Microsoft.AspNetCore.Components.Authorization
+
+<AuthorizeView>
+    <NotAuthorized>
+        <p>You are not authorized to view this content</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+<PageTitle>Home</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="pa-4">
+
+    <MudPaper Class="p-6" Elevation="0" Style="width: 100%; max-width: 900px;">
+        <MudText Typo="Typo.h4" Class="mb-6">
+            Dashboard Overview
+        </MudText>
+        <MudText Typo="Typo.body2" Class="mb-6">
+            Welcome back, @FirstName! Here's a snapshot of Your tasks and progress.
+        </MudText>
+        <MudText Typo="Typo.h5" Class="mb-6">
+            Upcoming Deadlines
+        </MudText>
+
+        <MudStack Spacing="1">
+
+            <UpcomingChore DueText="Due Tomorrow"
+            Title="Grocery Shopping"
+            Description="Pick up groceries for the week"
+            ImageUrl="images/grocery.jpg" />
+
+            <UpcomingChore DueText="Due in 2 Days"
+            Title="Pay Bills"
+            Description="Electricity and internet bills"
+            ImageUrl="images/bills.jpg" />
+
+        </MudStack>
+        <MudPaper Class="pa-4 mb-6" Elevation="0">
+            <MudText Typo="Typo.h5" Class="mb-6 mt-2">Household Task Completion</MudText>
+            <MudProgressLinear Value="@HouseholdCompletionPercent" Color="Color.Primary" Class="mb-2" />
+            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                @($"{HouseholdCompletionPercent}% completed")
+            </MudText>
+        </MudPaper>
+        <MudText Typo="Typo.h5" Class="mb-6 mt-2">
+            Recent Activity
+        </MudText>
+        <MudStack Spacing="0">
+            <Activity Title="Clean the living room"
+                      Status="Completed"
+                      Icon="@MudBlazor.FontIcons.MaterialSymbols.Outlined.CheckCircle" />
+            <Activity Title="Water the plants"
+                      Status="Assigned to Ryan"
+                      Icon="@MudBlazor.FontIcons.MaterialSymbols.Outlined.Eco" />
+            <Activity Title="Organize the garage"
+                      Status="Pending"
+                      Icon="@MudBlazor.FontIcons.MaterialSymbols.Outlined.Inventory" />
+            <Activity Title="Take out the trash"
+                      Status="Completed"
+                      Icon="@MudBlazor.FontIcons.MaterialSymbols.Outlined.Delete" />
+
+        </MudStack>
+    </MudPaper>
+</MudContainer>
+
+
+
+
+@code
+{
+    string? FirstName { get; set; } = "Emily";
+    public int HouseholdCompletionPercent { get; set; } = 75;
+}
