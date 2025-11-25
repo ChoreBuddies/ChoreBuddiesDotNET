@@ -150,7 +150,7 @@ public class Program
             );
         });
 
-        // Interfejsy mapowane na tê sam¹ instancjê EmailService
+        // Interfaces mapped to the same EmailService instance
         builder.Services.AddScoped<IEmailService>(sp => sp.GetRequiredService<EmailService>());
         builder.Services.AddScoped<INotificationService>(sp => sp.GetRequiredService<EmailService>());
 
