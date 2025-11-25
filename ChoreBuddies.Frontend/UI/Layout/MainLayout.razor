@@ -15,7 +15,7 @@
     <Authorized>
         <!-- Layout for authenticated users -->
         <MudLayout>
-            <MudAppBar Elevation="1" Color="Color.Transparent" Fixed="true">
+            <MudAppBar Elevation="2" Color="Color.Surface" Fixed="true">
                 <AppTitleLogo />
                 <MudSpacer />
 
@@ -66,39 +66,39 @@
                     </MudContainer>
                 </MudMainContent>
             </div>
-
-            <div Breakpoint="Breakpoint.MdAndUp" Invert="true">
-                <!-- Desktop view with sidebar -->
+            
+             <!-- Desktop view with sidebar -->
+            <div class="d-none d-md-block">
                 <MudMainContent>
-                    <div class="d-none d-md-block main-container">
+                    <div class="main-container">
                         @if (_showFullHouseLayout)
                         {
-                                <div class= "fixed" >
+                            <div class="layout-sidebar">
                                 <div class="d-flex flex-column" style="height: 100%;">
                                     <!-- Quick Actions Section -->
                                     <div class="pa-4">
                                         <MudText Typo="Typo.subtitle2" Class="mb-3">Quick Actions</MudText>
                                         <MudButton StartIcon="@Icons.Material.Filled.Add"
-                                                   Color="Color.Primary"
-                                                   Variant="Variant.Filled"
-                                                   FullWidth="true"
-                                                   Class="mb-2"
-                                                   OnClick="@AddNewTask">
+                                                    Color="Color.Primary"
+                                                    Variant="Variant.Filled"
+                                                    FullWidth="true"
+                                                    Class="mb-2"
+                                                    OnClick="@AddNewTask">
                                             Add New Task
                                         </MudButton>
                                         <MudButton StartIcon="@Icons.Material.Filled.List"
-                                                   Color="Color.Default"
-                                                   Variant="Variant.Outlined"
-                                                   FullWidth="true"
-                                                   Class="mb-2"
-                                                   OnClick="@ViewAllTasks">
+                                                    Color="Color.Default"
+                                                    Variant="Variant.Outlined"
+                                                    FullWidth="true"
+                                                    Class="mb-2"
+                                                    OnClick="@ViewAllTasks">
                                             View All Tasks
                                         </MudButton>
                                         <MudButton StartIcon="@Icons.Material.Filled.CardGiftcard"
-                                                   Color="Color.Default"
-                                                   Variant="Variant.Outlined"
-                                                   FullWidth="true"
-                                                   OnClick="@RedeemRewards">
+                                                    Color="Color.Default"
+                                                    Variant="Variant.Outlined"
+                                                    FullWidth="true"
+                                                    OnClick="@RedeemRewards">
                                             Redeem Rewards
                                         </MudButton>
                                     </div>
@@ -108,15 +108,15 @@
                                     <!-- Recent Chat Section -->
                                     @if (_showMiniChat)
                                     {
-                                        <div class="pa-4 flex-grow-1">
+                                        <div class="pa-4 flex-grow-1 d-flex flex-column" style="min-height: 0">
                                             <MudText Typo="Typo.subtitle2" Class="mb-3">Recent Chat</MudText>
-                                            <ChoreBuddies.Frontend.Features.Chat.HouseholdChat />
+                                            <ChoreBuddies.Frontend.Features.Chat.HouseholdChat IsSidebar="true"/>
                                         </div>
                                     }
                                 </div>
                             </div>
                         }
-                        <div class="@(_showFullHouseLayout ? "flex" : "")">
+                        <div class="layout-content">
                             <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-6">
                                 @Body
                             </MudContainer>
@@ -276,23 +276,24 @@
         display: flex;
         flex-direction: row;
         width: 100vw;
-        height: 100vh;
+        height: calc(100vh - var(--mud-appbar-height));
         overflow: hidden;
+        position: relative;
     }
 
-    .fixed {
-        width: 240px;
-        height: 100%;
-        flex: 0 0 240px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    .layout-sidebar {
+        width: 320px;
+        flex: 0 0 320px; /* Don't grow, don't shrink, stay 320px */
+        height: 100%;    /* Fill the container height */
+        overflow-y: auto; /* Scroll INSIDE sidebar if needed */
+        border-right: 1px solid var(--mud-palette-divider);
+        background-color: var(--mud-palette-background);
     }
 
-    .flex {
-        flex: 1 1 auto;
-        overflow-y: auto;
-        max-width: calc(100vw - 240px);
-        margin-left: 240px;
+    .layout-content {
+        flex: 1;          
+        height: calc(100vh - var(--mud-appbar-height));     
+        overflow-y: auto; 
+        overflow-x: hidden;
     }
 </style>
