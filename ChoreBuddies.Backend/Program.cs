@@ -102,13 +102,9 @@ public class Program
             };
         });
 
-        //builder.Services.AddMvc();
         builder.Services.AddSwaggerGen();
-
         builder.Services.AddControllers();
 
-        // Add services to the container.
-        builder.Services.AddRazorPages();
         // Chores
         builder.Services.AddScoped<IChoresRepository, ChoresRepository>();
         builder.Services.AddScoped<IChoresService, ChoresService>();
