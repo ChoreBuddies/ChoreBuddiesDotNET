@@ -14,6 +14,7 @@ public class AuthorizedHttpClient(ILocalStorageService localStorage, IAuthServic
         // Get the token from local storage
         var token = await _localStorage.GetItemAsStringAsync(AuthFrontendConstants.AuthTokenKey);
 
+        request.Headers.Authorization = null;
         // Add the token to the request header if it exists
         if (!string.IsNullOrWhiteSpace(token))
             request.Headers.Authorization = new AuthenticationHeaderValue(AuthFrontendConstants.Bearer, token);
@@ -30,15 +31,44 @@ public class AuthorizedHttpClient(ILocalStorageService localStorage, IAuthServic
             {
                 // Retry the original request with the new token
                 token = await _localStorage.GetItemAsStringAsync(AuthFrontendConstants.AuthTokenKey);
+
+                var newRequest = await CloneHttpRequestMessageAsync(request);
+
+                newRequest.Headers.Authorization = null;
                 if (!string.IsNullOrWhiteSpace(token))
                 {
-                    request.Headers.Authorization = new AuthenticationHeaderValue(AuthFrontendConstants.Bearer, token);
+                    newRequest.Headers.Authorization = new AuthenticationHeaderValue(AuthFrontendConstants.Bearer, token);
                 }
 
-                response = await base.SendAsync(request, cancellationToken);
+                response = await base.SendAsync(newRequest, cancellationToken);
             }
         }
 
         return response;
+    }
+
+    private async Task<HttpRequestMessage> CloneHttpRequestMessageAsync(HttpRequestMessage req)
+    {
+        var clone = new HttpRequestMessage(req.Method, req.RequestUri);
+
+        // Copy Content (via a MemoryStream) and headers
+        if (req.Content != null)
+        {
+            var ms = new MemoryStream();
+            await req.Content.CopyToAsync(ms);
+            ms.Position = 0;
+            clone.Content = new StreamContent(ms);
+
+            foreach (var h in req.Content.Headers)
+                clone.Content.Headers.TryAddWithoutValidation(h.Key, h.Value);
+        }
+
+        // Copy version and headers
+        clone.Version = req.Version;
+
+        foreach (var h in req.Headers)
+            clone.Headers.TryAddWithoutValidation(h.Key, h.Value);
+
+        return clone;
     }
 }

@@ -1,6 +1,5 @@
 ﻿@inherits LayoutComponentBase
 
-
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IAuthApiService authApiService
@@ -201,6 +200,7 @@
 
     protected override void OnInitialized()
     {
+        AuthenticationStateProvider.AuthenticationStateChanged += _ => StateHasChanged();
         Navigation.LocationChanged += OnLocationChanged;
 
         CheckMiniChatVisibility();
