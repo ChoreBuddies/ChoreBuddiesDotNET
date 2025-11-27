@@ -25,12 +25,12 @@ public interface IAuthService
 }
 
 public class AuthService(
-    HttpClient httpClient,
+    IHttpClientFactory httpClientFactory,
     ILocalStorageService localStorage,
     AuthenticationStateProvider authStateProvider,
     NavigationManager navigationManager) : IAuthService
 {
-    private readonly HttpClient _httpClient = httpClient;
+    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
     private readonly ILocalStorageService _localStorage = localStorage;
     private readonly AuthenticationStateProvider _authStateProvider = authStateProvider;
     private readonly NavigationManager _navigationManager = navigationManager;
@@ -80,7 +80,9 @@ public class AuthService(
 
         try
         {
-            var response = await _httpClient.PostAsJsonAsync(AuthFrontendConstants.ApiEndpointRefresh,
+            var client = _httpClientFactory.CreateClient(AuthFrontendConstants.UnauthorizedClient);
+
+            var response = await client.PostAsJsonAsync(AuthFrontendConstants.ApiEndpointRefresh,
                 new RefreshTokenRequestDto(token, refreshToken));
 
             if (response.IsSuccessStatusCode)
