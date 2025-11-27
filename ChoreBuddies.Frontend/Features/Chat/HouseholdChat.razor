@@ -6,9 +6,13 @@
 @inject ISnackbar Snackbar
 @implements IAsyncDisposable
 
-<div class="d-flex flex-column" style="height: 500px; width: 100%; max-width: 600px; margin: auto;">
-
-    <MudPaper Class="flex-grow-1 pa-4 overflow-auto" Elevation="0" ID="chat-scroll-container">
+<div class="d-flex flex-column"
+     style="@(IsSidebar ? "height: 100%;" : "height: calc(100vh - var(--mud-appbar-height) - 48px);")
+        max-width: 600px; overflow: hidden; margin: auto;">
+    <MudPaper Class="flex-grow-1 pa-4"
+              Elevation="0"
+              ID="chat-scroll-container"
+              Style="overflow-y: auto; background: transparent; min-height: 0;">
         <MudStack Spacing="2">
             @if (_isLoading)
             {
@@ -94,6 +98,8 @@
 </div>
 
 @code {
+    [Parameter] public bool IsSidebar { get; set; } = false;
+
     private int _householdId { get; set; } = -1;
     private string _username { get; set; } = "Me";
     private List<ChatMessageVm> _messages = new();
@@ -227,7 +233,7 @@
     private async Task ScrollToBottom()
     {
         // Time to generate DOM
-        await Task.Delay(50); 
+        await Task.Delay(100); 
         await JSRuntime.InvokeVoidAsync("scrollToBottom", "chat-scroll-container");
     }
 
