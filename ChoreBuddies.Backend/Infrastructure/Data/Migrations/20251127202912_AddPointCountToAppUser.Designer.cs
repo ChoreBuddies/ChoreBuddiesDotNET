@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
-{
+namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations;
+
     [DbContext(typeof(ChoreBuddiesDbContext))]
     [Migration("20251127202912_AddPointCountToAppUser")]
     partial class AddPointCountToAppUser
@@ -489,4 +489,4 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
 #pragma warning restore 612, 618
         }
     }
-}
+
