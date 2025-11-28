@@ -55,7 +55,7 @@ public class AppUserService(IAppUserRepository userRepository) : IAppUserService
 
     public async Task<bool> RemovePointsFromUser(int userId, int pointsCount)
     {
-        if (pointsCount >= 0) return false;
+        if (pointsCount <= 0) return false;
         var user = await _userRepository.GetUserByIdAsync(userId);
         if (user is null || user.PointsCount < pointsCount) return false;
         user.PointsCount -= pointsCount;
