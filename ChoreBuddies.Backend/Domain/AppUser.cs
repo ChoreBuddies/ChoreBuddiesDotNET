@@ -12,6 +12,8 @@ public class AppUser : IdentityUser<int>
 
     public int? HouseholdId { get; set; }
 
+    public int PointsCount { get; set; } = 0;
+
     // Refresh Token Properties
     public string? RefreshToken { get; set; }
     public DateTime RefreshTokenExpiry { get; set; }
