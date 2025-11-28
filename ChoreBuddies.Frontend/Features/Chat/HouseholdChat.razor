@@ -114,19 +114,19 @@
         _householdId = await authService.GetHouseholdIdAsync();
         _username = await authService.GetUserNameAsync();
 
-        // Load History
-        var historyDtos = await chatService.GetHistoryAsync(_householdId);
-        _messages = historyDtos.Select(ChatMessageVm.FromDto).ToList();
-        _isLoading = false;
+        // // Load History
+        // var historyDtos = await chatService.GetHistoryAsync(_householdId);
+        // _messages = historyDtos.Select(ChatMessageVm.FromDto).ToList();
+        // _isLoading = false;
 
-        // Subscribe events
-        chatService.MessageReceived += HandleMessageReceived;
-        chatService.UserTyping += HandleUserTyping;
+        // // Subscribe events
+        // chatService.MessageReceived += HandleMessageReceived;
+        // chatService.UserTyping += HandleUserTyping;
 
-        // Connect
-        await chatService.ConnectAsync(_householdId);
+        // // Connect
+        // await chatService.ConnectAsync(_householdId);
 
-        await ScrollToBottom();
+        // await ScrollToBottom();
     }
 
     private async Task SendMessage()

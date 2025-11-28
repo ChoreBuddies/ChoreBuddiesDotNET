@@ -37,10 +37,10 @@
         if (path == "household/setup" || path == "login" || path == "signup" || path == "household/join" || path == "household/create")
             return;
 
-        var user = await _userService.GetCurrentUserAsync();
-        if (user is not null && user.householdId is null)
-        {
-            _navigationManager.NavigateTo("/household/setup", true);
-        }
+        // var user = await _userService.GetCurrentUserAsync();
+        // if (user is not null && user.householdId is null)
+        // {
+        //     _navigationManager.NavigateTo("/household/setup", true);
+        // }
     }
 }

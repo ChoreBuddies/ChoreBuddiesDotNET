@@ -84,7 +84,6 @@ public static class HttpClientUtilsExtensions
         }
         catch (HttpRequestException ex)
         {
-            // It's good practice to at least log the error, even if we're swallowing it.
             Console.Error.WriteLine($"An HTTP request failed: {ex.StatusCode} - {ex.Message}");
             onError?.Invoke(ex);
             return default;
