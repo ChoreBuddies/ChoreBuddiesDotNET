@@ -4,16 +4,19 @@ using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
-{
+namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations;
+
     [DbContext(typeof(ChoreBuddiesDbContext))]
-    partial class ChoreBuddiesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251127202912_AddPointCountToAppUser")]
+    partial class AddPointCountToAppUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -486,4 +489,4 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
 #pragma warning restore 612, 618
         }
     }
-}
+
