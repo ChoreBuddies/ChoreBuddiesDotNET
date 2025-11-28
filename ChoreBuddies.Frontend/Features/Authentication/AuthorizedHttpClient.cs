@@ -40,7 +40,7 @@ public class AuthorizedHttpClient(ILocalStorageService localStorage, IAuthServic
                     newRequest.Headers.Authorization = new AuthenticationHeaderValue(AuthFrontendConstants.Bearer, token);
                 }
 
-                response = await base.SendAsync(newRequest, cancellationToken);
+                return await base.SendAsync(newRequest, cancellationToken);
             }
         }
 

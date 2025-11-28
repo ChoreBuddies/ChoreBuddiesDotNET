@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Shared.Authentication;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -119,7 +120,7 @@ public class TokenService : ITokenService
 
     public DateTime GetAccessTokenExpiration() =>
         _timeProvider.GetUtcNow().UtcDateTime.AddMinutes(
-            Convert.ToDouble(_config["JwtSettings:AccessTokenExpirationMinutes"])
+            Convert.ToDouble(_config["JwtSettings:AccessTokenExpirationMinutes"], CultureInfo.InvariantCulture)
         );
 
     public DateTime GetRefreshTokenExpiration() =>

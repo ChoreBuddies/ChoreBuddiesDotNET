@@ -109,7 +109,7 @@
                                     {
                                         <div class="pa-4 flex-grow-1 d-flex flex-column" style="min-height: 0">
                                             <MudText Typo="Typo.subtitle2" Class="mb-3">Recent Chat</MudText>
-                                            <ChoreBuddies.Frontend.Features.Chat.HouseholdChat IsSidebar="true"/>
+                                            @* <ChoreBuddies.Frontend.Features.Chat.HouseholdChat IsSidebar="true"/> *@
                                         </div>
                                     }
                                 </div>
@@ -200,11 +200,16 @@
 
     protected override void OnInitialized()
     {
-        AuthenticationStateProvider.AuthenticationStateChanged += _ => StateHasChanged();
+        AuthenticationStateProvider.AuthenticationStateChanged += OnAuthStateChanged;
         Navigation.LocationChanged += OnLocationChanged;
 
         CheckMiniChatVisibility();
         CheckLayoutVisibility();
+    }
+
+    private async void OnAuthStateChanged(Task<AuthenticationState> task)
+    {
+        await InvokeAsync(StateHasChanged);
     }
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
@@ -257,6 +262,7 @@
 
     public async ValueTask DisposeAsync()
     {
+        AuthenticationStateProvider.AuthenticationStateChanged -= OnAuthStateChanged;
         Navigation.LocationChanged -= OnLocationChanged;
     }
 }
