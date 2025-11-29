@@ -101,9 +101,9 @@ public class AuthService(HttpClient httpClient, ILocalStorageService localStorag
 
     public async Task<string> GetUserEmailAsync() => await GetClaimValueAsync(JwtRegisteredClaimNames.Email);
 
-    public async Task<string> GetFirstNameAsync() => await GetClaimValueAsync(JwtRegisteredClaimNames.FamilyName);
+    public async Task<string> GetFirstNameAsync() => await GetClaimValueAsync(JwtRegisteredClaimNames.GivenName);
 
-    public async Task<string> GetLastNameAsync() => await GetClaimValueAsync(JwtRegisteredClaimNames.GivenName);
+    public async Task<string> GetLastNameAsync() => await GetClaimValueAsync(JwtRegisteredClaimNames.FamilyName);
 
     public async Task<string> GetUserNameAsync() => await GetClaimValueAsync(JwtRegisteredClaimNames.Name);
 

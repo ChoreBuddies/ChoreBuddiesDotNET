@@ -171,13 +171,13 @@ public class TokenService : ITokenService
         return userId;
     }
 
-    public string? GetUserNameFromToken(ClaimsPrincipal claims) => claims.FindFirstValue(JwtRegisteredClaimNames.Name);
+    public string? GetUserNameFromToken(ClaimsPrincipal claims) => claims.FindFirstValue(ClaimTypes.Name);
 
     public string? GetUserEmailFromToken(ClaimsPrincipal claims) => claims.FindFirstValue(ClaimTypes.Email);
 
     public string? GetFirstNameFromToken(ClaimsPrincipal claims) => claims.FindFirstValue(ClaimTypes.GivenName);
 
-    public string? GetLastNameFromToken(ClaimsPrincipal claims) => claims.FindFirstValue(JwtRegisteredClaimNames.FamilyName);
+    public string? GetLastNameFromToken(ClaimsPrincipal claims) => claims.FindFirstValue(ClaimTypes.Surname);
 
     public int GetHouseholdIdFromToken(ClaimsPrincipal claims)
     {
