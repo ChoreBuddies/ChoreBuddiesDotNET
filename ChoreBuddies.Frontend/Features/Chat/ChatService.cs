@@ -114,7 +114,7 @@ public class ChatService(
         var result = await httpUtils.TryRequestAsync(async () =>
         {
             return await httpUtils.GetAsync<List<ChatMessageDto>>(
-                $"api/v1/chat/{householdId}",
+                $"api/v1/chat",
                 authorized: true
             );
         });
