@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Shared.Authentication;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -42,11 +43,11 @@ public class TokenService : ITokenService
         // Create claims for the token
         var claims = new List<Claim>
                 {
-                    new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
-                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                    new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName ?? ""),
-                    new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName ?? ""),
-                    new Claim(JwtRegisteredClaimNames.Name, user.UserName ?? ""),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Email, user.Email ?? ""),
+                    new Claim(ClaimTypes.GivenName, user.FirstName ?? ""),
+                    new Claim(ClaimTypes.Surname, user.LastName ?? ""),
+                    new Claim(ClaimTypes.Name, user.UserName ?? ""),
                     new Claim(AuthConstants.JwtHouseholdId, user.HouseholdId?.ToString() ?? ""),
                 };
 
@@ -55,7 +56,7 @@ public class TokenService : ITokenService
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
         // Create signing credentials
-        var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
+        var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512);
 
         // Describe the token
         var tokenDescriptor = new SecurityTokenDescriptor
@@ -92,7 +93,7 @@ public class TokenService : ITokenService
         }
 
         // 2. Get user ID from claims (using NameId claim which contains the user's ID)
-        var userIdClaim = principal.FindFirst(JwtRegisteredClaimNames.NameId);
+        var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
         if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
         {
             throw new SecurityTokenException("Invalid token claims");
@@ -119,7 +120,7 @@ public class TokenService : ITokenService
 
     public DateTime GetAccessTokenExpiration() =>
         _timeProvider.GetUtcNow().UtcDateTime.AddMinutes(
-            Convert.ToDouble(_config["JwtSettings:AccessTokenExpirationMinutes"])
+            Convert.ToDouble(_config["JwtSettings:AccessTokenExpirationMinutes"], CultureInfo.InvariantCulture)
         );
 
     public DateTime GetRefreshTokenExpiration() =>
@@ -145,7 +146,7 @@ public class TokenService : ITokenService
 
             // Additional validation: check if the token uses the expected algorithm
             if (securityToken is not JwtSecurityToken jwtSecurityToken ||
-                !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha512Signature, StringComparison.InvariantCultureIgnoreCase))
+                !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha512, StringComparison.InvariantCultureIgnoreCase))
             {
                 throw new SecurityTokenException("Invalid token");
             }
