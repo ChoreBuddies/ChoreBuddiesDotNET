@@ -20,7 +20,9 @@ public class UserService : IUserService
 
     public async Task<AppUserDto?> GetCurrentUserAsync()
     {
-        return await _httpClientUtils.GetAsync<AppUserDto>(UserConstants.ApiEndpointMe, true);
+        return await _httpClientUtils.TryRequestAsync(
+            () => _httpClientUtils.GetAsync<AppUserDto>(UserConstants.ApiEndpointMe, true)
+        );
     }
     public async Task<bool> UpdateUserAsync(AppUserDto user)
     {
