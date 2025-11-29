@@ -20,6 +20,8 @@ public interface IAuthService
     public Task<int> GetUserIdAsync();
     public Task<string> GetUserEmailAsync();
     public Task<string> GetUserNameAsync();
+    public Task<string> GetFirstNameAsync();
+    public Task<string> GetLastNameAsync();
     public Task<int> GetHouseholdIdAsync();
 }
 
@@ -98,6 +100,10 @@ public class AuthService(HttpClient httpClient, ILocalStorageService localStorag
     public async Task<int> GetUserIdAsync() => Int32.TryParse(await GetClaimValueAsync(JwtRegisteredClaimNames.NameId), out var x) ? x : -1;
 
     public async Task<string> GetUserEmailAsync() => await GetClaimValueAsync(JwtRegisteredClaimNames.Email);
+
+    public async Task<string> GetFirstNameAsync() => await GetClaimValueAsync(JwtRegisteredClaimNames.GivenName);
+
+    public async Task<string> GetLastNameAsync() => await GetClaimValueAsync(JwtRegisteredClaimNames.FamilyName);
 
     public async Task<string> GetUserNameAsync() => await GetClaimValueAsync(JwtRegisteredClaimNames.Name);
 
