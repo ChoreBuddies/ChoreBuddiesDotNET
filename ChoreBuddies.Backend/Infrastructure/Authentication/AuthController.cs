@@ -33,7 +33,7 @@ public class AuthController(IAuthService authService, ITokenService tokenService
     {
         try
         {
-            var response = await _tokenService.RefreshAccessToken(request.AccessToken, request.RefreshToken);
+            var response = await _tokenService.RefreshAccessTokenAsync(request.AccessToken, request.RefreshToken);
             return Ok(response);
         }
         catch (SecurityTokenException ex)

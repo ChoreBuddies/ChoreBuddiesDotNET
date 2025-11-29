@@ -14,12 +14,15 @@ public interface ITokenService
 {
     public Task<string> CreateAccessTokenAsync(AppUser user);
     public string CreateRefreshToken();
-    public Task<AuthResponseDto> RefreshAccessToken(string accessToken, string refreshToken);
+    public Task<AuthResponseDto> RefreshAccessTokenAsync(string accessToken, string refreshToken);
     public DateTime GetAccessTokenExpiration();
     public DateTime GetRefreshTokenExpiration();
     public int GetUserIdFromToken(ClaimsPrincipal claims);
-
+    public string? GetUserEmailFromToken(ClaimsPrincipal claims);
+    public string? GetFirstNameFromToken(ClaimsPrincipal claims);
+    public string? GetLastNameFromToken(ClaimsPrincipal claims);
     public string? GetUserNameFromToken(ClaimsPrincipal claims);
+    public int GetHouseholdIdFromToken(ClaimsPrincipal claims);
 }
 
 public class TokenService : ITokenService
@@ -83,7 +86,7 @@ public class TokenService : ITokenService
         return Convert.ToBase64String(randomNumber);
     }
 
-    public async Task<AuthResponseDto> RefreshAccessToken(string expiredAccessToken, string refreshToken)
+    public async Task<AuthResponseDto> RefreshAccessTokenAsync(string expiredAccessToken, string refreshToken)
     {
         // 1. Get principal from expired token (ignore validation lifetime)
         var principal = GetPrincipalFromExpiredToken(expiredAccessToken);
@@ -169,8 +172,21 @@ public class TokenService : ITokenService
         return userId;
     }
 
-    public string? GetUserNameFromToken(ClaimsPrincipal claims)
+    public string? GetUserNameFromToken(ClaimsPrincipal claims) => claims.FindFirstValue(ClaimTypes.Name);
+
+    public string? GetUserEmailFromToken(ClaimsPrincipal claims) => claims.FindFirstValue(ClaimTypes.Email);
+
+    public string? GetFirstNameFromToken(ClaimsPrincipal claims) => claims.FindFirstValue(ClaimTypes.GivenName);
+
+    public string? GetLastNameFromToken(ClaimsPrincipal claims) => claims.FindFirstValue(ClaimTypes.Surname);
+
+    public int GetHouseholdIdFromToken(ClaimsPrincipal claims)
     {
-        return claims.FindFirstValue(JwtRegisteredClaimNames.Name);
+        var householdIdClaim = claims.FindFirstValue(AuthConstants.JwtHouseholdId);
+        if (!int.TryParse(householdIdClaim, out var householdId))
+        {
+            throw new InvalidOperationException("Invalid household identifier.");
+        }
+        return householdId;
     }
 }
