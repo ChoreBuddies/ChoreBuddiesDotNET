@@ -1,6 +1,5 @@
 ﻿@inherits LayoutComponentBase
 
-
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IAuthApiService authApiService
@@ -201,10 +200,16 @@
 
     protected override void OnInitialized()
     {
+        AuthenticationStateProvider.AuthenticationStateChanged += OnAuthStateChanged;
         Navigation.LocationChanged += OnLocationChanged;
 
         CheckMiniChatVisibility();
         CheckLayoutVisibility();
+    }
+
+    private async void OnAuthStateChanged(Task<AuthenticationState> task)
+    {
+        await InvokeAsync(StateHasChanged);
     }
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
@@ -257,6 +262,7 @@
 
     public async ValueTask DisposeAsync()
     {
+        AuthenticationStateProvider.AuthenticationStateChanged -= OnAuthStateChanged;
         Navigation.LocationChanged -= OnLocationChanged;
     }
 }

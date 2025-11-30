@@ -1,6 +1,5 @@
-﻿using ChoreBuddies.Frontend.Features.Authentication;
+﻿using ChoreBuddies.Frontend.Utilities;
 using Shared.Users;
-using System.Net.Http.Json;
 
 namespace ChoreBuddies.Frontend.Features.User;
 
@@ -12,37 +11,25 @@ public interface IUserService
 
 public class UserService : IUserService
 {
-    private readonly HttpClient _httpClient;
+    private readonly HttpClientUtils _httpClientUtils;
 
-    public UserService(IHttpClientFactory httpClientFactory)
+    public UserService(HttpClientUtils httpClientUtils)
     {
-        _httpClient = httpClientFactory.CreateClient(AuthFrontendConstants.AuthorizedClient);
+        _httpClientUtils = httpClientUtils;
     }
 
     public async Task<AppUserDto?> GetCurrentUserAsync()
     {
-        var response = await _httpClient.GetAsync(UserConstants.ApiEndpointMe);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            Console.WriteLine($"Failed to fetch user. Status: {response.StatusCode}");
-
-            return null;
-        }
-
-        return await response.Content.ReadFromJsonAsync<AppUserDto>();
+        return await _httpClientUtils.TryRequestAsync(
+            () => _httpClientUtils.GetAsync<AppUserDto>(UserConstants.ApiEndpointMe, true)
+        );
     }
-
     public async Task<bool> UpdateUserAsync(AppUserDto user)
     {
-        var response = await _httpClient.PutAsJsonAsync(UserConstants.ApiEndpointMe, user);
-
-        if (!response.IsSuccessStatusCode)
+        return await _httpClientUtils.TryRequestAsync(async () =>
         {
-            Console.WriteLine($"Failed to update user. Status: {response.StatusCode}");
-            return false;
-        }
-
-        return true;
+            await _httpClientUtils.PutAsync(UserConstants.ApiEndpointMe, user, true);
+            return true;
+        });
     }
 }

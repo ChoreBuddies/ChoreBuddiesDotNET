@@ -1,4 +1,5 @@
 ﻿using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Shared.Authentication;
 using System.IdentityModel.Tokens.Jwt;
@@ -20,14 +21,21 @@ public interface IAuthService
     public Task<int> GetUserIdAsync();
     public Task<string> GetUserEmailAsync();
     public Task<string> GetUserNameAsync();
+    public Task<string> GetFirstNameAsync();
+    public Task<string> GetLastNameAsync();
     public Task<int> GetHouseholdIdAsync();
 }
 
-public class AuthService(HttpClient httpClient, ILocalStorageService localStorage, AuthenticationStateProvider authStateProvider) : IAuthService
+public class AuthService(
+    IHttpClientFactory httpClientFactory,
+    ILocalStorageService localStorage,
+    AuthenticationStateProvider authStateProvider,
+    NavigationManager navigationManager) : IAuthService
 {
-    private readonly HttpClient _httpClient = httpClient;
+    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
     private readonly ILocalStorageService _localStorage = localStorage;
     private readonly AuthenticationStateProvider _authStateProvider = authStateProvider;
+    private readonly NavigationManager _navigationManager = navigationManager;
 
     public async Task LoginAsync(string token, string refreshToken)
     {
@@ -68,12 +76,15 @@ public class AuthService(HttpClient httpClient, ILocalStorageService localStorag
 
         if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(refreshToken))
         {
+            await HandleLogOut();
             return false;
         }
 
         try
         {
-            var response = await _httpClient.PostAsJsonAsync(AuthFrontendConstants.ApiEndpointRefresh,
+            var client = _httpClientFactory.CreateClient(AuthFrontendConstants.UnauthorizedClient);
+
+            var response = await client.PostAsJsonAsync(AuthFrontendConstants.ApiEndpointRefresh,
                 new RefreshTokenRequestDto(token, refreshToken));
 
             if (response.IsSuccessStatusCode)
@@ -91,13 +102,17 @@ public class AuthService(HttpClient httpClient, ILocalStorageService localStorag
             // Token refresh failed
         }
 
-        await LogoutAsync();
+        await HandleLogOut();
         return false;
     }
 
     public async Task<int> GetUserIdAsync() => Int32.TryParse(await GetClaimValueAsync(JwtRegisteredClaimNames.NameId), out var x) ? x : -1;
 
     public async Task<string> GetUserEmailAsync() => await GetClaimValueAsync(JwtRegisteredClaimNames.Email);
+
+    public async Task<string> GetFirstNameAsync() => await GetClaimValueAsync(JwtRegisteredClaimNames.GivenName);
+
+    public async Task<string> GetLastNameAsync() => await GetClaimValueAsync(JwtRegisteredClaimNames.FamilyName);
 
     public async Task<string> GetUserNameAsync() => await GetClaimValueAsync(JwtRegisteredClaimNames.Name);
 
@@ -125,5 +140,10 @@ public class AuthService(HttpClient httpClient, ILocalStorageService localStorag
         var user = authState.User;
 
         return user.Identity?.IsAuthenticated ?? false;
+    }
+    private async Task HandleLogOut()
+    {
+        await LogoutAsync();
+        _navigationManager.NavigateTo("/login");
     }
 }
