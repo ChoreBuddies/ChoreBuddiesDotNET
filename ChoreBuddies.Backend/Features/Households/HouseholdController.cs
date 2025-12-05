@@ -74,9 +74,9 @@ public class HouseholdController(IHouseholdService service, IAuthService authSer
             return BadRequest();
         }
 
-        (string accessToken, string refreshToken) = await _authService.GenerateTokensAsync(userId);
+        string accessToken = await _authService.GenerateAccessTokenAsync(userId);
 
-        return Ok(new AuthResponseDto(accessToken, refreshToken));
+        return Ok(new AuthResponseDto(accessToken, ""));
     }
     // Delete
     [HttpDelete("{householdId}")]

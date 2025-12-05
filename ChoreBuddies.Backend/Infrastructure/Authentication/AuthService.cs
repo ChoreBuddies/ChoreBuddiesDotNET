@@ -13,7 +13,7 @@ public interface IAuthService
     public Task<AuthResponseDto> SignupUserAsync(RegisterRequestDto registerRequest);
     public Task<AuthResponseDto> LoginUserAsync(LoginRequestDto loginRequest);
     public Task<bool> RevokeRefreshTokenAsync(int userID);
-    public Task<(string access, string refresh)> GenerateTokensAsync(int userId);
+    public Task<string> GenerateAccessTokenAsync(int userId);
 }
 
 public class AuthService(UserManager<AppUser> userManager, ITokenService tokenService, TimeProvider timeProvider, IEmailService emailService, INotificationPreferenceService notificationPreferenceService) : IAuthService
@@ -88,7 +88,7 @@ public class AuthService(UserManager<AppUser> userManager, ITokenService tokenSe
         return true;
     }
 
-    public async Task<(string access, string refresh)> GenerateTokensAsync(int userId)
+    public async Task<string> GenerateAccessTokenAsync(int userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
 
@@ -97,9 +97,6 @@ public class AuthService(UserManager<AppUser> userManager, ITokenService tokenSe
             throw new InvalidOperationException("Invalid user identifier.");
         }
 
-        var accessToken = await _tokenService.CreateAccessTokenAsync(user);
-        var refreshToken = _tokenService.CreateRefreshToken();
-
-        return (accessToken, refreshToken);
+        return await _tokenService.CreateAccessTokenAsync(user);
     }
 }
