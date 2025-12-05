@@ -5,6 +5,7 @@ using ChoreBuddies.Backend.Features.DefaultChores;
 using ChoreBuddies.Backend.Features.Households;
 using ChoreBuddies.Backend.Features.Notifications;
 using ChoreBuddies.Backend.Features.Notifications.Email;
+using ChoreBuddies.Backend.Features.Notifications.NotificationPreferences;
 using ChoreBuddies.Backend.Features.Users;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using ChoreBuddies.Backend.Infrastructure.Data;
@@ -174,10 +175,11 @@ public class Program
             );
         });
 
-        // Interfaces mapped to the same EmailService instance
+        builder.Services.AddScoped<INotificationPreferenceRepository, NotificationPreferenceRepository>();
         builder.Services.AddScoped<IEmailService>(sp => sp.GetRequiredService<EmailService>());
-        builder.Services.AddScoped<INotificationService>(sp => sp.GetRequiredService<EmailService>());
-
+        builder.Services.AddScoped<INotificationPreferenceService, NotificationPreferenceService>();
+        builder.Services.AddScoped<INotificationChannel>(sp => sp.GetRequiredService<EmailService>());
+        builder.Services.AddScoped<INotificationService, NotificationService>();
         builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
         var app = builder.Build();

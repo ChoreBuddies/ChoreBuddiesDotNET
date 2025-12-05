@@ -20,4 +20,7 @@ public class AppUser : IdentityUser<int>
 
     // Navigation properties
     public Household? Household { get; set; }
+
+    public virtual ICollection<NotificationPreference> NotificationPreferences { get; set; }
+        = new List<NotificationPreference>();
 }
