@@ -63,6 +63,11 @@ public class AuthService(
     public async Task UpdateAccessTokenAsync(string token)
     {
         await _localStorage.SetItemAsStringAsync(AuthFrontendConstants.AuthTokenKey, token);
+
+        if (_authStateProvider is JwtAuthStateProvider jwtAuthStateProvider)
+        {
+            jwtAuthStateProvider.NotifyUserLogout();
+        }
     }
 
     public async Task<string?> GetTokenAsync()
