@@ -12,10 +12,12 @@ public interface IHouseholdService
 public class HouseholdService : IHouseholdService
 {
     private readonly HttpClient _httpClient;
+
     public HouseholdService(IHttpClientFactory httpClientFactory)
     {
         _httpClient = httpClientFactory.CreateClient(AuthFrontendConstants.AuthorizedClient);
     }
+
     public async Task<bool> JoinHouseholdAsync(string invitationCode)
     {
         var payload = new JoinHouseholdDto(invitationCode);
