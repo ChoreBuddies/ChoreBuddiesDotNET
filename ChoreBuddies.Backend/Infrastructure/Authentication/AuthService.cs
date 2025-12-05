@@ -1,5 +1,6 @@
 ﻿using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Notifications.Email;
+using ChoreBuddies.Backend.Features.Notifications.NotificationPreferences;
 using ChoreBuddies.Backend.Infrastructure.Authentication.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using Shared.Authentication;
@@ -13,13 +14,13 @@ public interface IAuthService
     public Task<bool> RevokeRefreshTokenAsync(int userID);
 }
 
-public class AuthService(UserManager<AppUser> userManager, ITokenService tokenService, TimeProvider timeProvider, IEmailService emailService) : IAuthService
+public class AuthService(UserManager<AppUser> userManager, ITokenService tokenService, TimeProvider timeProvider, IEmailService emailService, INotificationPreferenceService notificationPreferenceService) : IAuthService
 {
     private readonly UserManager<AppUser> _userManager = userManager;
     private readonly ITokenService _tokenService = tokenService;
     private readonly TimeProvider _timeProvider = timeProvider;
     private readonly IEmailService _emailService = emailService;
-
+    private readonly INotificationPreferenceService _notificationPreferenceService = notificationPreferenceService;
     public async Task<AuthResponseDto> LoginUserAsync(LoginRequestDto loginRequest)
     {
         var user = await _userManager.FindByEmailAsync(loginRequest.Email);
@@ -58,6 +59,7 @@ public class AuthService(UserManager<AppUser> userManager, ITokenService tokenSe
         {
             throw new RegistrationFailedException(result.Errors.Select(err => err.Description));
         }
+        await _notificationPreferenceService.CreateDefaultPreferencesAsync(newUser);
 
         var accessToken = await _tokenService.CreateAccessTokenAsync(newUser);
         var refreshToken = _tokenService.CreateRefreshToken();
