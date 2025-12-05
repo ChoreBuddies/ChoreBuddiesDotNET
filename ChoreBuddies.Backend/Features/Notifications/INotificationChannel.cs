@@ -2,19 +2,20 @@
 
 namespace ChoreBuddies.Backend.Features.Notifications;
 
-public interface INotificationService
+public interface INotificationChannel
 {
-    Task<bool> SendNewChoreNotificationAsync(
+    NotificationChannel ChannelType { get; }
+
+    Task<string> SendNewChoreNotificationAsync(
         AppUser recipient,
         string choreName,
         string choreDescription,
         DateTime? dueDate,
         CancellationToken cancellationToken = default);
 
-    Task<bool> SendNewRewardRequestNotificationAsync(
+    Task<string> SendNewRewardRequestNotificationAsync(
         AppUser recipient,
         string rewardName,
         string requester,
         CancellationToken cancellationToken = default);
 }
-

@@ -1,4 +1,5 @@
-﻿using Maileroo.DotNet.SDK;
+﻿using ChoreBuddies.Backend.Domain;
+using Maileroo.DotNet.SDK;
 
 namespace ChoreBuddies.Backend.Features.Notifications.Email;
 
@@ -8,8 +9,10 @@ public class EmailServiceOptions
     public string FromName { get; set; } = default!;
 }
 
-public class EmailService : INotificationService, IEmailService
+public class EmailService : INotificationChannel, IEmailService
 {
+    public NotificationChannel ChannelType => NotificationChannel.Email;
+
     private readonly MailerooClient _client;
     private readonly string _defaultFrom;
     private readonly string _defaultFromName;
@@ -45,13 +48,7 @@ public class EmailService : INotificationService, IEmailService
         return referenceId;
     }
 
-    public async Task<string> SendNewChoreNotificationAsync(
-        string recipientEmail,
-        string recipientName,
-        string choreName,
-        string choreDescription,
-        DateTime? dueDate,
-        CancellationToken cancellationToken = default)
+    public async Task<string> SendNewChoreNotificationAsync(AppUser recipient, string choreName, string choreDescription, DateTime? dueDate, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(MailerooConstants.NewChoreTemplate))
             throw new ArgumentNullException(nameof(MailerooConstants.NewChoreTemplate), "Maileroo Template ID is required.");
@@ -61,12 +58,12 @@ public class EmailService : INotificationService, IEmailService
             { "choreName", choreName },
             { "choreDescription", choreDescription},
             { "dueDate", dueDate?.ToString("f") ?? "No due date" },
-            { "recipientName", recipientName}
+            { "recipientName", recipient.UserName}
         };
 
         return await SendTemplatedEmailAsync(
-            recipientEmail,
-            recipientName,
+            recipient.Email,
+            recipient.UserName,
             MailerooConstants.NewChoreTemplate,
             MailSubjects.NewChore,
             parameters,
@@ -91,25 +88,24 @@ public class EmailService : INotificationService, IEmailService
             cancellationToken);
     }
 
-    public async Task<string> SendNewRewardRequestNotificationAsync(string recipientEmail, string recipientName, string rewardName, string requester, CancellationToken cancellationToken = default)
+    public async Task<string> SendNewRewardRequestNotificationAsync(AppUser recipient, string rewardName, string requester, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(MailerooConstants.NewRewardRequestTemplate))
             throw new ArgumentNullException(nameof(MailerooConstants.NewRewardRequestTemplate), "Maileroo Template ID is required.");
 
         var parameters = new Dictionary<string, object>
         {
-            { "recipientName", recipientName },
+            { "recipientName", recipient.UserName },
             { "rewardName", rewardName },
             { "requester", requester }
         };
 
         return await SendTemplatedEmailAsync(
-            recipientEmail,
-            recipientName,
+            recipient.Email,
+            recipient.UserName,
             MailerooConstants.NewRewardRequestTemplate,
             MailSubjects.NewRewardRequest,
             parameters,
             cancellationToken);
     }
-
 }

@@ -1,4 +1,4 @@
-﻿namespace ChoreBuddies.Backend.Features.Notifications;
+﻿namespace ChoreBuddies.Backend.Features.Notifications.Email;
 
 public static class MailSubjects
 {
