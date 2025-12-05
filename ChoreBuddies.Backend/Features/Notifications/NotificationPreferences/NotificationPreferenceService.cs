@@ -1,15 +1,18 @@
-﻿namespace ChoreBuddies.Backend.Features.Notifications.UserNotificationPreferences;
+﻿namespace ChoreBuddies.Backend.Features.Notifications.NotificationPreferences;
 
 using ChoreBuddies.Backend.Domain;
+using Shared.Notifications;
 
 public interface INotificationPreferenceService
 {
     Task<List<NotificationChannel>> GetActiveChannelsAsync(AppUser user, NotificationEvent eventType, CancellationToken ct = default);
-    Task CreateDefaultPreferencesAsync(AppUser user, CancellationToken ct = default); // ZMIANA
+    Task<List<NotificationPreference>> GetAllUserConfigAsync(AppUser user, CancellationToken ct = default);
+    Task CreateDefaultPreferencesAsync(AppUser user, CancellationToken ct = default);
+    Task UpdatePreferenceAsync(AppUser user, NotificationPreferenceDto updatedPreference, CancellationToken ct = default);
 }
-public class NotificationPreferenceService : INotificationPreferenceService // Używamy Twojego interfejsu
+public class NotificationPreferenceService : INotificationPreferenceService
 {
-    private readonly INotificationPreferenceRepository _repository; // Wstrzykujemy Repozytorium
+    private readonly INotificationPreferenceRepository _repository;
 
     public NotificationPreferenceService(INotificationPreferenceRepository repository)
     {
@@ -65,5 +68,44 @@ public class NotificationPreferenceService : INotificationPreferenceService // U
         }
 
         await _repository.AddPreferencesAsync(defaultPreferences, ct);
+    }
+
+    public async Task<List<NotificationPreference>> GetAllUserConfigAsync(AppUser user, CancellationToken ct = default)
+    {
+        if (user == null) return new List<NotificationPreference>();
+
+        IEnumerable<NotificationPreference> userPreferences;
+
+        if (user.NotificationPreferences != null && user.NotificationPreferences.Any())
+        {
+            userPreferences = user.NotificationPreferences;
+        }
+        else
+        {
+            userPreferences = await _repository.GetAllUserPreferencesAsync(user.Id, ct);
+        }
+        return (List<NotificationPreference>)userPreferences;
+    }
+    public async Task UpdatePreferenceAsync(AppUser user, NotificationPreferenceDto updatedPreference, CancellationToken ct = default)
+    {
+        if (user == null || updatedPreference == null)
+        {
+            return;
+        }
+
+        var existingPreference = await _repository.GetPreferenceByKeysAsync(
+            user.Id,
+            updatedPreference.Type,
+            updatedPreference.Channel,
+            ct);
+
+        if (existingPreference == null)
+        {
+            return;
+        }
+
+        existingPreference.IsEnabled = updatedPreference.IsEnabled;
+
+        await _repository.UpdatePreferenceAsync(existingPreference, ct);
     }
 }

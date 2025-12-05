@@ -1,4 +1,6 @@
-﻿namespace ChoreBuddies.Backend.Domain;
+﻿using Shared.Notifications;
+
+namespace ChoreBuddies.Backend.Domain;
 
 public class NotificationPreference
 {
@@ -14,16 +16,3 @@ public class NotificationPreference
     public bool IsEnabled { get; set; }
 }
 
-public enum NotificationEvent
-{
-    NewChore = 1,
-    RewardRequest = 2,
-    ChoreCompleted = 3
-}
-
-public enum NotificationChannel
-{
-    Email = 1,
-    Push = 2,
-    InApp = 3
-}

@@ -5,7 +5,7 @@ using ChoreBuddies.Backend.Features.DefaultChores;
 using ChoreBuddies.Backend.Features.Households;
 using ChoreBuddies.Backend.Features.Notifications;
 using ChoreBuddies.Backend.Features.Notifications.Email;
-using ChoreBuddies.Backend.Features.Notifications.UserNotificationPreferences;
+using ChoreBuddies.Backend.Features.Notifications.NotificationPreferences;
 using ChoreBuddies.Backend.Features.Users;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using ChoreBuddies.Backend.Infrastructure.Data;

@@ -1,4 +1,5 @@
 ﻿using ChoreBuddies.Backend.Domain;
+using Shared.Notifications;
 
 namespace ChoreBuddies.Backend.Features.Notifications;
 

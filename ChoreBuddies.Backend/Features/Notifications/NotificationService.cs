@@ -1,6 +1,7 @@
 ﻿using ChoreBuddies.Backend.Domain;
-using ChoreBuddies.Backend.Features.Notifications.UserNotificationPreferences;
+using ChoreBuddies.Backend.Features.Notifications.NotificationPreferences;
 using Microsoft.EntityFrameworkCore;
+using Shared.Notifications;
 
 namespace ChoreBuddies.Backend.Features.Notifications;
 

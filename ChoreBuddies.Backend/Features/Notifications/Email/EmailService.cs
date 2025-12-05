@@ -1,5 +1,6 @@
 ﻿using ChoreBuddies.Backend.Domain;
 using Maileroo.DotNet.SDK;
+using Shared.Notifications;
 
 namespace ChoreBuddies.Backend.Features.Notifications.Email;
 
@@ -12,6 +13,8 @@ public class EmailServiceOptions
 public class EmailService : INotificationChannel, IEmailService
 {
     public NotificationChannel ChannelType => NotificationChannel.Email;
+
+    NotificationChannel INotificationChannel.ChannelType => throw new NotImplementedException();
 
     private readonly MailerooClient _client;
     private readonly string _defaultFrom;
