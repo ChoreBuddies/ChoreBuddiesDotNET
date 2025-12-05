@@ -61,12 +61,15 @@ public class EmailService : INotificationChannel, IEmailService
             { "choreName", choreName },
             { "choreDescription", choreDescription},
             { "dueDate", dueDate?.ToString("f") ?? "No due date" },
-            { "recipientName", recipient.UserName}
+            { "recipientName", recipient.UserName ?? recipient.FirstName ?? "Unknown"}
         };
-
+        if (recipient.Email is null)
+        {
+            throw new ArgumentNullException(nameof(recipient.Email));
+        }
         return await SendTemplatedEmailAsync(
             recipient.Email,
-            recipient.UserName,
+            recipient.UserName ?? recipient.FirstName ?? "Unknown",
             MailerooConstants.NewChoreTemplate,
             MailSubjects.NewChore,
             parameters,
@@ -98,14 +101,17 @@ public class EmailService : INotificationChannel, IEmailService
 
         var parameters = new Dictionary<string, object>
         {
-            { "recipientName", recipient.UserName },
+            { "recipientName", recipient.UserName ?? recipient.FirstName ?? "Unknown" },
             { "rewardName", rewardName },
             { "requester", requester }
         };
-
+        if (recipient.Email is null)
+        {
+            throw new ArgumentNullException(nameof(recipient.Email));
+        }
         return await SendTemplatedEmailAsync(
             recipient.Email,
-            recipient.UserName,
+            recipient.UserName ?? recipient.FirstName ?? "Unknown",
             MailerooConstants.NewRewardRequestTemplate,
             MailSubjects.NewRewardRequest,
             parameters,
