@@ -68,7 +68,7 @@ public class ChoresController : ControllerBase
         }
     }
     [HttpGet("HouseholdChores")]
-    public async Task<ActionResult<IEnumerable<ChoreDto>>> GetMyHouseholdChores(string householdId)
+    public async Task<ActionResult<IEnumerable<ChoreDto>>> GetMyHouseholdChores()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 

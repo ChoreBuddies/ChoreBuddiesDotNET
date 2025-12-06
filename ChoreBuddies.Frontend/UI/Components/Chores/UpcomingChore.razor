@@ -1,21 +1,26 @@
-﻿<MudPaper Elevation="1" Class="pa-4 rounded-lg">
+﻿@using Features.Chores
+@using Shared.Chores
+
+@inject IChoresService choresService
+
+<MudPaper Elevation="1" Class="pa-4 rounded-lg">
     <MudGrid>
         <MudItem xs="8">
-            <MudText Typo="Typo.caption" Color="Color.Secondary">@DueText</MudText>
-            <MudText Typo="Typo.h6">@Title</MudText>
-            <MudText Typo="Typo.body2">@Description</MudText>
+            <MudText Typo="Typo.caption" Color="Color.Secondary">@GetDueText()</MudText>
+            <MudText Typo="Typo.h6">@GetTitle()</MudText>
+            <MudText Typo="Typo.body2">@GetDescription()</MudText>
 
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2"> @*TODO: Add navigation to chores when they're done*@
                 View Task →
             </MudButton>
         </MudItem>
 
         <MudItem xs="4" Class="d-flex justify-end align-center">
             <MudStack>
-                <MudButton Color="Color.Default" Variant="Variant.Outlined" Class="mt-1">
+                <MudButton Color="Color.Default" Variant="Variant.Outlined" Class="mt-1"> @*TODO: Add navigation to chores when they're done*@
                     Set a reminder
                 </MudButton>
-                <MudButton Color="Color.Default" Variant="Variant.Outlined" Class="mt-1">
+                <MudButton Color="Color.Default" Variant="Variant.Outlined" Class="mt-1" @OnClick=""> @*TODO: Add navigation to chores when they're done*@
                     Mark as done
                 </MudButton>
             </MudStack>
@@ -24,8 +29,19 @@
 </MudPaper>
 
 @code {
-    [Parameter] public string? DueText { get; set; }
-    [Parameter] public string? Title { get; set; }
-    [Parameter] public string? Description { get; set; }
-    [Parameter] public string? ImageUrl { get; set; }
+    [Parameter] public ChoreDto? _choreDto { get; set; }
+    public string? GetTitle() => _choreDto?.Name;
+    public string? GetDescription() => _choreDto?.Description;
+    public string? GetDueText() => _choreDto?.DueDate.ToString();
+    public async Task MarkChoreAsDone()
+    {
+        if(_choreDto is not null)
+        {
+            var result = await choresService.UpdateChoreAsync(_choreDto with { Status = Status.Completed });
+            if(result is not null)
+            {
+                _choreDto = result;
+            }
+        }
+    }
 }
