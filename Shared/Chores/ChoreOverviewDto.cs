@@ -1,7 +1,7 @@
 ﻿namespace Shared.Chores;
 
 public record ChoreOverviewDto(
-string Id,
+int Id,
 string Name,
 string? AssignedTo,
 Status Status,

@@ -8,11 +8,11 @@ public interface IChoresService
     //Create
     public Task<ChoreDto?> CreateChoreAsync(CreateChoreDto createChoreDto);
     // Read
-    public Task<ChoreDto?> GetChoreDetailsAsync(string choreId);
+    public Task<ChoreDto?> GetChoreDetailsAsync(int choreId);
     // Update
     public Task<ChoreDto?> UpdateChoreAsync(ChoreDto choreDto);
     // Delete
-    public Task<ChoreDto?> DeleteChoreAsync(string choreId);
+    public Task<ChoreDto?> DeleteChoreAsync(int choreId);
     Task<IEnumerable<ChoreDto>> GetUsersChoreDetailsAsync(int userId);
     Task<IEnumerable<ChoreDto>> GetMyHouseholdChoreDetailsAsync(int userId);
     Task<IEnumerable<ChoreDto>> CreateChoreListAsync(IEnumerable<CreateChoreDto> createChoreDtoList);

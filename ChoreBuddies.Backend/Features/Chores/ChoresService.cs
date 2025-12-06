@@ -17,7 +17,7 @@ public class ChoresService : IChoresService
         _repository = choresRepository;
     }
 
-    public async Task<ChoreDto?> GetChoreDetailsAsync(string choreId)
+    public async Task<ChoreDto?> GetChoreDetailsAsync(int choreId)
     {
         var chore = await _repository.GetChoreByIdAsync(choreId);
         if (chore is null) throw new Exception("Chore not found");
@@ -46,7 +46,7 @@ public class ChoresService : IChoresService
         }
     }
 
-    public async Task<ChoreDto?> DeleteChoreAsync(string choreId)
+    public async Task<ChoreDto?> DeleteChoreAsync(int choreId)
     {
         var chore = await _repository.GetChoreByIdAsync(choreId);
         if (chore != null)

@@ -19,7 +19,7 @@ public class ChoresController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<ChoreDto>> GetChore(string id)
+    public async Task<ActionResult<ChoreDto>> GetChore(int id)
     {
         var result = await _choresService.GetChoreDetailsAsync(id);
         return Ok(result);
@@ -43,7 +43,7 @@ public class ChoresController : ControllerBase
         return Ok(result);
     }
     [HttpDelete("delete/{id}")]
-    public async Task<ActionResult<ChoreDto>> DeleteChore(string id)
+    public async Task<ActionResult<ChoreDto>> DeleteChore(int id)
     {
         var result = await _choresService.DeleteChoreAsync(id);
         return Ok(result);
