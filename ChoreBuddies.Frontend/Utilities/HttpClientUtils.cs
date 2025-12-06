@@ -1,4 +1,5 @@
 ﻿using ChoreBuddies.Frontend.Features.Authentication;
+using System.Net;
 using System.Net.Http.Json;
 
 namespace ChoreBuddies.Frontend.Utilities;
@@ -14,6 +15,12 @@ public class HttpClientUtils(IHttpClientFactory httpClientFactory)
 
     private async Task<T?> ProcessResponseAsync<T>(HttpResponseMessage response)
     {
+        // We don't throw on 401 here; redirecting to login
+        if (response.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            return default;
+        }
+
         response.EnsureSuccessStatusCode();
 
         if (typeof(T) == typeof(HttpResponseMessage))
@@ -40,6 +47,9 @@ public class HttpClientUtils(IHttpClientFactory httpClientFactory)
     {
         var client = CreateClient(authorized);
         var response = await client.PostAsJsonAsync(requestUri, content);
+
+        if (response.StatusCode == HttpStatusCode.Unauthorized) return;
+
         response.EnsureSuccessStatusCode();
     }
 
@@ -53,6 +63,9 @@ public class HttpClientUtils(IHttpClientFactory httpClientFactory)
     {
         var client = CreateClient(authorized);
         var response = await client.PutAsJsonAsync(requestUri, content);
+
+        if (response.StatusCode == HttpStatusCode.Unauthorized) return;
+
         response.EnsureSuccessStatusCode();
     }
 
@@ -67,6 +80,9 @@ public class HttpClientUtils(IHttpClientFactory httpClientFactory)
     {
         var client = CreateClient(authorized);
         var response = await client.DeleteAsync(requestUri);
+
+        if (response.StatusCode == HttpStatusCode.Unauthorized) return;
+
         response.EnsureSuccessStatusCode();
     }
 }
@@ -84,7 +100,6 @@ public static class HttpClientUtilsExtensions
         }
         catch (HttpRequestException ex)
         {
-            // It's good practice to at least log the error, even if we're swallowing it.
             Console.Error.WriteLine($"An HTTP request failed: {ex.StatusCode} - {ex.Message}");
             onError?.Invoke(ex);
             return default;

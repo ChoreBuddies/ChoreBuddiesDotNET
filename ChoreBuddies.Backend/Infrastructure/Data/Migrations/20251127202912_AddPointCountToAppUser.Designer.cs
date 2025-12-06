@@ -4,16 +4,19 @@ using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
-{
+namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations;
+
     [DbContext(typeof(ChoreBuddiesDbContext))]
-    partial class ChoreBuddiesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251127202912_AddPointCountToAppUser")]
+    partial class AddPointCountToAppUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -254,33 +257,6 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
                     b.ToTable("Households");
                 });
 
-            modelBuilder.Entity("ChoreBuddies.Backend.Domain.NotificationPreference", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Channel")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("NotificationPreference");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
                 {
                     b.Property<int>("Id")
@@ -453,17 +429,6 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
                     b.Navigation("Household");
                 });
 
-            modelBuilder.Entity("ChoreBuddies.Backend.Domain.NotificationPreference", b =>
-                {
-                    b.HasOne("ChoreBuddies.Backend.Domain.AppUser", "User")
-                        .WithMany("NotificationPreferences")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
@@ -515,11 +480,6 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ChoreBuddies.Backend.Domain.AppUser", b =>
-                {
-                    b.Navigation("NotificationPreferences");
-                });
-
             modelBuilder.Entity("ChoreBuddies.Backend.Domain.Household", b =>
                 {
                     b.Navigation("Chores");
@@ -529,4 +489,4 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
 #pragma warning restore 612, 618
         }
     }
-}
+

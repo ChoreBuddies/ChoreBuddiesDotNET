@@ -15,10 +15,11 @@ public class ChatController(ChoreBuddiesDbContext context,
     ITokenService tokenService,
     IHouseholdService householdService) : ControllerBase
 {
-    [HttpGet("{householdId}")]
-    public async Task<ActionResult<IEnumerable<ChatMessageDto>>> GetMessages(int householdId)
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<ChatMessageDto>>> GetMessages()
     {
         var userId = tokenService.GetUserIdFromToken(User);
+        var householdId = tokenService.GetHouseholdIdFromToken(User);
 
         // Check if user belongs to the household
         bool hasAccess = await householdService.CheckIfUserBelongsAsync(householdId, userId);

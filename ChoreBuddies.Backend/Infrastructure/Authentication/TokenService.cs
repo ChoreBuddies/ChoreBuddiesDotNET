@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Shared.Authentication;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -13,12 +14,15 @@ public interface ITokenService
 {
     public Task<string> CreateAccessTokenAsync(AppUser user);
     public string CreateRefreshToken();
-    public Task<AuthResponseDto> RefreshAccessToken(string accessToken, string refreshToken);
+    public Task<AuthResponseDto> RefreshAccessTokenAsync(string accessToken, string refreshToken);
     public DateTime GetAccessTokenExpiration();
     public DateTime GetRefreshTokenExpiration();
     public int GetUserIdFromToken(ClaimsPrincipal claims);
-
+    public string? GetUserEmailFromToken(ClaimsPrincipal claims);
+    public string? GetFirstNameFromToken(ClaimsPrincipal claims);
+    public string? GetLastNameFromToken(ClaimsPrincipal claims);
     public string? GetUserNameFromToken(ClaimsPrincipal claims);
+    public int GetHouseholdIdFromToken(ClaimsPrincipal claims);
 }
 
 public class TokenService : ITokenService
@@ -42,11 +46,11 @@ public class TokenService : ITokenService
         // Create claims for the token
         var claims = new List<Claim>
                 {
-                    new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
-                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                    new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName ?? ""),
-                    new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName ?? ""),
-                    new Claim(JwtRegisteredClaimNames.Name, user.UserName ?? ""),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Email, user.Email ?? ""),
+                    new Claim(ClaimTypes.GivenName, user.FirstName ?? ""),
+                    new Claim(ClaimTypes.Surname, user.LastName ?? ""),
+                    new Claim(ClaimTypes.Name, user.UserName ?? ""),
                     new Claim(AuthConstants.JwtHouseholdId, user.HouseholdId?.ToString() ?? ""),
                 };
 
@@ -55,7 +59,7 @@ public class TokenService : ITokenService
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
         // Create signing credentials
-        var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
+        var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512);
 
         // Describe the token
         var tokenDescriptor = new SecurityTokenDescriptor
@@ -82,7 +86,7 @@ public class TokenService : ITokenService
         return Convert.ToBase64String(randomNumber);
     }
 
-    public async Task<AuthResponseDto> RefreshAccessToken(string expiredAccessToken, string refreshToken)
+    public async Task<AuthResponseDto> RefreshAccessTokenAsync(string expiredAccessToken, string refreshToken)
     {
         // 1. Get principal from expired token (ignore validation lifetime)
         var principal = GetPrincipalFromExpiredToken(expiredAccessToken);
@@ -92,7 +96,7 @@ public class TokenService : ITokenService
         }
 
         // 2. Get user ID from claims (using NameId claim which contains the user's ID)
-        var userIdClaim = principal.FindFirst(JwtRegisteredClaimNames.NameId);
+        var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
         if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
         {
             throw new SecurityTokenException("Invalid token claims");
@@ -119,7 +123,7 @@ public class TokenService : ITokenService
 
     public DateTime GetAccessTokenExpiration() =>
         _timeProvider.GetUtcNow().UtcDateTime.AddMinutes(
-            Convert.ToDouble(_config["JwtSettings:AccessTokenExpirationMinutes"])
+            Convert.ToDouble(_config["JwtSettings:AccessTokenExpirationMinutes"], CultureInfo.InvariantCulture)
         );
 
     public DateTime GetRefreshTokenExpiration() =>
@@ -145,7 +149,7 @@ public class TokenService : ITokenService
 
             // Additional validation: check if the token uses the expected algorithm
             if (securityToken is not JwtSecurityToken jwtSecurityToken ||
-                !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha512Signature, StringComparison.InvariantCultureIgnoreCase))
+                !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha512, StringComparison.InvariantCultureIgnoreCase))
             {
                 throw new SecurityTokenException("Invalid token");
             }
@@ -168,8 +172,21 @@ public class TokenService : ITokenService
         return userId;
     }
 
-    public string? GetUserNameFromToken(ClaimsPrincipal claims)
+    public string? GetUserNameFromToken(ClaimsPrincipal claims) => claims.FindFirstValue(ClaimTypes.Name);
+
+    public string? GetUserEmailFromToken(ClaimsPrincipal claims) => claims.FindFirstValue(ClaimTypes.Email);
+
+    public string? GetFirstNameFromToken(ClaimsPrincipal claims) => claims.FindFirstValue(ClaimTypes.GivenName);
+
+    public string? GetLastNameFromToken(ClaimsPrincipal claims) => claims.FindFirstValue(ClaimTypes.Surname);
+
+    public int GetHouseholdIdFromToken(ClaimsPrincipal claims)
     {
-        return claims.FindFirstValue(JwtRegisteredClaimNames.Name);
+        var householdIdClaim = claims.FindFirstValue(AuthConstants.JwtHouseholdId);
+        if (!int.TryParse(householdIdClaim, out var householdId))
+        {
+            throw new InvalidOperationException("Invalid household identifier.");
+        }
+        return householdId;
     }
 }

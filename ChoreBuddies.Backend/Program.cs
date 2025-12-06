@@ -5,6 +5,7 @@ using ChoreBuddies.Backend.Features.DefaultChores;
 using ChoreBuddies.Backend.Features.Households;
 using ChoreBuddies.Backend.Features.Notifications;
 using ChoreBuddies.Backend.Features.Notifications.Email;
+using ChoreBuddies.Backend.Features.Notifications.NotificationPreferences;
 using ChoreBuddies.Backend.Features.Users;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using ChoreBuddies.Backend.Infrastructure.Data;
@@ -15,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 
 namespace ChoreBuddies.Backend;
@@ -102,13 +104,36 @@ public class Program
             };
         });
 
-        //builder.Services.AddMvc();
-        builder.Services.AddSwaggerGen();
+        // Swagger
+        builder.Services.AddSwaggerGen(options =>
+        {
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "Bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "Enter 'Bearer' [space] and your token JWT.\n\nExample: \"Bearer eyJhbGciOiJIUzI1NiIsInR5...\""
+            });
 
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    new string[] {}
+                }
+            });
+        });
         builder.Services.AddControllers();
 
-        // Add services to the container.
-        builder.Services.AddRazorPages();
         // Chores
         builder.Services.AddScoped<IChoresRepository, ChoresRepository>();
         builder.Services.AddScoped<IChoresService, ChoresService>();
@@ -150,10 +175,11 @@ public class Program
             );
         });
 
-        // Interfejsy mapowane na tê sam¹ instancjê EmailService
+        builder.Services.AddScoped<INotificationPreferenceRepository, NotificationPreferenceRepository>();
         builder.Services.AddScoped<IEmailService>(sp => sp.GetRequiredService<EmailService>());
-        builder.Services.AddScoped<INotificationService>(sp => sp.GetRequiredService<EmailService>());
-
+        builder.Services.AddScoped<INotificationPreferenceService, NotificationPreferenceService>();
+        builder.Services.AddScoped<INotificationChannel>(sp => sp.GetRequiredService<EmailService>());
+        builder.Services.AddScoped<INotificationService, NotificationService>();
         builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
         var app = builder.Build();
@@ -191,8 +217,6 @@ public class Program
 
         app.UseAuthentication();
         app.UseAuthorization();
-
-        app.MapRazorPages();
 
         app.UseSwagger();
         app.UseSwaggerUI();
