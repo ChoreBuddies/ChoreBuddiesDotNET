@@ -14,7 +14,7 @@ public interface IChoresRepository
     public Task<Chore?> CreateChoreAsync(Chore chore);
 
     //Read
-    public Task<Chore?> GetChoreByIdAsync(string id);
+    public Task<Chore?> GetChoreByIdAsync(int id);
 
     //Update
     public Task<Chore?> UpdateChoreAsync(Chore chore);
@@ -41,7 +41,7 @@ public class ChoresRepository(ChoreBuddiesDbContext dbContext) : IChoresReposito
         return newChore.Entity;
     }
 
-    public async Task<Chore?> GetChoreByIdAsync(string id)
+    public async Task<Chore?> GetChoreByIdAsync(int id)
     {
         try
         {
