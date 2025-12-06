@@ -3,6 +3,7 @@ using ChoreBuddies.Backend.Features.Notifications.Email;
 using ChoreBuddies.Backend.Features.Notifications.NotificationPreferences;
 using ChoreBuddies.Backend.Infrastructure.Authentication.Exceptions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.Data;
 using Shared.Authentication;
 
 namespace ChoreBuddies.Backend.Infrastructure.Authentication;
@@ -12,6 +13,7 @@ public interface IAuthService
     public Task<AuthResponseDto> SignupUserAsync(RegisterRequestDto registerRequest);
     public Task<AuthResponseDto> LoginUserAsync(LoginRequestDto loginRequest);
     public Task<bool> RevokeRefreshTokenAsync(int userID);
+    public Task<string> GenerateAccessTokenAsync(int userId);
 }
 
 public class AuthService(UserManager<AppUser> userManager, ITokenService tokenService, TimeProvider timeProvider, IEmailService emailService, INotificationPreferenceService notificationPreferenceService) : IAuthService
@@ -67,7 +69,9 @@ public class AuthService(UserManager<AppUser> userManager, ITokenService tokenSe
         newUser.RefreshToken = refreshToken;
         newUser.RefreshTokenExpiry = _tokenService.GetRefreshTokenExpiration();
         await _userManager.UpdateAsync(newUser);
+
         await _emailService.SendRegisterConfirmationNotificationAsync(newUser.Email, newUser.UserName);
+
         return new AuthResponseDto(accessToken, refreshToken);
     }
 
@@ -82,5 +86,17 @@ public class AuthService(UserManager<AppUser> userManager, ITokenService tokenSe
         await _userManager.UpdateAsync(user);
 
         return true;
+    }
+
+    public async Task<string> GenerateAccessTokenAsync(int userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+
+        if (user == null)
+        {
+            throw new InvalidOperationException("Invalid user identifier.");
+        }
+
+        return await _tokenService.CreateAccessTokenAsync(user);
     }
 }

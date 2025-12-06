@@ -18,6 +18,7 @@ public interface IAuthService
     public Task<bool> IsAuthenticatedAsync();
     public Task LoginAsync(string token, string refreshToken);
     public Task LogoutAsync();
+    public Task UpdateAccessTokenAsync(string token);
     public Task<int> GetUserIdAsync();
     public Task<string> GetUserEmailAsync();
     public Task<string> GetUserNameAsync();
@@ -52,6 +53,16 @@ public class AuthService(
     {
         await _localStorage.RemoveItemAsync(AuthFrontendConstants.AuthTokenKey);
         await _localStorage.RemoveItemAsync(AuthFrontendConstants.RefreshToken);
+
+        if (_authStateProvider is JwtAuthStateProvider jwtAuthStateProvider)
+        {
+            jwtAuthStateProvider.NotifyUserLogout();
+        }
+    }
+
+    public async Task UpdateAccessTokenAsync(string token)
+    {
+        await _localStorage.SetItemAsStringAsync(AuthFrontendConstants.AuthTokenKey, token);
 
         if (_authStateProvider is JwtAuthStateProvider jwtAuthStateProvider)
         {
