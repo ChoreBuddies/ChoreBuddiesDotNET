@@ -79,7 +79,7 @@ public class ChoresController : ControllerBase
         return Ok(result);
     }
     [HttpPost("assign")]
-    public async Task<ActionResult<ChoreDto>> AssignChore([FromBody] ChoreDto choreDto, [FromQuery] int? userId)
+    public async Task<ActionResult> AssignChore([FromBody] ChoreDto choreDto, [FromQuery] int? userId)
     {
         if (userId is not null)
         {
