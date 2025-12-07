@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -35,6 +34,7 @@ public partial class RewardModels : Migration
                 Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                 Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                 HouseholdId = table.Column<int>(type: "int", nullable: false),
+                Cost = table.Column<int>(type: "int", nullable: false),
                 QuantityAvailable = table.Column<int>(type: "int", nullable: false)
             },
             constraints: table =>
@@ -54,6 +54,8 @@ public partial class RewardModels : Migration
             {
                 Id = table.Column<int>(type: "int", nullable: false)
                     .Annotation("SqlServer:Identity", "1, 1"),
+                Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                 UserId = table.Column<int>(type: "int", nullable: false),
                 HouseholdId = table.Column<int>(type: "int", nullable: false),
                 RedeemedDate = table.Column<DateTime>(type: "datetime2", nullable: true),

@@ -3,6 +3,8 @@
 public class RedeemedReward
 {
     public int Id { get; set; }
+    public required string Name { get; set; }
+    public required string Description { get; set; }
     public int UserId { get; set; }
     public virtual AppUser? User { get; set; }
     public int HouseholdId { get; set; }

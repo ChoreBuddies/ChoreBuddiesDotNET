@@ -5,6 +5,7 @@ using ChoreBuddies.Backend.Features.Households;
 using Shared.Chores;
 using Shared.DefalutChores;
 using Shared.Notifications;
+using Shared.Rewards;
 using Shared.Users;
 
 namespace ChoreBuddies.Backend;
@@ -21,5 +22,9 @@ public class MappingProfile : Profile
         CreateMap<Household, CreateHouseholdDto>().ReverseMap();
         CreateMap<AppUser, AppUserDto>().ReverseMap();
         CreateMap<NotificationPreference, NotificationPreferenceDto>().ReverseMap();
+        CreateMap<Reward, RewardDto>().ReverseMap();
+        CreateMap<Reward, CreateRewardDto>().ReverseMap();
+        CreateMap<DefaultReward, DefaultRewardDto>().ReverseMap();
+        CreateMap<RedeemedReward, RedeemedRewardDto>().ReverseMap();
     }
 }

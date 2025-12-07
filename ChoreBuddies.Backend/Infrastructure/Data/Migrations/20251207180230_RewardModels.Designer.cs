@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ChoreBuddiesDbContext))]
-    [Migration("20251207154359_RewardModels")]
+    [Migration("20251207180230_RewardModels")]
     partial class RewardModels
     {
         /// <inheritdoc />
@@ -319,11 +319,19 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("HouseholdId")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsFulfilled")
                         .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PointsSpent")
                         .HasColumnType("int");
@@ -355,6 +363,9 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Cost")
+                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .IsRequired()

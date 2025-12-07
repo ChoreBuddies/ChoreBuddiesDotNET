@@ -316,11 +316,19 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("HouseholdId")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsFulfilled")
                         .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PointsSpent")
                         .HasColumnType("int");
@@ -352,6 +360,9 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Cost")
+                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .IsRequired()
