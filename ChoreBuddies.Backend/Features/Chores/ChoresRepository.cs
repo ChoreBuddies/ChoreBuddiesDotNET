@@ -1,10 +1,8 @@
 ﻿using ChoreBuddies.Backend.Domain;
-using ChoreBuddies.Backend.Features.Chores;
 using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using Shared.Chores;
 
-namespace ChoreBuddies.Backend.Features.DefaultChores;
+namespace ChoreBuddies.Backend.Features.Chores;
 
 public interface IChoresRepository
 {

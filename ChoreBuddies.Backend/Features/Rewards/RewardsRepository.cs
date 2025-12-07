@@ -16,8 +16,6 @@ public interface IRewardsRepository
     public Task<Reward?> DeleteRewardAsync(Reward reward);
     // Get Household's Rewards
     public Task<ICollection<Reward>?> GetHouseholdRewardsAsync(int householdId);
-    // Redeem
-    public Task<RedeemedReward?> RedeemRewardAsync(RedeemedReward redeemedReward);
 }
 public class RewardsRepository(ChoreBuddiesDbContext dbContext) : IRewardsRepository
 {
@@ -64,13 +62,6 @@ public class RewardsRepository(ChoreBuddiesDbContext dbContext) : IRewardsReposi
         {
             return null;
         }
-    }
-
-    public async Task<RedeemedReward?> RedeemRewardAsync(RedeemedReward redeemedReward)
-    {
-        var newRedeemedReward = await _dbContext.RedeemedRewards.AddAsync(redeemedReward);
-        await _dbContext.SaveChangesAsync();
-        return newRedeemedReward.Entity;
     }
 
     public async Task<Reward?> UpdateRewardAsync(Reward reward)
