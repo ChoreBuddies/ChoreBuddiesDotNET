@@ -26,11 +26,13 @@
                         <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/tasks"))">Tasks</MudButton>
                         <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/rewards"))">Rewards</MudButton>
                         <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/chat"))">Chat</MudButton>
-                        <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/settings"))">Settings</MudButton>
-                    </div>
+                        <MudMenu Class="app-bar" Label="Settings"  AnchorOrigin="Origin.BottomLeft" ActivationEvent="@MouseEvent.MouseOver">
+                            <MudMenuItem OnClick="@(() => Navigation.NavigateTo("/settings/notifications"))">Notification Preferences</MudMenuItem>
+                        </MudMenu>                   
+                        </div>
                 }
                 <MudIconButton Icon="@Icons.Material.Filled.Notifications" Class="black-icon" />
-                <MudMenu Icon="@Icons.Material.Filled.AccountCircle" AnchorOrigin="Origin.BottomRight" Class="black-icon">
+                <MudMenu Icon="@Icons.Material.Filled.AccountCircle" AnchorOrigin="Origin.BottomRight" Class="black-icon" ActivationEvent="@MouseEvent.MouseOver">
                     <MudMenuItem OnClick="@(() => Navigation.NavigateTo("/profile"))">Profile</MudMenuItem>
                     <MudMenuItem OnClick="@(() => Navigation.NavigateTo("/settings"))">Settings</MudMenuItem>
                     <MudDivider Style="border-color: black"/>

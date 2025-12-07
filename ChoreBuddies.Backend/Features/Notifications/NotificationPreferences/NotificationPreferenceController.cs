@@ -30,8 +30,8 @@ public class NotificationPreferenceController(INotificationPreferenceService not
         var user = await GetCurrentUser();
         if (user == null)
             return BadRequest();
-        var result = _notificationPreferenceService.GetAllUserConfigAsync(user);
-        return Ok(_mapper.Map<NotificationPreference>(result));
+        var result = await _notificationPreferenceService.GetAllUserConfigAsync(user);
+        return Ok(_mapper.Map<IEnumerable<NotificationPreferenceDto>>(result));
     }
     [HttpPut]
     public async Task<IActionResult> UpdateMyPreference([FromBody] NotificationPreferenceDto updatedPreference)

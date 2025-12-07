@@ -1,0 +1,118 @@
+﻿@page "/settings/notifications"
+@using Shared.Notifications
+@using System.Linq
+
+@inject INotificationsService PreferenceService
+@inject ISnackbar Snackbar
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<MudText Typo="Typo.h5" Class="mb-4">Notification Settings</MudText>
+<MudText Typo="Typo.subtitle2" Class="mb-6">Configure how you wish to receive notifications about new chores and rewards.</MudText>
+
+@if (_isLoading)
+{
+    <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+}
+else if (_config == null || !_config.Any())
+{
+    <MudAlert Severity="Severity.Warning">No settings to display. Please ensure the user was created correctly.</MudAlert>
+}
+else
+{
+    <MudTable Items="_config.GroupBy(p => p.Type).Select(g => new { EventType = g.Key, Preferences = g.ToList() })"
+              Hover="true" Breakpoint="Breakpoint.Sm" Class="mud-table-text">
+        <HeaderContent>
+            <MudTh>Event</MudTh>
+            @foreach (var channel in _availableChannels)
+            {
+                <MudTh Align="Align.Center">@channel</MudTh>
+            }
+        </HeaderContent>
+        <RowTemplate Context="rowContext">
+            <MudTd DataLabel="Event">
+                <MudText Typo="Typo.subtitle1">@GetEventDisplayName(rowContext.EventType)</MudText>
+            </MudTd>
+            @foreach (var channel in _availableChannels)
+            {
+                var preference = rowContext.Preferences.FirstOrDefault(p => p.Channel == channel);
+
+                <MudTd DataLabel="@channel.ToString()" Align="Align.Center">
+                    @if (preference != null)
+                    {
+                        <MudSwitch T="bool"
+                                   Value="preference.IsEnabled"
+                                   ValueChanged="@(b=>OnPreferenceChanged(preference, b))"
+                                   Color="Color.Primary" />
+                    }
+                    else
+                    {
+                        <MudText Color="Color.Surface">Not Available</MudText>
+                    }
+                </MudTd>
+            }
+        </RowTemplate>
+    </MudTable>
+}
+
+@code {
+    private List<NotificationPreferenceDto> _config = new();
+    private bool _isLoading = true;
+    private readonly NotificationChannel[] _availableChannels = Enum.GetValues<NotificationChannel>();
+    private bool _isSaving = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await LoadPreferencesAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Could not load settings.", Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task LoadPreferencesAsync()
+    {
+        _config = await PreferenceService.GetNotificaitonPreferences();
+
+        if (!_config.Any())
+        {
+            Snackbar.Add("No preferences found.", Severity.Warning);
+        }
+    }
+
+    private async Task OnPreferenceChanged(NotificationPreferenceDto preference, bool newValue)
+    {
+        if (_isSaving) return;
+        preference.IsEnabled = newValue;
+
+        _isSaving = true;
+        try
+        {
+            await PreferenceService.UpdateNotifications(preference);
+            Snackbar.Add("Settings Saved!", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            preference.IsEnabled = !preference.IsEnabled;
+            Snackbar.Add("An error occurred while saving settings.", Severity.Error); 
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private string GetEventDisplayName(NotificationEvent eventType) => eventType switch
+    {
+        NotificationEvent.NewChore => "New Chore Assigned", 
+        NotificationEvent.RewardRequest => "Reward Request Submitted",
+        NotificationEvent.ChoreCompleted => "Chore Completed",
+        _ => eventType.ToString()
+    };
+}
