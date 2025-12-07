@@ -16,6 +16,7 @@ public class ChoreBuddiesDbContext : IdentityDbContext<AppUser, IdentityRole<int
     public DbSet<DefaultReward> DefaultRewards { get; set; }
     public DbSet<RedeemedReward> RedeemedRewards { get; set; }
     public DbSet<Reward> Rewards { get; set; }
+    public DbSet<ScheduledChore> ScheduledChores { get; set; }
 
     public ChoreBuddiesDbContext(DbContextOptions<ChoreBuddiesDbContext> options)
         : base(options)

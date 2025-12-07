@@ -10,6 +10,7 @@ using ChoreBuddies.Backend.Features.Notifications.NotificationPreferences;
 using ChoreBuddies.Backend.Features.RedeemedRewards;
 using ChoreBuddies.Backend.Features.RedeemRewards;
 using ChoreBuddies.Backend.Features.Rewards;
+using ChoreBuddies.Backend.Features.ScheduledChores;
 using ChoreBuddies.Backend.Features.Users;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using ChoreBuddies.Backend.Infrastructure.Data;
@@ -144,6 +145,10 @@ public class Program
         // Default Chores
         builder.Services.AddScoped<IDefaultChoreRepository, DefaultChoreRepository>();
         builder.Services.AddScoped<IDefaultChoreService, DefaultChoreService>();
+        // ScheduledChore
+        builder.Services.AddScoped<IScheduledChoresRepository, ScheduledChoresRepository>();
+        builder.Services.AddScoped<IScheduledChoresService, ScheduledChoresService>();
+        builder.Services.AddHostedService<ScheduledChoresBackgroundService>();
         // Household
         builder.Services.AddScoped<IHouseholdRepository, HouseholdRepository>();
         builder.Services.AddScoped<IHouseholdService, HouseholdService>();

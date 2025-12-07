@@ -30,6 +30,7 @@ public class Household(int ownerId, string name, string invitationCode, string? 
     public virtual ICollection<Reward> Rewards { get; set; } = [];
     [JsonIgnore]
     public virtual ICollection<RedeemedReward> RedeemedRewards { get; set; } = [];
+    public virtual ICollection<ScheduledChore> ScheaduledChores { get; set; } = [];
 
 }
 

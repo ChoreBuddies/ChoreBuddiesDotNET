@@ -4,6 +4,7 @@ using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ChoreBuddiesDbContext))]
-    partial class ChoreBuddiesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251207155639_AddScheduledChores")]
+    partial class AddScheduledChores
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -152,6 +155,9 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AssignedTo")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -176,14 +182,9 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
                     b.Property<int?>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("HouseholdId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Chores");
                 });
@@ -224,30 +225,6 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("DefaultChores");
-                });
-
-            modelBuilder.Entity("ChoreBuddies.Backend.Domain.DefaultReward", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("SuggestedPoints")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DefaultRewards");
                 });
 
             modelBuilder.Entity("ChoreBuddies.Backend.Domain.Household", b =>
@@ -360,82 +337,6 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
 
                     b.ToTable("ScheduledChores");
                 });
-                modelBuilder.Entity("ChoreBuddies.Backend.Domain.RedeemedReward", b =>
-    {
-        b.Property<int>("Id")
-            .ValueGeneratedOnAdd()
-            .HasColumnType("int");
-
-        SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-        b.Property<string>("Description")
-            .IsRequired()
-            .HasColumnType("nvarchar(max)");
-
-        b.Property<int>("HouseholdId")
-            .HasColumnType("int");
-
-        b.Property<bool>("IsFulfilled")
-            .HasColumnType("bit");
-
-        b.Property<string>("Name")
-            .IsRequired()
-            .HasColumnType("nvarchar(max)");
-
-        b.Property<int>("PointsSpent")
-            .HasColumnType("int");
-
-        b.Property<DateTime?>("RedeemedDate")
-            .HasColumnType("datetime2");
-
-        b.Property<int?>("RewardId")
-            .HasColumnType("int");
-
-        b.Property<int>("UserId")
-            .HasColumnType("int");
-
-        b.HasKey("Id");
-
-        b.HasIndex("HouseholdId");
-
-        b.HasIndex("RewardId");
-
-        b.HasIndex("UserId");
-
-        b.ToTable("RedeemedRewards");
-    });
-
-modelBuilder.Entity("ChoreBuddies.Backend.Domain.Reward", b =>
-    {
-        b.Property<int>("Id")
-            .ValueGeneratedOnAdd()
-            .HasColumnType("int");
-
-        SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-        b.Property<int>("Cost")
-            .HasColumnType("int");
-
-        b.Property<string>("Description")
-            .IsRequired()
-            .HasColumnType("nvarchar(max)");
-
-        b.Property<int>("HouseholdId")
-            .HasColumnType("int");
-
-        b.Property<string>("Name")
-            .IsRequired()
-            .HasColumnType("nvarchar(max)");
-
-        b.Property<int>("QuantityAvailable")
-            .HasColumnType("int");
-
-        b.HasKey("Id");
-
-        b.HasIndex("HouseholdId");
-
-        b.ToTable("Rewards");
-    });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
                 {
@@ -606,13 +507,7 @@ modelBuilder.Entity("ChoreBuddies.Backend.Domain.Reward", b =>
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ChoreBuddies.Backend.Domain.AppUser", "User")
-                        .WithMany("Chores")
-                        .HasForeignKey("UserId");
-
                     b.Navigation("Household");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ChoreBuddies.Backend.Domain.NotificationPreference", b =>
@@ -690,28 +585,16 @@ modelBuilder.Entity("ChoreBuddies.Backend.Domain.Reward", b =>
 
             modelBuilder.Entity("ChoreBuddies.Backend.Domain.AppUser", b =>
                 {
-                    b.Navigation("Chores");
-
                     b.Navigation("NotificationPreferences");
-
-                    b.Navigation("RedeemedRewards");
                 });
 
             modelBuilder.Entity("ChoreBuddies.Backend.Domain.Household", b =>
                 {
                     b.Navigation("Chores");
 
-                    b.Navigation("RedeemedRewards");
-
-                    b.Navigation("Rewards");
                     b.Navigation("ScheaduledChores");
 
                     b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("ChoreBuddies.Backend.Domain.Reward", b =>
-                {
-                    b.Navigation("RedeemedRewards");
                 });
 #pragma warning restore 612, 618
         }
