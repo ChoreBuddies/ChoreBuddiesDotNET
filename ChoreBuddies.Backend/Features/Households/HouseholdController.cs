@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using ChoreBuddies.Backend.Features.Users;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -11,16 +11,18 @@ namespace ChoreBuddies.Backend.Features.Households;
 [ApiController]
 [Route("api/v1/household")]
 [Authorize]
-public class HouseholdController(IHouseholdService service, IAuthService authService, IMapper mapper) : Controller
+public class HouseholdController(IHouseholdService service, IMapper mapper, IAuthService authService, ITokenService tokenService) : Controller
 {
     private readonly IHouseholdService _service = service;
     private readonly IAuthService _authService = authService;
     private readonly IMapper _mapper = mapper;
+    private readonly ITokenService _tokenService = tokenService;
     // Create
     [HttpPost("create")]
     public async Task<IActionResult> CreateHousehold([FromBody] CreateHouseholdDto createHouseholdDto)
     {
-        var household = await _service.CreateHouseholdAsync(createHouseholdDto);
+        var userId = _tokenService.GetUserIdFromToken(User);
+        var household = await _service.CreateHouseholdAsync(createHouseholdDto, userId);
         if (household != null)
         {
             return Ok(_mapper.Map<HouseholdDto>(household));
@@ -62,11 +64,7 @@ public class HouseholdController(IHouseholdService service, IAuthService authSer
     [HttpPut("join")]
     public async Task<IActionResult> JoinHousehold([FromBody] JoinHouseholdDto joinHouseholdDto)
     {
-        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (!int.TryParse(userIdClaim, out var userId))
-        {
-            throw new InvalidOperationException("Invalid user identifier.");
-        }
+        var userId = tokenService.GetUserIdFromToken(User);
 
         var household = await _service.JoinHouseholdAsync(joinHouseholdDto.InvitationCode, userId);
         if (household == null)

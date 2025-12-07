@@ -3,6 +3,7 @@ using ChoreBuddies.Frontend.Features.Authentication;
 using ChoreBuddies.Frontend.Features.Chat;
 using ChoreBuddies.Frontend.Features.Chores;
 using ChoreBuddies.Frontend.Features.Household;
+using ChoreBuddies.Frontend.Features.Notifications;
 using ChoreBuddies.Frontend.Features.User;
 using ChoreBuddies.Frontend.UI;
 using ChoreBuddies.Frontend.Utilities;
@@ -33,6 +34,7 @@ public class Program
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<IHouseholdService, HouseholdService>();
+        builder.Services.AddScoped<INotificationsService, NotificationsService>();
         builder.Services.AddScoped<IChoresService, ChoresService>();
 
         // Register the custom HttpMessageHandler and configure the HttpClient

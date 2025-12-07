@@ -6,7 +6,7 @@ namespace ChoreBuddies.Backend.Features.Households;
 public interface IHouseholdService
 {
     // Create
-    public Task<Household?> CreateHouseholdAsync(CreateHouseholdDto createHouseholdDto);
+    public Task<Household?> CreateHouseholdAsync(CreateHouseholdDto createHouseholdDto, int userId);
     // Read
     public Task<Household?> GetUsersHouseholdAsync(int householdId);
     // Update
@@ -23,11 +23,14 @@ public class HouseholdService(IHouseholdRepository repository, IInvitationCodeSe
     private readonly IHouseholdRepository _repository = repository;
     private readonly IAppUserRepository _appUserRepository = appUserRepository;
     private readonly IInvitationCodeService _invitationCodeService = invitationCodeService;
-    async Task<Household?> IHouseholdService.CreateHouseholdAsync(CreateHouseholdDto createHouseholdDto)
+    async Task<Household?> IHouseholdService.CreateHouseholdAsync(CreateHouseholdDto createHouseholdDto, int userId)
     {
         var invitationCode = await _invitationCodeService.GenerateUniqueInvitationCodeAsync();
-        return await _repository.CreateHouseholdAsync(new Household(Guid.NewGuid().GetHashCode(),
+        var result = await _repository.CreateHouseholdAsync(new Household(Guid.NewGuid().GetHashCode(),
             createHouseholdDto.Name, invitationCode, description: createHouseholdDto?.Description)); //TODO: add OwnerId
+        await JoinHouseholdAsync(invitationCode, userId);
+        return result;
+
     }
 
     public async Task<Household?> GetUsersHouseholdAsync(int householdId)
@@ -88,5 +91,10 @@ public class HouseholdService(IHouseholdRepository repository, IInvitationCodeSe
     public async Task<bool> CheckIfUserBelongsAsync(int householdId, int userId)
     {
         return await _repository.CheckIfUserBelongsAsync(householdId, userId);
+    }
+
+    public Task<Household?> CreateHouseholdAsync(CreateHouseholdDto createHouseholdDto)
+    {
+        throw new NotImplementedException();
     }
 }
