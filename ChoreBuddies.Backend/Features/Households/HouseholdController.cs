@@ -1,16 +1,20 @@
-﻿using AutoMapper;
+using AutoMapper;
+using ChoreBuddies.Backend.Features.Users;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Authentication;
+using System.Security.Claims;
 
 namespace ChoreBuddies.Backend.Features.Households;
 
 [ApiController]
 [Route("api/v1/household")]
 [Authorize]
-public class HouseholdController(IHouseholdService service, IMapper mapper, ITokenService tokenService) : Controller
+public class HouseholdController(IHouseholdService service, IMapper mapper, IAuthService authService, ITokenService tokenService) : Controller
 {
     private readonly IHouseholdService _service = service;
+    private readonly IAuthService _authService = authService;
     private readonly IMapper _mapper = mapper;
     private readonly ITokenService _tokenService = tokenService;
     // Create
@@ -63,14 +67,14 @@ public class HouseholdController(IHouseholdService service, IMapper mapper, ITok
         var userId = tokenService.GetUserIdFromToken(User);
 
         var household = await _service.JoinHouseholdAsync(joinHouseholdDto.InvitationCode, userId);
-        if (household != null)
-        {
-            return Ok(_mapper.Map<HouseholdDto>(household));
-        }
-        else
+        if (household == null)
         {
             return BadRequest();
         }
+
+        string accessToken = await _authService.GenerateAccessTokenAsync(userId);
+
+        return Ok(new AuthResponseDto(accessToken, ""));
     }
     // Delete
     [HttpDelete("{householdId}")]

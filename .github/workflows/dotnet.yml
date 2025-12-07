@@ -31,7 +31,7 @@ jobs:
       run: dotnet build ChoreBuddies.sln --no-restore --configuration Release
 
     - name: Test
-      run: dotnet test ChoreBuddies.sln --no-build --verbosity normal
+      run: dotnet test ChoreBuddies.sln --no-build --configuration Release --verbosity normal
       
     - name: Install dotnet-format tool
       run: dotnet tool install -g dotnet-format

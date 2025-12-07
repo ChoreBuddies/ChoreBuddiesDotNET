@@ -1,0 +1,130 @@
+﻿@page "/dashboard"
+
+@using ChoreBuddies.Frontend.UI.Components.Chores
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
+@using Shared.Chores
+
+@inject IAuthService authService
+@inject Chores.IChoresService choresService
+@inject NavigationManager _navigationManager
+
+<AuthorizeView>
+    <NotAuthorized>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="pa-4">
+            <p>You are not authorized to view this content</p>
+            <MudButton Variant="Variant.Filled"
+            Color="Color.Primary"
+            Size="Size.Large"
+            OnClick="@GoToLogin">
+                Login
+            </MudButton>
+        </MudContainer>
+    </NotAuthorized>
+    <Authorized>
+        <PageTitle>Home</PageTitle>
+
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="pa-4">
+
+            <MudPaper Class="p-6" Elevation="0" Style="width: 100%; max-width: 900px;">
+                <MudText Typo="Typo.h4" Class="mb-6">
+                    Dashboard Overview
+                </MudText>
+                <MudText Typo="Typo.body2" Class="mb-6">
+                    Welcome back, @_username! Here's a snapshot of Your tasks and progress.
+                </MudText>
+                <MudText Typo="Typo.h5" Class="mb-6">
+                    Upcoming Deadlines
+                </MudText>
+
+                <MudStack Spacing="1">
+                    @if (_userChores == null || _userChores.Count == 0)
+                    {
+                        <p>You have no upcoming deadlines</p>
+                    }
+                    else
+                    {
+                        @foreach (var chore in _userChores)
+                        {
+                            <UpcomingChore _choreDto="chore" />
+                        }
+                    }
+
+                </MudStack>
+                <MudPaper Class="pa-4 mb-6" Elevation="0">
+                    <MudText Typo="Typo.h5" Class="mb-6 mt-2">Household Task Completion</MudText>
+                    <MudProgressLinear Value="@_householdCompletionPercent" Color="Color.Primary" Class="mb-2" />
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                        @($"{GetHouseholdCompletionPercent()}% completed")
+                    </MudText>
+                </MudPaper>
+                <MudText Typo="Typo.h5" Class="mb-6 mt-2">
+                    Recent Activity
+                </MudText>
+                <MudStack Spacing="0">
+                    @if (_householdChores == null || _householdChores.Count == 0)
+                    {
+                        <p>No activity to show</p>
+                    }
+                    else
+                    {
+                        @foreach (var chore in _householdChores)
+                        {
+                            <Activity _choreDto="@chore" />
+                        }
+                    }
+                </MudStack>
+            </MudPaper>
+        </MudContainer>
+    </Authorized>
+</AuthorizeView>
+
+@code
+{
+    string? _username { get; set; } = "User";
+    private int _householdCompletionPercent { get; set; } = 0;
+    public int GetHouseholdCompletionPercent() => Math.Clamp(_householdCompletionPercent, 0, 100);
+    public List<ChoreDto>? _userChores { get; set; }
+    public List<ChoreDto>? _householdChores { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _username = await authService.GetUserNameAsync();
+        _userChores = await GetUserChores();
+        _householdChores = await GetHouseholdChoresAndSetCompletion();
+    }
+    private async Task<List<ChoreDto>> GetUserChores()
+    {
+        var userChoresEnum = (await choresService.GetMyChoresAsync());
+        List<ChoreDto> userChores = new();
+        if (userChoresEnum is not null)
+        {
+            userChores = userChoresEnum.Where(c => c.Status == Status.Assigned).OrderBy(c => c.DueDate).ToList();
+            if (userChores.Count > 2)
+            {
+                userChores = userChores.Take(2).ToList();
+            }
+        }
+        return userChores;
+    }
+    private async Task<List<ChoreDto>> GetHouseholdChoresAndSetCompletion()
+    {
+        var householdChoresEnum = (await choresService.GetMyHouseholdChoresAsync());
+        List<ChoreDto> householdChores = new();
+        if (householdChoresEnum is not null && householdChoresEnum.Count() != 0)
+        {
+            _householdCompletionPercent = (int)Math.Round(Convert.ToDouble(householdChoresEnum.Where(c => c.Status == Status.Completed).Count()) / Convert.ToDouble(householdChoresEnum.Count()));
+            householdChores = householdChoresEnum.OrderBy(c => c.DueDate).ToList(); // change order by to last changed date
+            if (householdChores.Count > 4)
+            {
+                householdChores = householdChores.Take(4).ToList();
+            }
+        }
+        return householdChores;
+    }
+    private void GoToLogin()
+    {
+        _navigationManager.NavigateTo("/login");
+    }
+}
