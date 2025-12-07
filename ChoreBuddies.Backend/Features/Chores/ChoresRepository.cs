@@ -19,10 +19,11 @@ public interface IChoresRepository
 
     //Delete
     public Task<Chore?> DeleteChoreAsync(Chore chore);
-    Task<IEnumerable<Chore>?> GetUsersChoresAsync(int userId);
-    Task<IEnumerable<Chore>?> GetHouseholdChoresAsync(int userId);
-    Task<IEnumerable<Chore>?> CreateChoreListAsync(IEnumerable<Chore> createChoreDtoList);
-    Task AssignChoreAsync(int userId, Chore choreDto);
+    public Task<IEnumerable<Chore>?> GetUsersChoresAsync(int userId);
+    public Task<IEnumerable<Chore>?> GetHouseholdChoresAsync(int userId);
+    public Task<IEnumerable<Chore>?> CreateChoreListAsync(IEnumerable<Chore> createChoreDtoList);
+    public Task AssignChoreAsync(int userId, Chore choreDto);
+
 }
 
 public class ChoresRepository(ChoreBuddiesDbContext dbContext) : IChoresRepository
@@ -53,7 +54,7 @@ public class ChoresRepository(ChoreBuddiesDbContext dbContext) : IChoresReposito
 
     public async Task<Chore?> UpdateChoreAsync(Chore chore)
     {
-        var current = GetChoreByIdAsync(chore.Id).Result;
+        var current = await GetChoreByIdAsync(chore.Id);
         if (current is null) return current;
         try
         {
@@ -65,9 +66,13 @@ public class ChoresRepository(ChoreBuddiesDbContext dbContext) : IChoresReposito
             {
                 current.Description = chore.Description;
             }
-            if (chore.AssignedTo is not null && chore.AssignedTo != "")
+            if (chore.UserId is not null && chore.UserId > 0)
             {
-                current.AssignedTo = chore.AssignedTo;
+                current.UserId = chore.UserId;
+            }
+            if (chore.HouseholdId > 0)
+            {
+                current.HouseholdId = chore.HouseholdId;
             }
             if (chore.DueDate is not null)
             {
@@ -106,13 +111,9 @@ public class ChoresRepository(ChoreBuddiesDbContext dbContext) : IChoresReposito
         try
         {
             var user = await _dbContext.Users
-                .Include(u => u.Household)
-                .ThenInclude(h => h!.Chores)
+                .Include(u => u.Chores)
                 .FirstOrDefaultAsync(u => u.Id == userId);
-
-            if (user?.Household is null || user?.Household?.Chores is null)
-                return null;
-            return user?.Household?.Chores.Where(c => c.AssignedTo == user.FirstName);
+            return user?.Chores ?? [];
         }
         catch (NullReferenceException)
         {
@@ -120,7 +121,7 @@ public class ChoresRepository(ChoreBuddiesDbContext dbContext) : IChoresReposito
         }
     }
 
-    public async Task<IEnumerable<Chore>?> GetHouseholdChoresAsync(int userId)
+    public async Task<IEnumerable<Chore>?> GetHouseholdChoresAsync(int userId) // TODO: change to householdId
     {
         try
         {
@@ -153,12 +154,7 @@ public class ChoresRepository(ChoreBuddiesDbContext dbContext) : IChoresReposito
 
     public async Task AssignChoreAsync(int userId, Chore chore)
     {
-
-        var user = await _dbContext.Users
-            .FirstOrDefaultAsync(u => u.Id == userId);
-        if (user is null) return;
-        chore.AssignedTo = user.FirstName;
+        chore.UserId = userId;
         await _dbContext.SaveChangesAsync();
-
     }
 }

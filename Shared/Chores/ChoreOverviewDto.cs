@@ -3,7 +3,7 @@
 public record ChoreOverviewDto(
 int Id,
 string Name,
-string? AssignedTo,
+int? UserId,
 Status Status,
 string Room
 );

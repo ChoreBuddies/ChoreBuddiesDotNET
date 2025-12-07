@@ -13,8 +13,9 @@ public interface IChoresService
     public Task<ChoreDto?> UpdateChoreAsync(ChoreDto choreDto);
     // Delete
     public Task<ChoreDto?> DeleteChoreAsync(int choreId);
-    Task<IEnumerable<ChoreDto>> GetUsersChoreDetailsAsync(int userId);
-    Task<IEnumerable<ChoreDto>> GetMyHouseholdChoreDetailsAsync(int userId);
-    Task<IEnumerable<ChoreDto>> CreateChoreListAsync(IEnumerable<CreateChoreDto> createChoreDtoList);
-    Task AssignChoreAsync(ChoreDto choreDto, int userId);
+    public Task<IEnumerable<ChoreDto>> GetUsersChoreDetailsAsync(int userId);
+    public Task<IEnumerable<ChoreDto>> GetMyHouseholdChoreDetailsAsync(int userId);
+    public Task<IEnumerable<ChoreDto>> CreateChoreListAsync(IEnumerable<CreateChoreDto> createChoreDtoList);
+    public Task AssignChoreAsync(ChoreDto choreDto, int userId);
+    public Task<ChoreDto> MarkChoreAsDone(int choreId, int userId);
 }

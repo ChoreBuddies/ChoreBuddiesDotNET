@@ -66,7 +66,7 @@ public class RewardsRepository(ChoreBuddiesDbContext dbContext) : IRewardsReposi
 
     public async Task<Reward?> UpdateRewardAsync(Reward reward)
     {
-        var currentReward = GetRewardByIdAsync(reward.Id).Result;
+        var currentReward = await GetRewardByIdAsync(reward.Id);
         if (currentReward is null)
             return null;
         try
