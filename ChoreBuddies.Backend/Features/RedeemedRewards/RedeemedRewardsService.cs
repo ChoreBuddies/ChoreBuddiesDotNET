@@ -7,7 +7,7 @@ using Shared.Rewards;
 
 namespace ChoreBuddies.Backend.Features.RedeemedRewards;
 
-public class DefaultRewardsService(IRedeemedRewardsRepository redeemedRewardsRepository, 
+public class RedeemedRewardsService(IRedeemedRewardsRepository redeemedRewardsRepository, 
     IRewardsRepository rewardsRepository, 
     IAppUserRepository appUserRepository,
     IMapper mapper) : IRedeemedRewardsService
@@ -36,6 +36,7 @@ public class DefaultRewardsService(IRedeemedRewardsRepository redeemedRewardsRep
         if (user.PointsCount < reward.Cost)
             throw new InvalidOperationException("User does not have enough points");
         user.PointsCount -= reward.Cost;
+        reward.QuantityAvailable--;
         var redeemedReward = new RedeemedReward() { 
             Name = reward.Name, 
             Description = reward.Description,

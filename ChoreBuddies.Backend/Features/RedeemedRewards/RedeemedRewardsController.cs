@@ -1,10 +1,12 @@
 ﻿using ChoreBuddies.Backend.Infrastructure.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Rewards;
 
 namespace ChoreBuddies.Backend.Features.RedeemedRewards;
 [Route("api/v1/redeemedRewards")]
 [ApiController]
+[Authorize]
 public class RedeemedRewardsController(IRedeemedRewardsService redeemedRewardsService, ITokenService tokenService) : ControllerBase
 {
     private readonly IRedeemedRewardsService _redeemedRewardsService = redeemedRewardsService;

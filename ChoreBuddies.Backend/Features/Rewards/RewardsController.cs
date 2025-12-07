@@ -52,6 +52,6 @@ public class RewardsController : ControllerBase
             householdId = _tokenService.GetHouseholdIdFromToken(User);
         }
         var result = await _rewardsService.GetHouseholdRewardsAsync((int)householdId);
-        return Ok();
+        return Ok(result);
     }
 }

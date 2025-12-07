@@ -3,4 +3,5 @@ public record RewardDto(int Id,
     string Name,
     string Description,
     int HouseholdId,
+    int Cost,
     int QuantityAvailable);

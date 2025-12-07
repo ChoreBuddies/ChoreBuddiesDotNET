@@ -2,10 +2,14 @@ using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Chat;
 using ChoreBuddies.Backend.Features.Chores;
 using ChoreBuddies.Backend.Features.DefaultChores;
+using ChoreBuddies.Backend.Features.DefaultRewards;
 using ChoreBuddies.Backend.Features.Households;
 using ChoreBuddies.Backend.Features.Notifications;
 using ChoreBuddies.Backend.Features.Notifications.Email;
 using ChoreBuddies.Backend.Features.Notifications.NotificationPreferences;
+using ChoreBuddies.Backend.Features.RedeemedRewards;
+using ChoreBuddies.Backend.Features.RedeemRewards;
+using ChoreBuddies.Backend.Features.Rewards;
 using ChoreBuddies.Backend.Features.Users;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using ChoreBuddies.Backend.Infrastructure.Data;
@@ -137,17 +141,26 @@ public class Program
         // Chores
         builder.Services.AddScoped<IChoresRepository, ChoresRepository>();
         builder.Services.AddScoped<IChoresService, ChoresService>();
-        // Default chores
+        // Default Chores
         builder.Services.AddScoped<IDefaultChoreRepository, DefaultChoreRepository>();
         builder.Services.AddScoped<IDefaultChoreService, DefaultChoreService>();
         // Household
         builder.Services.AddScoped<IHouseholdRepository, HouseholdRepository>();
         builder.Services.AddScoped<IHouseholdService, HouseholdService>();
         builder.Services.AddScoped<IInvitationCodeService, InvitationCodeService>();
-        //Users
+        // Users
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
         builder.Services.AddScoped<IAppUserService, AppUserService>();
+        // Rewards
+        builder.Services.AddScoped<IRewardsRepository, RewardsRepository>();
+        builder.Services.AddScoped<IRewardsService, RewardsService>();
+        // Default Rewards
+        builder.Services.AddScoped<IDefaultRewardsRepository, DefaultRewardsRepository>();
+        builder.Services.AddScoped<IDefaultRewardsService, DefaultRewardsService>();
+        // Redeemed Rewards
+        builder.Services.AddScoped<IRedeemedRewardsRepository, RedeemedRewardsRepository>();
+        builder.Services.AddScoped<IRedeemedRewardsService, RedeemedRewardsService>();
 
         builder.Services.AddSingleton(sp =>
         {
