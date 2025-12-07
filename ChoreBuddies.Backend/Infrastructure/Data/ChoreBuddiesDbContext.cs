@@ -13,6 +13,9 @@ public class ChoreBuddiesDbContext : IdentityDbContext<AppUser, IdentityRole<int
     public DbSet<Household> Households { get; set; }
     public DbSet<ChatMessage> ChatMessages { get; set; }
     public DbSet<NotificationPreference> NotificationPreference { get; set; }
+    public DbSet<DefaultReward> DefaultRewards { get; set; }
+    public DbSet<RedeemedReward> RedeemedRewards { get; set; }
+    public DbSet<Reward> Rewards { get; set; }
 
     public ChoreBuddiesDbContext(DbContextOptions<ChoreBuddiesDbContext> options)
         : base(options)
