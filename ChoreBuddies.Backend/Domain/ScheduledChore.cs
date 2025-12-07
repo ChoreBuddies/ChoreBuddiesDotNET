@@ -8,7 +8,7 @@ public class ScheduledChore
     public int MinAge { get; set; }
     public string Name { get; set; } = null!;
     public string Description { get; set; } = null!;
-    public string? AssignedTo { get; set; }
+    public int? UserId { get; set; }
     public string Room { get; set; } = null!;
     public int RewardPointsCount { get; set; }
     public int HouseholdId { get; set; }
@@ -23,7 +23,7 @@ public class ScheduledChore
     public ScheduledChore(
         string name,
         string description,
-        string? assignedTo,
+        int? userId,
         string room,
         int everyX,
         Frequency frequency,
@@ -35,7 +35,7 @@ public class ScheduledChore
     {
         Name = name;
         Description = description;
-        AssignedTo = assignedTo;
+        UserId = userId;
         Room = room;
         EveryX = everyX;
         Frequency = frequency;

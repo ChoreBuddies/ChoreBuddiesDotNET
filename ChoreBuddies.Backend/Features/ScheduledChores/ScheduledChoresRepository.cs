@@ -79,7 +79,7 @@ public class ScheduledChoresRepository(ChoreBuddiesDbContext dbContext) : ISched
 
             if (user?.Household is null || user?.Household?.ScheaduledChores is null)
                 return null;
-            return user?.Household?.ScheaduledChores.Where(c => c.AssignedTo == user.FirstName);
+            return user?.Household?.ScheaduledChores.Where(c => c.UserId == userId);
         }
         catch (NullReferenceException)
         {
@@ -121,7 +121,7 @@ public class ScheduledChoresRepository(ChoreBuddiesDbContext dbContext) : ISched
 
         existingChore.Name = chore.Name;
         existingChore.Description = chore.Description;
-        existingChore.AssignedTo = chore.AssignedTo;
+        existingChore.UserId = chore.UserId;
         existingChore.Room = chore.Room;
         existingChore.Frequency = chore.Frequency;
         existingChore.RewardPointsCount = chore.RewardPointsCount;

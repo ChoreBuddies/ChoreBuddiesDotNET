@@ -36,15 +36,13 @@ public class ScheduledChoresBackgroundService : BackgroundService
                 var chore = new Chore(
                     name: pc.Name,
                     description: pc.Description,
-                    assignedTo: null,
+                    userId: null,
+                    householdId: pc.HouseholdId,
                     dueDate: DateTime.Now,
                     status: Shared.Chores.Status.Assigned,
                     room: pc.Room,
                     rewardPointsCount: pc.RewardPointsCount
-                )
-                {
-                    HouseholdId = pc.HouseholdId
-                };
+                );
 
                 db.Chores.Add(chore);
 
