@@ -26,6 +26,8 @@ public class Household(int ownerId, string name, string invitationCode, string? 
 
     [JsonIgnore]
     public virtual ICollection<Chore> Chores { get; set; } = [];
+    [JsonIgnore]
+    public virtual ICollection<Reward> Rewards { get; set; } = [];
 
 }
 

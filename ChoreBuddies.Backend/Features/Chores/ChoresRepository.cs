@@ -98,9 +98,9 @@ public class ChoresRepository(ChoreBuddiesDbContext dbContext) : IChoresReposito
 
     public async Task<Chore?> DeleteChoreAsync(Chore chore)
     {
-        _dbContext.Chores.Remove(chore);
+        var deletedChore = _dbContext.Chores.Remove(chore);
         await _dbContext.SaveChangesAsync();
-        return chore;
+        return deletedChore.Entity;
     }
 
     public async Task<IEnumerable<Chore>?> GetUsersChoresAsync(int userId)
