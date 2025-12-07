@@ -23,4 +23,5 @@ public class AppUser : IdentityUser<int>
 
     public virtual ICollection<NotificationPreference> NotificationPreferences { get; set; }
         = new List<NotificationPreference>();
+    public virtual ICollection<RedeemedReward> RedeemedRewards { get; set; } = new List<RedeemedReward>();
 }
