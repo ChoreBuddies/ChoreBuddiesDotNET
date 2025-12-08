@@ -48,7 +48,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Infrastructure\Database\Csv\default_chores.csv">
+    <None Update="Infrastructure\Data\Csv\default_chores.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
