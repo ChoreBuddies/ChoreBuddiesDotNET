@@ -5,28 +5,25 @@ namespace ChoreBuddies.Backend.Domain;
 public class Chore(
     string name,
     string description,
-    string? assignedTo,
+    int? userId,
+    int householdId,
     DateTime? dueDate,
     Status? status,
     string room,
-    int rewardPointsCount) // TODO: Add household to constructor
+    int rewardPointsCount)
 {
-    public Chore(int id, string name, string description, string? assignedTo, DateTime? dueDate, Status? status, string room, int rewardPointsCount, int householdId, Household? household) : this(name, description, assignedTo, dueDate, status, room, rewardPointsCount)
-    {
-        Id = id;
-    }
 
     public int Id { get; set; } = 0;
     public string Name { get; set; } = name;
     public string Description { get; set; } = description;
-    public string? AssignedTo { get; set; } = assignedTo;
+    public int? UserId { get; set; } = userId;
+    public int HouseholdId { get; set; } = householdId;
     public DateTime? DueDate { get; set; } = dueDate;
     public Status? Status { get; set; } = status;
     public string Room { get; set; } = room;
     public int RewardPointsCount { get; set; } = rewardPointsCount;
 
-    public int HouseholdId { get; set; } = 1;
-
     // Navigation properties
-    public Household? Household { get; set; } = null;
+    public virtual Household? Household { get; set; }
+    public virtual AppUser? User { get; set; }
 }

@@ -1,13 +1,11 @@
-﻿using Shared.Chores;
-namespace ChoreBuddies.Backend.Features.Chores;
+﻿namespace Shared.Chores;
 
 public record CreateChoreDto(
     string Name,
     string Description,
-    string? AssignedTo,
+    int? UserId,
+    int HouseholdId,
     DateTime? DueDate,
     Status? Status,
     string Room,
-    int RewardPointsCount)
-{
-}
+    int RewardPointsCount);
