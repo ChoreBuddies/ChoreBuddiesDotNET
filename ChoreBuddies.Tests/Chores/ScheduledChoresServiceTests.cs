@@ -1,4 +1,4 @@
-﻿namespace ChoreBuddies.Tests;
+﻿namespace ChoreBuddies.Tests.Chores;
 using AutoMapper;
 using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.ScheduledChores;
@@ -42,7 +42,7 @@ public class ScheduledChoresServiceTests
         var chore = new ScheduledChore(
             name: "Test",
             description: "Test desc",
-            assignedTo: null,
+            userId: null,
             room: "Kitchen",
             everyX: 1,
             frequency: Frequency.Daily,
@@ -76,9 +76,9 @@ public class ScheduledChoresServiceTests
     public async Task CreateChoreAsync_CreatesChore()
     {
         // Arrange
-        var dto = new CreateScheduledChoreDto(Name: "Test", Description: "Some description", AssignedTo: null, Room: "Kitchen", RewardPointsCount: 10, frequency: Frequency.Daily, minAge: 5, choreDuration: 1, everyX: 1);
+        var dto = new CreateScheduledChoreDto(Name: "Test", Description: "Some description", UserId: null, Room: "Kitchen", RewardPointsCount: 10, frequency: Frequency.Daily, minAge: 5, choreDuration: 1, everyX: 1);
 
-        var createdChore = new ScheduledChore(name: "Test", description: "Some description", assignedTo: null, room: "Kitchen", everyX: 1, frequency: Frequency.Daily, rewardPointsCount: 10, householdId: 5, minAge: 5, choreDuration: 1)
+        var createdChore = new ScheduledChore(name: "Test", description: "Some description", userId: null, room: "Kitchen", everyX: 1, frequency: Frequency.Daily, rewardPointsCount: 10, householdId: 5, minAge: 5, choreDuration: 1)
         {
             Id = 123
         };
@@ -109,11 +109,11 @@ public class ScheduledChoresServiceTests
     {
         // Arrange
         var dto = new ScheduledChoreDto { Id = 1, Name = "Updated" };
-        var existingChore = new ScheduledChore(name: "Old", description: "Some description", assignedTo: null, room: "Kitchen", everyX: 1, frequency: Frequency.Daily, rewardPointsCount: 10, householdId: 5, minAge: 5, choreDuration: 1)
+        var existingChore = new ScheduledChore(name: "Old", description: "Some description", userId: null, room: "Kitchen", everyX: 1, frequency: Frequency.Daily, rewardPointsCount: 10, householdId: 5, minAge: 5, choreDuration: 1)
         {
             Id = 1
         };
-        var updatedChore = new ScheduledChore(name: "Updated", description: "Some description", assignedTo: null, room: "Kitchen", everyX: 1, frequency: Frequency.Daily, rewardPointsCount: 10, householdId: 5, minAge: 5, choreDuration: 1)
+        var updatedChore = new ScheduledChore(name: "Updated", description: "Some description", userId: null, room: "Kitchen", everyX: 1, frequency: Frequency.Daily, rewardPointsCount: 10, householdId: 5, minAge: 5, choreDuration: 1)
         {
             Id = 1
         };
@@ -147,11 +147,11 @@ public class ScheduledChoresServiceTests
     public async Task DeleteChoreAsync_Deletes_WhenChoreExists()
     {
         // Arrange
-        var existingChore = new ScheduledChore(name: "Old", description: "Some description", assignedTo: null, room: "Kitchen", everyX: 1, frequency: Frequency.Daily, rewardPointsCount: 10, householdId: 5, minAge: 5, choreDuration: 1)
+        var existingChore = new ScheduledChore(name: "Old", description: "Some description", userId: null, room: "Kitchen", everyX: 1, frequency: Frequency.Daily, rewardPointsCount: 10, householdId: 5, minAge: 5, choreDuration: 1)
         {
             Id = 1
         };
-        var deletedChore = new ScheduledChore(name: "Old", description: "Some description", assignedTo: null, room: "Kitchen", everyX: 1, frequency: Frequency.Daily, rewardPointsCount: 10, householdId: 5, minAge: 5, choreDuration: 1)
+        var deletedChore = new ScheduledChore(name: "Old", description: "Some description", userId: null, room: "Kitchen", everyX: 1, frequency: Frequency.Daily, rewardPointsCount: 10, householdId: 5, minAge: 5, choreDuration: 1)
         {
             Id = 1
         };
@@ -182,7 +182,7 @@ public class ScheduledChoresServiceTests
     {
         // Arrange
         var list = new List<ScheduledChore> {
-            new ScheduledChore(name: "A", description: "Some description", assignedTo: null, room: "Kitchen", everyX: 1, frequency: Frequency.Daily, rewardPointsCount: 10, householdId: 5, minAge: 5, choreDuration: 1)
+            new ScheduledChore(name: "A", description: "Some description", userId: null, room: "Kitchen", everyX: 1, frequency: Frequency.Daily, rewardPointsCount: 10, householdId: 5, minAge: 5, choreDuration: 1)
                 {
                     Id = 1
                 }
@@ -203,7 +203,7 @@ public class ScheduledChoresServiceTests
     {
         // Arrange
         var list = new List<ScheduledChore> {
-            new ScheduledChore(name: "B", description: "Some description", assignedTo: null, room: "Kitchen", everyX: 1, frequency: Frequency.Daily, rewardPointsCount: 10, householdId: 5, minAge: 5, choreDuration: 1)
+            new ScheduledChore(name: "B", description: "Some description", userId: null, room: "Kitchen", everyX: 1, frequency: Frequency.Daily, rewardPointsCount: 10, householdId: 5, minAge: 5, choreDuration: 1)
                 {
                     Id = 2
                 }

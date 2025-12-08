@@ -3,7 +3,7 @@ using ChoreBuddies.Backend.Features.Notifications.NotificationPreferences;
 using Moq;
 using Shared.Notifications;
 
-namespace ChoreBuddies.Tests;
+namespace ChoreBuddies.Tests.Notifications;
 public class NotificationPreferenceServiceTests
 {
     private readonly Mock<INotificationPreferenceRepository> _repoMock;
