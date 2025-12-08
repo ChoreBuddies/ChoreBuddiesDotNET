@@ -44,7 +44,7 @@ public class RewardsService : IRewardsService
     {
         var reward = await _repository.GetRewardByIdAsync(rewardId);
         if (reward is null) throw new Exception("Reward not found");
-        return _mapper.Map<RewardDto?>(reward); 
+        return _mapper.Map<RewardDto?>(reward);
     }
 
     public async Task<RewardDto?> UpdateRewardAsync(RewardDto rewardDto)

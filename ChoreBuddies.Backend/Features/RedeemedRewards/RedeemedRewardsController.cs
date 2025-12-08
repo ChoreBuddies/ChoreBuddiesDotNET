@@ -14,14 +14,14 @@ public class RedeemedRewardsController(IRedeemedRewardsService redeemedRewardsSe
     [HttpPost("redeem")]
     public async Task<ActionResult<RedeemedRewardDto>> RedeemReward([FromQuery] int rewardId, [FromQuery] bool isFulfilled)
     {
-        var userId = _tokenService.GetUserIdFromToken(User); 
+        var userId = _tokenService.GetUserIdFromToken(User);
         var result = await _redeemedRewardsService.RedeemRewardAsync(userId, rewardId, isFulfilled);
-        return Ok(result);  
+        return Ok(result);
     }
     [HttpGet]
     public async Task<ActionResult<ICollection<RedeemedRewardDto>>> GetUsersRedeemedRewards([FromQuery] int? userId)
     {
-        if(userId is null)
+        if (userId is null)
         {
             userId = _tokenService.GetUserIdFromToken(User);
         }

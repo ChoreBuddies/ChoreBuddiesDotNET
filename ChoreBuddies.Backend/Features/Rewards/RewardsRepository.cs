@@ -71,7 +71,7 @@ public class RewardsRepository(ChoreBuddiesDbContext dbContext) : IRewardsReposi
             return null;
         try
         {
-            if(reward.Name is not null && reward.Name.Length > 0)
+            if (reward.Name is not null && reward.Name.Length > 0)
             {
                 currentReward.Name = reward.Name;
             }

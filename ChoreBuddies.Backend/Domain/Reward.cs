@@ -1,8 +1,8 @@
 ﻿namespace ChoreBuddies.Backend.Domain;
 
 public class Reward(
-    string name, 
-    string description, 
+    string name,
+    string description,
     int householdId,
     int cost,
     int quantityAvailable
