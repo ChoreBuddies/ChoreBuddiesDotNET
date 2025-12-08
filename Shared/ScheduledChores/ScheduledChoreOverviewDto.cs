@@ -3,6 +3,6 @@
 public record ScheduledChoreOverviewDto(
 int Id,
 string Name,
-string? AssignedTo,
+int? UserId,
 string Room
 );

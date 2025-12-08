@@ -4,6 +4,7 @@ using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ChoreBuddiesDbContext))]
-    partial class ChoreBuddiesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251207225301_UpdateChoresModel")]
+    partial class UpdateChoresModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -387,57 +390,6 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
                     b.ToTable("Rewards");
                 });
 
-            modelBuilder.Entity("ChoreBuddies.Backend.Domain.ScheduledChore", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ChoreDuration")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("EveryX")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Frequency")
-                        .HasColumnType("int");
-
-                    b.Property<int>("HouseholdId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("LastGenerated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("MinAge")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RewardPointsCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Room")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("HouseholdId");
-
-                    b.ToTable("ScheduledChores");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
                 {
                     b.Property<int>("Id")
@@ -661,17 +613,6 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
                     b.Navigation("Household");
                 });
 
-            modelBuilder.Entity("ChoreBuddies.Backend.Domain.ScheduledChore", b =>
-                {
-                    b.HasOne("ChoreBuddies.Backend.Domain.Household", "Household")
-                        .WithMany("ScheaduledChores")
-                        .HasForeignKey("HouseholdId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Household");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
@@ -739,8 +680,6 @@ namespace ChoreBuddies.Backend.Infrastructure.Data.Migrations
                     b.Navigation("RedeemedRewards");
 
                     b.Navigation("Rewards");
-
-                    b.Navigation("ScheaduledChores");
 
                     b.Navigation("Users");
                 });

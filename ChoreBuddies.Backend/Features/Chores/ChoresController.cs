@@ -1,3 +1,4 @@
+using ChoreBuddies.Backend.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Chores;
@@ -12,10 +13,12 @@ namespace ChoreBuddies.Backend.Features.Chores;
 public class ChoresController : ControllerBase
 {
     private readonly IChoresService _choresService;
+    private readonly ITokenService _tokenService;
 
-    public ChoresController(IChoresService tasksService)
+    public ChoresController(IChoresService tasksService, ITokenService tokenService)
     {
         _choresService = tasksService;
+        _tokenService = tokenService; // TODO: update methods to use tokenservice
     }
 
     [HttpGet("{id}")]
@@ -79,7 +82,7 @@ public class ChoresController : ControllerBase
         return Ok(result);
     }
     [HttpPost("assign")]
-    public async Task<ActionResult<ChoreDto>> AssignChore([FromBody] ChoreDto choreDto, [FromQuery] int? userId)
+    public async Task<ActionResult> AssignChore([FromBody] ChoreDto choreDto, [FromQuery] int? userId)
     {
         if (userId is not null)
         {
@@ -96,5 +99,12 @@ public class ChoresController : ControllerBase
             await _choresService.AssignChoreAsync(choreDto, int.Parse(myUserId));
             return Ok();
         }
+    }
+    [HttpPut("markAsDone")]
+    public async Task<ActionResult<ChoreDto>> MarkChoreAsDone([FromQuery] int choreId)
+    {
+        var userId = _tokenService.GetUserIdFromToken(User);
+        var result = await _choresService.MarkChoreAsDone(choreId, userId);
+        return Ok(result);
     }
 }

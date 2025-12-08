@@ -2,6 +2,7 @@
 using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.DefaultChores;
 using ChoreBuddies.Backend.Features.Households;
+using ChoreBuddies.Backend.Features.Users;
 using Shared.Chores;
 using System.Security.Claims;
 
@@ -10,11 +11,13 @@ namespace ChoreBuddies.Backend.Features.Chores;
 public class ChoresService : IChoresService
 {
     private readonly IChoresRepository _repository;
+    private readonly IAppUserRepository _userRepository;
     private readonly IMapper _mapper;
-    public ChoresService(IMapper mapper, IChoresRepository choresRepository)
+    public ChoresService(IMapper mapper, IChoresRepository choresRepository, IAppUserRepository appUserRepository)
     {
         _mapper = mapper;
         _repository = choresRepository;
+        _userRepository = appUserRepository;
     }
 
     public async Task<ChoreDto?> GetChoreDetailsAsync(int choreId)
@@ -78,5 +81,18 @@ public class ChoresService : IChoresService
     public async Task AssignChoreAsync(ChoreDto choreDto, int userId)
     {
         await _repository.AssignChoreAsync(userId, _mapper.Map<Chore>(choreDto));
+    }
+
+    public async Task<ChoreDto> MarkChoreAsDone(int choreId, int userId)
+    {
+        var chore = await _repository.GetChoreByIdAsync(choreId) ?? throw new Exception("Chore not found");
+        if (chore.Status != Status.Assigned)
+            throw new Exception("Chore must be assigned in order to be able to mark as done");
+        if (chore.UserId != userId)
+            throw new Exception("Only user who has to do this chore can mark it as done");
+        chore.Status = Status.Completed;
+        var user = await _userRepository.GetUserByIdAsync(userId) ?? throw new Exception("User not found");
+        user.PointsCount += chore!.RewardPointsCount;
+        return _mapper.Map<ChoreDto>(await _repository.UpdateChoreAsync(chore!));
     }
 }
