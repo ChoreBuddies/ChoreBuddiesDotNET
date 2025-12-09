@@ -23,7 +23,7 @@ public class HouseholdService(IHouseholdRepository repository, IInvitationCodeSe
     private readonly IHouseholdRepository _repository = repository;
     private readonly IAppUserRepository _appUserRepository = appUserRepository;
     private readonly IInvitationCodeService _invitationCodeService = invitationCodeService;
-    async Task<Household?> IHouseholdService.CreateHouseholdAsync(CreateHouseholdDto createHouseholdDto, int userId)
+    public async Task<Household?> CreateHouseholdAsync(CreateHouseholdDto createHouseholdDto, int userId)
     {
         var invitationCode = await _invitationCodeService.GenerateUniqueInvitationCodeAsync();
         var result = await _repository.CreateHouseholdAsync(new Household(Guid.NewGuid().GetHashCode(),
@@ -52,7 +52,7 @@ public class HouseholdService(IHouseholdRepository repository, IInvitationCodeSe
         return household;
     }
 
-    async Task<Household?> IHouseholdService.UpdateHouseholdAsync(int householdId, CreateHouseholdDto createHouseholdDto)
+    public async Task<Household?> UpdateHouseholdAsync(int householdId, CreateHouseholdDto createHouseholdDto)
     {
         var household = await _repository.GetHouseholdByIdAsync(householdId);
         if (household != null)
@@ -65,7 +65,7 @@ public class HouseholdService(IHouseholdRepository repository, IInvitationCodeSe
         }
     }
 
-    async Task<Household?> IHouseholdService.DeleteHouseholdAsync(int householdId)
+    public async Task<Household?> DeleteHouseholdAsync(int householdId)
     {
         var household = await _repository.GetHouseholdByIdAsync(householdId);
         if (household != null)
@@ -78,23 +78,9 @@ public class HouseholdService(IHouseholdRepository repository, IInvitationCodeSe
         }
     }
 
-    public Task<Household?> GetUsersHouseholdAsync(int householdId, string userId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Household?> JoinHouseholdAsync(string invitationCode, AppUser user)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task<bool> CheckIfUserBelongsAsync(int householdId, int userId)
     {
         return await _repository.CheckIfUserBelongsAsync(householdId, userId);
     }
 
-    public Task<Household?> CreateHouseholdAsync(CreateHouseholdDto createHouseholdDto)
-    {
-        throw new NotImplementedException();
-    }
 }

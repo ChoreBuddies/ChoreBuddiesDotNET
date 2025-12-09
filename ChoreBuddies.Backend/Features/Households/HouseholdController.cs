@@ -33,10 +33,14 @@ public class HouseholdController(IHouseholdService service, IMapper mapper, IAut
         }
     }
     // Read
-    [HttpGet("{householdId}")]
-    public async Task<IActionResult> GetUsersHousehold(int householdId)
+    [HttpGet]
+    public async Task<IActionResult> GetUsersHousehold([FromQuery] int? householdId)
     {
-        var household = await _service.GetUsersHouseholdAsync(householdId);
+        if(householdId is null)
+        {
+            householdId = _tokenService.GetHouseholdIdFromToken(User);
+        }
+        var household = await _service.GetUsersHouseholdAsync((int)householdId);
         if (household != null)
         {
             return Ok(_mapper.Map<HouseholdDto>(household));
@@ -64,7 +68,7 @@ public class HouseholdController(IHouseholdService service, IMapper mapper, IAut
     [HttpPut("join")]
     public async Task<IActionResult> JoinHousehold([FromBody] JoinHouseholdDto joinHouseholdDto)
     {
-        var userId = tokenService.GetUserIdFromToken(User);
+        var userId = _tokenService.GetUserIdFromToken(User);
 
         var household = await _service.JoinHouseholdAsync(joinHouseholdDto.InvitationCode, userId);
         if (household == null)
