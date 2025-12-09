@@ -1,16 +1,16 @@
-﻿using Xunit;
-using Moq;
-using FluentAssertions;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System;
-using AutoMapper;
+﻿using AutoMapper;
 using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.RedeemedRewards;
 using ChoreBuddies.Backend.Features.RedeemRewards;
 using ChoreBuddies.Backend.Features.Rewards;
 using ChoreBuddies.Backend.Features.Users;
+using FluentAssertions;
+using Moq;
 using Shared.Rewards;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace ChoreBuddies.Tests.Rewards;
 
@@ -143,7 +143,7 @@ public class RedeemedRewardsServiceTests
             PointsCount = 100
         };
 
-        var redeemedEntity = new RedeemedReward { Id = 88, Name = "Test", Description="test" };
+        var redeemedEntity = new RedeemedReward { Id = 88, Name = "Test", Description = "test" };
         var redeemedDto = new RedeemedRewardDto(88, 1, "Test", "test", 10, true) { Id = 88 };
 
         _rewardRepo.Setup(r => r.GetRewardByIdAsync(10)).ReturnsAsync(reward);

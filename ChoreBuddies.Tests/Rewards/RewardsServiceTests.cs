@@ -1,9 +1,9 @@
-﻿using Xunit;
-using Moq;
-using AutoMapper;
+﻿using AutoMapper;
 using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Rewards;
+using Moq;
 using Shared.Rewards;
+using Xunit;
 
 namespace ChoreBuddies.Tests.Rewards;
 
