@@ -36,7 +36,7 @@ public class HouseholdController(IHouseholdService service, IMapper mapper, IAut
     [HttpGet]
     public async Task<IActionResult> GetUsersHousehold([FromQuery] int? householdId)
     {
-        if(householdId is null)
+        if (householdId is null)
         {
             householdId = _tokenService.GetHouseholdIdFromToken(User);
         }
