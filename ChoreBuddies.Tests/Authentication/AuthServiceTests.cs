@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Moq;
 using Shared.Authentication;
 
-namespace ChoreBuddies.Backend.Tests.Features.Authentication;
+namespace ChoreBuddies.Tests.Authentication;
 
 public class AuthServiceTests
 {
@@ -26,9 +26,9 @@ public class AuthServiceTests
         _notificationServiceMock = new Mock<INotificationPreferenceService>();
         _timeProviderMock = new Mock<TimeProvider>();
 
-        // Mockowanie UserManager wymaga przekazania parametrów do konstruktora (store, options, etc.)
         var store = new Mock<IUserStore<AppUser>>();
-        _userManagerMock = new Mock<UserManager<AppUser>>(store.Object, null!, null!, null!, null!, null!, null!, null!, null!);
+        _userManagerMock = new Mock<UserManager<AppUser>>(
+            store.Object, null!, null!, null!, null!, null!, null!, null!, null!);
 
         _authService = new AuthService(
             _userManagerMock.Object,
@@ -38,6 +38,8 @@ public class AuthServiceTests
             _notificationServiceMock.Object
         );
     }
+
+    // --- LOGIN ---
 
     [Fact]
     public async Task LoginUserAsync_WithValidCredentials_ReturnsTokens()
@@ -74,11 +76,26 @@ public class AuthServiceTests
         _userManagerMock.Setup(x => x.FindByEmailAsync(request.Email))
             .ReturnsAsync(user);
         _userManagerMock.Setup(x => x.CheckPasswordAsync(user, request.Password))
-            .ReturnsAsync(false); // Błędne hasło
+            .ReturnsAsync(false);
 
         // Act & Assert
         await Assert.ThrowsAsync<LoginFailedException>(() => _authService.LoginUserAsync(request));
     }
+
+    [Fact]
+    public async Task LoginUserAsync_WithNonExistingUser_ThrowsLoginFailedException()
+    {
+        // Arrange
+        var request = new LoginRequestDto("ghost@test.com", "Pass");
+
+        _userManagerMock.Setup(x => x.FindByEmailAsync(request.Email))
+            .ReturnsAsync((AppUser?)null);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<LoginFailedException>(() => _authService.LoginUserAsync(request));
+    }
+
+    // --- SIGNUP ---
 
     [Fact]
     public async Task SignupUserAsync_WhenEmailExists_ThrowsUserAlreadyExistsException()
@@ -86,9 +103,132 @@ public class AuthServiceTests
         // Arrange
         var request = new RegisterRequestDto("existing@test.com", "Pass123!", "User");
         _userManagerMock.Setup(x => x.FindByEmailAsync(request.Email))
-            .ReturnsAsync(new AppUser()); // Użytkownik istnieje
+            .ReturnsAsync(new AppUser());
 
         // Act & Assert
         await Assert.ThrowsAsync<UserAlreadyExistsException>(() => _authService.SignupUserAsync(request));
+    }
+
+    [Fact]
+    public async Task SignupUserAsync_Success_CreatesUserAndSendsEmail()
+    {
+        // Arrange
+        var request = new RegisterRequestDto("new@test.com", "Pass123!", "NewUser");
+
+        _userManagerMock.Setup(x => x.FindByEmailAsync(request.Email))
+            .ReturnsAsync((AppUser?)null);
+
+        _userManagerMock.Setup(x => x.CreateAsync(It.IsAny<AppUser>(), request.Password))
+            .ReturnsAsync(IdentityResult.Success);
+
+        _tokenServiceMock.Setup(x => x.CreateAccessTokenAsync(It.IsAny<AppUser>()))
+            .ReturnsAsync("access_token");
+        _tokenServiceMock.Setup(x => x.CreateRefreshToken())
+            .Returns("refresh_token");
+        _tokenServiceMock.Setup(x => x.GetRefreshTokenExpiration())
+            .Returns(DateTime.UtcNow.AddDays(7));
+
+        // Act
+        var result = await _authService.SignupUserAsync(request);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.AccessToken.Should().Be("access_token");
+
+        _userManagerMock.Verify(x => x.UpdateAsync(It.IsAny<AppUser>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task SignupUserAsync_IdentityFailure_ThrowsRegistrationFailedException()
+    {
+        // Arrange
+        var request = new RegisterRequestDto("weak@test.com", "123", "User");
+        var identityErrors = new IdentityError[] { new IdentityError { Description = "Password too short" } };
+
+        _userManagerMock.Setup(x => x.FindByEmailAsync(request.Email))
+            .ReturnsAsync((AppUser?)null);
+
+        _userManagerMock.Setup(x => x.CreateAsync(It.IsAny<AppUser>(), request.Password))
+            .ReturnsAsync(IdentityResult.Failed(identityErrors));
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<RegistrationFailedException>(() => _authService.SignupUserAsync(request));
+        ex.Message.Should().Contain("Password too short");
+    }
+
+    // --- REFRESH TOKEN / REVOKE ---
+
+    [Fact]
+    public async Task RevokeRefreshTokenAsync_UserExists_ClearsTokenAndReturnsTrue()
+    {
+        // Arrange
+        int userId = 10;
+        var user = new AppUser { Id = userId, RefreshToken = "old_token" };
+        var now = DateTimeOffset.UtcNow;
+
+        _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString()))
+            .ReturnsAsync(user);
+        _timeProviderMock.Setup(x => x.GetUtcNow()).Returns(now);
+        _userManagerMock.Setup(x => x.UpdateAsync(user))
+            .ReturnsAsync(IdentityResult.Success);
+
+        // Act
+        var result = await _authService.RevokeRefreshTokenAsync(userId);
+
+        // Assert
+        result.Should().BeTrue();
+        user.RefreshToken.Should().BeNull();
+        user.RefreshTokenExpiry.Should().Be(now.DateTime);
+        _userManagerMock.Verify(x => x.UpdateAsync(user), Times.Once);
+    }
+
+    [Fact]
+    public async Task RevokeRefreshTokenAsync_UserNotFound_ReturnsFalse()
+    {
+        // Arrange
+        int userId = 99;
+        _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString()))
+            .ReturnsAsync((AppUser?)null);
+
+        // Act
+        var result = await _authService.RevokeRefreshTokenAsync(userId);
+
+        // Assert
+        result.Should().BeFalse();
+        _userManagerMock.Verify(x => x.UpdateAsync(It.IsAny<AppUser>()), Times.Never);
+    }
+
+    // --- GENERATE ACCESS TOKEN ---
+
+    [Fact]
+    public async Task GenerateAccessTokenAsync_UserExists_ReturnsToken()
+    {
+        // Arrange
+        int userId = 5;
+        var user = new AppUser { Id = userId };
+
+        _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString()))
+            .ReturnsAsync(user);
+        _tokenServiceMock.Setup(x => x.CreateAccessTokenAsync(user))
+            .ReturnsAsync("new_access_token");
+
+        // Act
+        var result = await _authService.GenerateAccessTokenAsync(userId);
+
+        // Assert
+        result.Should().Be("new_access_token");
+    }
+
+    [Fact]
+    public async Task GenerateAccessTokenAsync_UserNotFound_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        int userId = 99;
+        _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString()))
+            .ReturnsAsync((AppUser?)null);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _authService.GenerateAccessTokenAsync(userId));
     }
 }
