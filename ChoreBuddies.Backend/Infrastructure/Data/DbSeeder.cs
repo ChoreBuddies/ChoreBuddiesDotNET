@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Shared.Chores;
+using Shared.Notifications;
 using Shared.ScheduledChores;
 
 namespace ChoreBuddies.Backend.Infrastructure.Data;
@@ -45,9 +46,14 @@ public class DbSeeder
         var userManager = context.GetService<UserManager<AppUser>>();
         foreach (var newUser in _users)
         {
-            var user = context.Set<AppUser>().FirstOrDefault(u => u.Email == newUser.Email);
-            if (user == null) userManager.CreateAsync(newUser, "Pass123!").Wait();
+            var result = userManager.CreateAsync(newUser, "Pass123!").Result;
+            if (result.Succeeded)
+            {
+                var preferences = generateAndCustomizePreferences(newUser);
+                context.Set<NotificationPreference>().AddRange(preferences);
+            }
         }
+        context.SaveChanges();
     }
 
     private async Task SeedUsersAsync(DbContext context, CancellationToken ct)
@@ -55,9 +61,14 @@ public class DbSeeder
         var userManager = context.GetService<UserManager<AppUser>>();
         foreach (var newUser in _users)
         {
-            var user = await context.Set<AppUser>().FirstOrDefaultAsync(u => u.Email == newUser.Email, ct);
-            if (user == null) await userManager.CreateAsync(newUser, "Pass123!");
+            var result = await userManager.CreateAsync(newUser, "Pass123!");
+            if (result.Succeeded)
+            {
+                var preferences = generateAndCustomizePreferences(newUser);
+                await context.Set<NotificationPreference>().AddRangeAsync(preferences, ct);
+            }
         }
+        await context.SaveChangesAsync(ct);
     }
 
     private void SeedHouseholds(DbContext context)
@@ -68,7 +79,7 @@ public class DbSeeder
 
         if (allUsers.Count < 15) return;
 
-        var households = CreateHouseholdScenarios(allUsers);
+        var households = createHouseholdScenarios(allUsers);
 
         context.Set<Household>().AddRange(households);
         context.SaveChanges();
@@ -82,7 +93,7 @@ public class DbSeeder
 
         if (allUsers.Count < 15) return;
 
-        var households = CreateHouseholdScenarios(allUsers);
+        var households = createHouseholdScenarios(allUsers);
 
         await context.Set<Household>().AddRangeAsync(households, ct);
         await context.SaveChangesAsync(ct);
@@ -114,7 +125,7 @@ public class DbSeeder
 
         if (households.Count < 3) return;
 
-        var chores = CreateChoreScenarios(households);
+        var chores = createChoreScenarios(households);
 
         context.Set<Chore>().AddRange(chores);
         context.SaveChanges();
@@ -131,7 +142,7 @@ public class DbSeeder
 
         if (households.Count < 3) return;
 
-        var chores = CreateChoreScenarios(households);
+        var chores = createChoreScenarios(households);
 
         await context.Set<Chore>().AddRangeAsync(chores, ct);
         await context.SaveChangesAsync(ct);
@@ -144,7 +155,7 @@ public class DbSeeder
         var households = context.Set<Household>().Include(h => h.Users).OrderBy(h => h.Id).ToList();
         if (households.Count < 3) return;
 
-        var scheduledChores = CreateScheduledChoreScenarios(households);
+        var scheduledChores = createScheduledChoreScenarios(households);
 
         context.Set<ScheduledChore>().AddRange(scheduledChores);
         context.SaveChanges();
@@ -157,13 +168,13 @@ public class DbSeeder
         var households = await context.Set<Household>().Include(h => h.Users).OrderBy(h => h.Id).ToListAsync(ct);
         if (households.Count < 3) return;
 
-        var scheduledChores = CreateScheduledChoreScenarios(households);
+        var scheduledChores = createScheduledChoreScenarios(households);
 
         await context.Set<ScheduledChore>().AddRangeAsync(scheduledChores, ct);
         await context.SaveChangesAsync(ct);
     }
 
-    private List<Household> CreateHouseholdScenarios(List<AppUser> dbUsers)
+    private List<Household> createHouseholdScenarios(List<AppUser> dbUsers)
     {
         var households = new List<Household>();
 
@@ -212,6 +223,58 @@ public class DbSeeder
         return users;
     }
 
+    private List<NotificationPreference> generateAndCustomizePreferences(AppUser user)
+    {
+        var prefs = new List<NotificationPreference>();
+
+        foreach (NotificationEvent eventType in Enum.GetValues(typeof(NotificationEvent)))
+        {
+            prefs.Add(new NotificationPreference
+            {
+                UserId = user.Id,
+                Type = eventType,
+                Channel = NotificationChannel.Email,
+                IsEnabled = true,
+                User = user
+            });
+
+            prefs.Add(new NotificationPreference
+            {
+                UserId = user.Id,
+                Type = eventType,
+                Channel = NotificationChannel.Push,
+                IsEnabled = false,
+                User = user
+            });
+        }
+
+        if (user.Email == "user1@test.com")
+        {
+            foreach (var p in prefs)
+            {
+                p.IsEnabled = false;
+            }
+        }
+
+        if (user.Email == "user2@test.com")
+        {
+            foreach (var p in prefs.Where(x => x.Channel == NotificationChannel.Push))
+            {
+                p.IsEnabled = true;
+            }
+        }
+
+        if (user.Email == "user5@test.com")
+        {
+            foreach (var p in prefs) p.IsEnabled = false;
+
+            var jobAssignedEmail = prefs.FirstOrDefault(p => p.Type == NotificationEvent.NewChore && p.Channel == NotificationChannel.Email);
+            if (jobAssignedEmail != null) jobAssignedEmail.IsEnabled = true;
+        }
+
+        return prefs;
+    }
+
     private List<DefaultChore> readDefaultChoresFromCsv(string filePath)
     {
         var absolutePath = Path.Combine(AppContext.BaseDirectory, filePath);
@@ -249,7 +312,7 @@ public class DbSeeder
         }
     }
 
-    private List<Chore> CreateChoreScenarios(List<Household> households)
+    private List<Chore> createChoreScenarios(List<Household> households)
     {
         var list = new List<Chore>();
 
@@ -329,7 +392,7 @@ public class DbSeeder
         return list;
     }
 
-    private List<ScheduledChore> CreateScheduledChoreScenarios(List<Household> households)
+    private List<ScheduledChore> createScheduledChoreScenarios(List<Household> households)
     {
         var list = new List<ScheduledChore>();
 
