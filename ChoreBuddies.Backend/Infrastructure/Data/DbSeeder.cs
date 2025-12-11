@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Shared.Chores;
+using Shared.ScheduledChores;
 
 namespace ChoreBuddies.Backend.Infrastructure.Data;
 
@@ -24,12 +26,16 @@ public class DbSeeder
                 SeedUsers(context);
                 SeedHouseholds(context);
                 SeedDefaultChores(context);
+                SeedChores(context);
+                SeedScheduledChores(context);
             })
             .UseAsyncSeeding(async (context, _, ct) =>
             {
                 await SeedUsersAsync(context, ct);
                 await SeedHouseholdsAsync(context, ct);
                 await SeedDefaultChoresAsync(context, ct);
+                await SeedChoresAsync(context, ct);
+                await SeedScheduledChoresAsync(context, ct);
             });
     }
 
@@ -98,6 +104,63 @@ public class DbSeeder
             await context.Set<DefaultChore>().AddRangeAsync(_defaultChores, ct);
             await context.SaveChangesAsync(ct);
         }
+    }
+
+    private void SeedChores(DbContext context)
+    {
+        if (context.Set<Chore>().Any()) return;
+
+        var households = context.Set<Household>().Include(h => h.Users).OrderBy(h => h.Id).ToList();
+
+        if (households.Count < 3) return;
+
+        var chores = CreateChoreScenarios(households);
+
+        context.Set<Chore>().AddRange(chores);
+        context.SaveChanges();
+    }
+
+    private async Task SeedChoresAsync(DbContext context, CancellationToken ct)
+    {
+        if (await context.Set<Chore>().AnyAsync(ct)) return;
+
+        var households = await context.Set<Household>()
+                                      .Include(h => h.Users)
+                                      .OrderBy(h => h.Id)
+                                      .ToListAsync(ct);
+
+        if (households.Count < 3) return;
+
+        var chores = CreateChoreScenarios(households);
+
+        await context.Set<Chore>().AddRangeAsync(chores, ct);
+        await context.SaveChangesAsync(ct);
+    }
+
+    private void SeedScheduledChores(DbContext context)
+    {
+        if (context.Set<ScheduledChore>().Any()) return;
+
+        var households = context.Set<Household>().Include(h => h.Users).OrderBy(h => h.Id).ToList();
+        if (households.Count < 3) return;
+
+        var scheduledChores = CreateScheduledChoreScenarios(households);
+
+        context.Set<ScheduledChore>().AddRange(scheduledChores);
+        context.SaveChanges();
+    }
+
+    private async Task SeedScheduledChoresAsync(DbContext context, CancellationToken ct)
+    {
+        if (await context.Set<ScheduledChore>().AnyAsync(ct)) return;
+
+        var households = await context.Set<Household>().Include(h => h.Users).OrderBy(h => h.Id).ToListAsync(ct);
+        if (households.Count < 3) return;
+
+        var scheduledChores = CreateScheduledChoreScenarios(households);
+
+        await context.Set<ScheduledChore>().AddRangeAsync(scheduledChores, ct);
+        await context.SaveChangesAsync(ct);
     }
 
     private List<Household> CreateHouseholdScenarios(List<AppUser> dbUsers)
@@ -184,6 +247,134 @@ public class DbSeeder
             Console.Error.WriteLine($"Error parsing CSV file '{absolutePath}': {ex.Message}");
             return new List<DefaultChore>();
         }
+    }
+
+    private List<Chore> CreateChoreScenarios(List<Household> households)
+    {
+        var list = new List<Chore>();
+
+        // households[0]
+        // PUSTY
+
+        // households[1]
+        var hFamily = households[1];
+        var usersFamily = hFamily.Users.ToList();
+
+        if (usersFamily.Count >= 2)
+        {
+            list.Add(new Chore(
+                "Naprawić kran",
+                "Cieknie w kuchni",
+                usersFamily[0].Id,
+                hFamily.Id,
+                DateTime.UtcNow.AddDays(2),
+                Status.Assigned,
+                "Kuchnia",
+                50));
+
+            list.Add(new Chore(
+                "Wynieść śmieci",
+                "Segregowane zmieszane",
+                usersFamily[1].Id,
+                hFamily.Id,
+                DateTime.UtcNow.AddHours(4),
+                Status.Assigned,
+                "Garaż",
+                10));
+
+            list.Add(new Chore(
+                "Zakupy spożywcze",
+                "Lista na lodówce",
+                usersFamily[0].Id,
+                hFamily.Id,
+                DateTime.UtcNow.AddDays(-1),
+                Status.Completed,
+                "Salon",
+                20));
+        }
+
+        // households[2]
+        var hStudent = households[2];
+        var usersStudent = hStudent.Users.ToList();
+
+        var random = new Random();
+        var choreNames = new[] { "Zmywanie", "Odkurzanie", "Śmieci", "Zakupy", "Łazienka" };
+
+        for (int i = 0; i < 50; i++)
+        {
+            var date = DateTime.UtcNow.AddDays(-i).AddHours(random.Next(-10, 10));
+            var user = usersStudent[random.Next(usersStudent.Count)];
+            var name = choreNames[random.Next(choreNames.Length)];
+
+            list.Add(new Chore(
+                name,
+                "Wykonane w przeszłości",
+                user.Id,
+                hStudent.Id,
+                date,
+                Status.Completed,
+                "Mieszkanie",
+                random.Next(10, 50)
+            ));
+        }
+
+        list.Add(new Chore("Kupić papier toaletowy", "Pilne!", null, hStudent.Id, DateTime.UtcNow, Status.Unassigned, "Łazienka", 15));
+        list.Add(new Chore("Posprzątać po imprezie", "Butelki w salonie", null, hStudent.Id, DateTime.UtcNow.AddHours(10), Status.Unassigned, "Salon", 100));
+
+        if (usersStudent.Any())
+        {
+            list.Add(new Chore("Zmyć naczynia", "Twoja kolej", usersStudent[0].Id, hStudent.Id, DateTime.UtcNow.AddHours(1), Status.Assigned, "Kuchnia", 25));
+        }
+
+        return list;
+    }
+
+    private List<ScheduledChore> CreateScheduledChoreScenarios(List<Household> households)
+    {
+        var list = new List<ScheduledChore>();
+
+        // SCENARIUSZ 1: "Kawalerka" - PUSTE
+
+        // SCENARIUSZ 2: "Rodzinka"
+        var hFamily = households[1];
+
+        list.Add(new ScheduledChore(
+            "Mycie łazienki",
+            "Szorowanie wanny i toalety",
+            null,
+            "Łazienka",
+            1,
+            Frequency.Weekly,
+            100,
+            hFamily.Id
+        ));
+
+        // SCENARIUSZ 3: "Akademik"
+        var hStudent = households[2];
+
+        list.Add(new ScheduledChore(
+            "Śmieci",
+            "Wyrzucić wór jak pełny",
+            null,
+            "Kuchnia",
+            2,
+            Frequency.Daily,
+            10,
+            hStudent.Id
+        ));
+
+        list.Add(new ScheduledChore(
+            "Zbiórka na internet",
+            "Przelew do gospodarza",
+            hStudent.OwnerId,
+            "Salon",
+            1,
+            Frequency.Monthly,
+            0,
+            hStudent.Id
+        ));
+
+        return list;
     }
     #endregion
 }
