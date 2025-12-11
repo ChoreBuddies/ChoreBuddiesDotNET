@@ -35,7 +35,7 @@ public class ScheduledChoresBackgroundService : BackgroundService
 
                 DateTime dueDate = pc.Frequency switch
                 {
-                    Frequency.Daily => DateTime.Now,
+                    Frequency.Daily => DateTime.Now.AddDays(1),
                     Frequency.Weekly => DateTime.Now.AddDays(7),
                     Frequency.Monthly => DateTime.Now.AddMonths(1),
                     _ => DateTime.Now
