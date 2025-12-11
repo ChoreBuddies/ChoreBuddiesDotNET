@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Shared.Chores;
+using Shared.Notifications;
+using Shared.ScheduledChores;
 
 namespace ChoreBuddies.Backend.Infrastructure.Data;
 
@@ -24,24 +27,37 @@ public class DbSeeder
                 SeedUsers(context);
                 SeedHouseholds(context);
                 SeedDefaultChores(context);
+                SeedChores(context);
+                SeedScheduledChores(context);
+                SeedRewards(context);
+                SeedRedeemedRewards(context);
             })
             .UseAsyncSeeding(async (context, _, ct) =>
             {
                 await SeedUsersAsync(context, ct);
                 await SeedHouseholdsAsync(context, ct);
                 await SeedDefaultChoresAsync(context, ct);
+                await SeedChoresAsync(context, ct);
+                await SeedScheduledChoresAsync(context, ct);
+                await SeedRewardsAsync(context, ct);
+                await SeedRedeemedRewardsAsync(context, ct);
             });
     }
 
-    #region private
+    #region SeedMethods
     private void SeedUsers(DbContext context)
     {
         var userManager = context.GetService<UserManager<AppUser>>();
         foreach (var newUser in _users)
         {
-            var user = context.Set<AppUser>().FirstOrDefault(u => u.Email == newUser.Email);
-            if (user == null) userManager.CreateAsync(newUser, "Pass123!").Wait();
+            var result = userManager.CreateAsync(newUser, "Pass123!").Result;
+            if (result.Succeeded)
+            {
+                var preferences = generateAndCustomizePreferences(newUser);
+                context.Set<NotificationPreference>().AddRange(preferences);
+            }
         }
+        context.SaveChanges();
     }
 
     private async Task SeedUsersAsync(DbContext context, CancellationToken ct)
@@ -49,9 +65,14 @@ public class DbSeeder
         var userManager = context.GetService<UserManager<AppUser>>();
         foreach (var newUser in _users)
         {
-            var user = await context.Set<AppUser>().FirstOrDefaultAsync(u => u.Email == newUser.Email, ct);
-            if (user == null) await userManager.CreateAsync(newUser, "Pass123!");
+            var result = await userManager.CreateAsync(newUser, "Pass123!");
+            if (result.Succeeded)
+            {
+                var preferences = generateAndCustomizePreferences(newUser);
+                await context.Set<NotificationPreference>().AddRangeAsync(preferences, ct);
+            }
         }
+        await context.SaveChangesAsync(ct);
     }
 
     private void SeedHouseholds(DbContext context)
@@ -62,7 +83,7 @@ public class DbSeeder
 
         if (allUsers.Count < 15) return;
 
-        var households = CreateHouseholdScenarios(allUsers);
+        var households = createHouseholdScenarios(allUsers);
 
         context.Set<Household>().AddRange(households);
         context.SaveChanges();
@@ -76,7 +97,7 @@ public class DbSeeder
 
         if (allUsers.Count < 15) return;
 
-        var households = CreateHouseholdScenarios(allUsers);
+        var households = createHouseholdScenarios(allUsers);
 
         await context.Set<Household>().AddRangeAsync(households, ct);
         await context.SaveChangesAsync(ct);
@@ -100,7 +121,111 @@ public class DbSeeder
         }
     }
 
-    private List<Household> CreateHouseholdScenarios(List<AppUser> dbUsers)
+    private void SeedChores(DbContext context)
+    {
+        if (context.Set<Chore>().Any()) return;
+
+        var households = context.Set<Household>().Include(h => h.Users).OrderBy(h => h.Id).ToList();
+
+        if (households.Count < 3) return;
+
+        var chores = createChoreScenarios(households);
+
+        context.Set<Chore>().AddRange(chores);
+        context.SaveChanges();
+    }
+
+    private async Task SeedChoresAsync(DbContext context, CancellationToken ct)
+    {
+        if (await context.Set<Chore>().AnyAsync(ct)) return;
+
+        var households = await context.Set<Household>()
+                                      .Include(h => h.Users)
+                                      .OrderBy(h => h.Id)
+                                      .ToListAsync(ct);
+
+        if (households.Count < 3) return;
+
+        var chores = createChoreScenarios(households);
+
+        await context.Set<Chore>().AddRangeAsync(chores, ct);
+        await context.SaveChangesAsync(ct);
+    }
+
+    private void SeedScheduledChores(DbContext context)
+    {
+        if (context.Set<ScheduledChore>().Any()) return;
+
+        var households = context.Set<Household>().Include(h => h.Users).OrderBy(h => h.Id).ToList();
+        if (households.Count < 3) return;
+
+        var scheduledChores = createScheduledChoreScenarios(households);
+
+        context.Set<ScheduledChore>().AddRange(scheduledChores);
+        context.SaveChanges();
+    }
+
+    private async Task SeedScheduledChoresAsync(DbContext context, CancellationToken ct)
+    {
+        if (await context.Set<ScheduledChore>().AnyAsync(ct)) return;
+
+        var households = await context.Set<Household>().Include(h => h.Users).OrderBy(h => h.Id).ToListAsync(ct);
+        if (households.Count < 3) return;
+
+        var scheduledChores = createScheduledChoreScenarios(households);
+
+        await context.Set<ScheduledChore>().AddRangeAsync(scheduledChores, ct);
+        await context.SaveChangesAsync(ct);
+    }
+
+    private void SeedRewards(DbContext context)
+    {
+        if (context.Set<Reward>().Any()) return;
+        var households = context.Set<Household>().Include(h => h.Users).OrderBy(h => h.Id).ToList();
+        if (households.Count < 3) return;
+
+        var rewards = createRewardScenarios(households);
+        context.Set<Reward>().AddRange(rewards);
+        context.SaveChanges();
+    }
+
+    private async Task SeedRewardsAsync(DbContext context, CancellationToken ct)
+    {
+        if (await context.Set<Reward>().AnyAsync(ct)) return;
+        var households = await context.Set<Household>().Include(h => h.Users).OrderBy(h => h.Id).ToListAsync(ct);
+        if (households.Count < 3) return;
+
+        var rewards = createRewardScenarios(households);
+        await context.Set<Reward>().AddRangeAsync(rewards, ct);
+        await context.SaveChangesAsync(ct);
+    }
+
+    private void SeedRedeemedRewards(DbContext context)
+    {
+        if (context.Set<RedeemedReward>().Any()) return;
+        var households = context.Set<Household>().Include(h => h.Users).OrderBy(h => h.Id).ToList();
+        if (households.Count < 3) return;
+
+        var redeemed = createRedeemedRewardScenarios(households);
+        context.Set<RedeemedReward>().AddRange(redeemed);
+        context.SaveChanges();
+    }
+
+    private async Task SeedRedeemedRewardsAsync(DbContext context, CancellationToken ct)
+    {
+        if (await context.Set<RedeemedReward>().AnyAsync(ct)) return;
+        var households = await context.Set<Household>().Include(h => h.Users).OrderBy(h => h.Id).ToListAsync(ct);
+        if (households.Count < 3) return;
+
+        var redeemed = createRedeemedRewardScenarios(households);
+        await context.Set<RedeemedReward>().AddRangeAsync(redeemed, ct);
+        await context.SaveChangesAsync(ct);
+    }
+
+    #endregion
+
+    #region ScenarioMethods
+    private List<Household> createHouseholdScenarios(List<AppUser> dbUsers)
     {
         var households = new List<Household>();
 
@@ -149,6 +274,58 @@ public class DbSeeder
         return users;
     }
 
+    private List<NotificationPreference> generateAndCustomizePreferences(AppUser user)
+    {
+        var prefs = new List<NotificationPreference>();
+
+        foreach (NotificationEvent eventType in Enum.GetValues(typeof(NotificationEvent)))
+        {
+            prefs.Add(new NotificationPreference
+            {
+                UserId = user.Id,
+                Type = eventType,
+                Channel = NotificationChannel.Email,
+                IsEnabled = true,
+                User = user
+            });
+
+            prefs.Add(new NotificationPreference
+            {
+                UserId = user.Id,
+                Type = eventType,
+                Channel = NotificationChannel.Push,
+                IsEnabled = false,
+                User = user
+            });
+        }
+
+        if (user.Email == "user1@test.com")
+        {
+            foreach (var p in prefs)
+            {
+                p.IsEnabled = false;
+            }
+        }
+
+        if (user.Email == "user2@test.com")
+        {
+            foreach (var p in prefs.Where(x => x.Channel == NotificationChannel.Push))
+            {
+                p.IsEnabled = true;
+            }
+        }
+
+        if (user.Email == "user5@test.com")
+        {
+            foreach (var p in prefs) p.IsEnabled = false;
+
+            var jobAssignedEmail = prefs.FirstOrDefault(p => p.Type == NotificationEvent.NewChore && p.Channel == NotificationChannel.Email);
+            if (jobAssignedEmail != null) jobAssignedEmail.IsEnabled = true;
+        }
+
+        return prefs;
+    }
+
     private List<DefaultChore> readDefaultChoresFromCsv(string filePath)
     {
         var absolutePath = Path.Combine(AppContext.BaseDirectory, filePath);
@@ -185,5 +362,225 @@ public class DbSeeder
             return new List<DefaultChore>();
         }
     }
+
+    private List<Chore> createChoreScenarios(List<Household> households)
+    {
+        var list = new List<Chore>();
+
+        // households[0]
+        // PUSTY
+
+        // households[1]
+        var hFamily = households[1];
+        var usersFamily = hFamily.Users.ToList();
+
+        if (usersFamily.Count >= 2)
+        {
+            list.Add(new Chore(
+                "Naprawić kran",
+                "Cieknie w kuchni",
+                usersFamily[0].Id,
+                hFamily.Id,
+                DateTime.UtcNow.AddDays(2),
+                Status.Assigned,
+                "Kuchnia",
+                50));
+
+            list.Add(new Chore(
+                "Wynieść śmieci",
+                "Segregowane zmieszane",
+                usersFamily[1].Id,
+                hFamily.Id,
+                DateTime.UtcNow.AddHours(4),
+                Status.Assigned,
+                "Garaż",
+                10));
+
+            list.Add(new Chore(
+                "Zakupy spożywcze",
+                "Lista na lodówce",
+                usersFamily[0].Id,
+                hFamily.Id,
+                DateTime.UtcNow.AddDays(-1),
+                Status.Completed,
+                "Salon",
+                20));
+        }
+
+        // households[2]
+        var hStudent = households[2];
+        var usersStudent = hStudent.Users.ToList();
+
+        var random = new Random();
+        var choreNames = new[] { "Zmywanie", "Odkurzanie", "Śmieci", "Zakupy", "Łazienka" };
+
+        for (int i = 0; i < 50; i++)
+        {
+            var date = DateTime.UtcNow.AddDays(-i).AddHours(random.Next(-10, 10));
+            var user = usersStudent[random.Next(usersStudent.Count)];
+            var name = choreNames[random.Next(choreNames.Length)];
+
+            list.Add(new Chore(
+                name,
+                "Wykonane w przeszłości",
+                user.Id,
+                hStudent.Id,
+                date,
+                Status.Completed,
+                "Mieszkanie",
+                random.Next(10, 50)
+            ));
+        }
+
+        list.Add(new Chore("Kupić papier toaletowy", "Pilne!", null, hStudent.Id, DateTime.UtcNow, Status.Unassigned, "Łazienka", 15));
+        list.Add(new Chore("Posprzątać po imprezie", "Butelki w salonie", null, hStudent.Id, DateTime.UtcNow.AddHours(10), Status.Unassigned, "Salon", 100));
+
+        if (usersStudent.Any())
+        {
+            list.Add(new Chore("Zmyć naczynia", "Twoja kolej", usersStudent[0].Id, hStudent.Id, DateTime.UtcNow.AddHours(1), Status.Assigned, "Kuchnia", 25));
+        }
+
+        return list;
+    }
+
+    private List<ScheduledChore> createScheduledChoreScenarios(List<Household> households)
+    {
+        var list = new List<ScheduledChore>();
+
+        // SCENARIUSZ 1: "Kawalerka" - PUSTE
+
+        // SCENARIUSZ 2: "Rodzinka"
+        var hFamily = households[1];
+
+        list.Add(new ScheduledChore(
+            "Mycie łazienki",
+            "Szorowanie wanny i toalety",
+            null,
+            "Łazienka",
+            1,
+            Frequency.Weekly,
+            100,
+            hFamily.Id
+        ));
+
+        // SCENARIUSZ 3: "Akademik"
+        var hStudent = households[2];
+
+        list.Add(new ScheduledChore(
+            "Śmieci",
+            "Wyrzucić wór jak pełny",
+            null,
+            "Kuchnia",
+            2,
+            Frequency.Daily,
+            10,
+            hStudent.Id
+        ));
+
+        list.Add(new ScheduledChore(
+            "Zbiórka na internet",
+            "Przelew do gospodarza",
+            hStudent.OwnerId,
+            "Salon",
+            1,
+            Frequency.Monthly,
+            0,
+            hStudent.Id
+        ));
+
+        return list;
+    }
+
+    private List<Reward> createRewardScenarios(List<Household> households)
+    {
+        var list = new List<Reward>();
+
+        // households[0]
+        // PUSTY
+
+        // households[1]
+        var hFamily = households[1];
+        list.Add(new Reward("Kieszonkowe", "20 PLN gotówką", hFamily.Id, 200, 10));
+        list.Add(new Reward("Gra na konsoli", "1 godzina grania", hFamily.Id, 50, 999));
+        list.Add(new Reward("Wyjście do kina", "Wspólne lub z kolegami", hFamily.Id, 500, 2));
+
+        // households[2]
+        var hStudent = households[2];
+        list.Add(new Reward("Zwolnienie ze sprzątania", "Jednorazowy 'pass'", hStudent.Id, 300, 5));
+        list.Add(new Reward("Pizza", "Składka na pizzę z funduszu domowego", hStudent.Id, 150, 10));
+        list.Add(new Reward("Pierwszeństwo pod prysznicem", "Rano bez kolejki", hStudent.Id, 50, 20));
+        list.Add(new Reward("Wybór filmu", "Ty wybierasz co oglądamy w piątek", hStudent.Id, 100, 4));
+
+        return list;
+    }
+
+    private List<RedeemedReward> createRedeemedRewardScenarios(List<Household> households)
+    {
+        var list = new List<RedeemedReward>();
+
+        // households[0]
+
+        // households[1]
+        var hFamily = households[1];
+        var usersFamily = hFamily.Users.ToList();
+        if (usersFamily.Count > 1)
+        {
+            var kidId = usersFamily[1].Id;
+            list.Add(new RedeemedReward
+            {
+                Name = "Gra na konsoli",
+                Description = "1 godzina grania",
+                UserId = kidId,
+                HouseholdId = hFamily.Id,
+                RedeemedDate = DateTime.UtcNow.AddMinutes(-30),
+                PointsSpent = 50,
+                IsFulfilled = false
+            });
+
+            list.Add(new RedeemedReward
+            {
+                Name = "Kieszonkowe",
+                Description = "20 PLN gotówką",
+                UserId = kidId,
+                HouseholdId = hFamily.Id,
+                RedeemedDate = DateTime.UtcNow.AddDays(-7),
+                PointsSpent = 200,
+                IsFulfilled = true
+            });
+        }
+
+        // households[2]
+        var hStudent = households[2];
+        var usersStudent = hStudent.Users.ToList();
+        var random = new Random();
+
+        var rewardTemplates = new[]
+        {
+            new { Name = "Zwolnienie ze sprzątania", Cost = 300 },
+            new { Name = "Pizza", Cost = 150 },
+            new { Name = "Pierwszeństwo pod prysznicem", Cost = 50 },
+            new { Name = "Wybór filmu", Cost = 100 }
+        };
+
+        for (int i = 0; i < 30; i++)
+        {
+            var user = usersStudent[random.Next(usersStudent.Count)];
+            var template = rewardTemplates[random.Next(rewardTemplates.Length)];
+
+            list.Add(new RedeemedReward
+            {
+                Name = template.Name,
+                Description = "Nagroda odebrana w przeszłości",
+                UserId = user.Id,
+                HouseholdId = hStudent.Id,
+                RedeemedDate = DateTime.UtcNow.AddDays(-i).AddHours(random.Next(-5, 5)),
+                PointsSpent = template.Cost,
+                IsFulfilled = random.NextDouble() > 0.2
+            });
+        }
+
+        return list;
+    }
+
     #endregion
 }
