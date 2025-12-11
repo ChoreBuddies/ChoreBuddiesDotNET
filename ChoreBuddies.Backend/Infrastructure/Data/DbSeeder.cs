@@ -29,6 +29,8 @@ public class DbSeeder
                 SeedDefaultChores(context);
                 SeedChores(context);
                 SeedScheduledChores(context);
+                SeedRewards(context);
+                SeedRedeemedRewards(context);
             })
             .UseAsyncSeeding(async (context, _, ct) =>
             {
@@ -37,10 +39,12 @@ public class DbSeeder
                 await SeedDefaultChoresAsync(context, ct);
                 await SeedChoresAsync(context, ct);
                 await SeedScheduledChoresAsync(context, ct);
+                await SeedRewardsAsync(context, ct);
+                await SeedRedeemedRewardsAsync(context, ct);
             });
     }
 
-    #region private
+    #region SeedMethods
     private void SeedUsers(DbContext context)
     {
         var userManager = context.GetService<UserManager<AppUser>>();
@@ -174,6 +178,53 @@ public class DbSeeder
         await context.SaveChangesAsync(ct);
     }
 
+    private void SeedRewards(DbContext context)
+    {
+        if (context.Set<Reward>().Any()) return;
+        var households = context.Set<Household>().Include(h => h.Users).OrderBy(h => h.Id).ToList();
+        if (households.Count < 3) return;
+
+        var rewards = createRewardScenarios(households);
+        context.Set<Reward>().AddRange(rewards);
+        context.SaveChanges();
+    }
+
+    private async Task SeedRewardsAsync(DbContext context, CancellationToken ct)
+    {
+        if (await context.Set<Reward>().AnyAsync(ct)) return;
+        var households = await context.Set<Household>().Include(h => h.Users).OrderBy(h => h.Id).ToListAsync(ct);
+        if (households.Count < 3) return;
+
+        var rewards = createRewardScenarios(households);
+        await context.Set<Reward>().AddRangeAsync(rewards, ct);
+        await context.SaveChangesAsync(ct);
+    }
+
+    private void SeedRedeemedRewards(DbContext context)
+    {
+        if (context.Set<RedeemedReward>().Any()) return;
+        var households = context.Set<Household>().Include(h => h.Users).OrderBy(h => h.Id).ToList();
+        if (households.Count < 3) return;
+
+        var redeemed = createRedeemedRewardScenarios(households);
+        context.Set<RedeemedReward>().AddRange(redeemed);
+        context.SaveChanges();
+    }
+
+    private async Task SeedRedeemedRewardsAsync(DbContext context, CancellationToken ct)
+    {
+        if (await context.Set<RedeemedReward>().AnyAsync(ct)) return;
+        var households = await context.Set<Household>().Include(h => h.Users).OrderBy(h => h.Id).ToListAsync(ct);
+        if (households.Count < 3) return;
+
+        var redeemed = createRedeemedRewardScenarios(households);
+        await context.Set<RedeemedReward>().AddRangeAsync(redeemed, ct);
+        await context.SaveChangesAsync(ct);
+    }
+
+    #endregion
+
+    #region ScenarioMethods
     private List<Household> createHouseholdScenarios(List<AppUser> dbUsers)
     {
         var households = new List<Household>();
@@ -439,5 +490,97 @@ public class DbSeeder
 
         return list;
     }
+
+    private List<Reward> createRewardScenarios(List<Household> households)
+    {
+        var list = new List<Reward>();
+
+        // households[0]
+        // PUSTY
+
+        // households[1]
+        var hFamily = households[1];
+        list.Add(new Reward("Kieszonkowe", "20 PLN gotówką", hFamily.Id, 200, 10));
+        list.Add(new Reward("Gra na konsoli", "1 godzina grania", hFamily.Id, 50, 999));
+        list.Add(new Reward("Wyjście do kina", "Wspólne lub z kolegami", hFamily.Id, 500, 2));
+
+        // households[2]
+        var hStudent = households[2];
+        list.Add(new Reward("Zwolnienie ze sprzątania", "Jednorazowy 'pass'", hStudent.Id, 300, 5));
+        list.Add(new Reward("Pizza", "Składka na pizzę z funduszu domowego", hStudent.Id, 150, 10));
+        list.Add(new Reward("Pierwszeństwo pod prysznicem", "Rano bez kolejki", hStudent.Id, 50, 20));
+        list.Add(new Reward("Wybór filmu", "Ty wybierasz co oglądamy w piątek", hStudent.Id, 100, 4));
+
+        return list;
+    }
+
+    private List<RedeemedReward> createRedeemedRewardScenarios(List<Household> households)
+    {
+        var list = new List<RedeemedReward>();
+
+        // households[0]
+
+        // households[1]
+        var hFamily = households[1];
+        var usersFamily = hFamily.Users.ToList();
+        if (usersFamily.Count > 1)
+        {
+            var kidId = usersFamily[1].Id;
+            list.Add(new RedeemedReward
+            {
+                Name = "Gra na konsoli",
+                Description = "1 godzina grania",
+                UserId = kidId,
+                HouseholdId = hFamily.Id,
+                RedeemedDate = DateTime.UtcNow.AddMinutes(-30),
+                PointsSpent = 50,
+                IsFulfilled = false
+            });
+
+            list.Add(new RedeemedReward
+            {
+                Name = "Kieszonkowe",
+                Description = "20 PLN gotówką",
+                UserId = kidId,
+                HouseholdId = hFamily.Id,
+                RedeemedDate = DateTime.UtcNow.AddDays(-7),
+                PointsSpent = 200,
+                IsFulfilled = true
+            });
+        }
+
+        // households[2]
+        var hStudent = households[2];
+        var usersStudent = hStudent.Users.ToList();
+        var random = new Random();
+
+        var rewardTemplates = new[]
+        {
+            new { Name = "Zwolnienie ze sprzątania", Cost = 300 },
+            new { Name = "Pizza", Cost = 150 },
+            new { Name = "Pierwszeństwo pod prysznicem", Cost = 50 },
+            new { Name = "Wybór filmu", Cost = 100 }
+        };
+
+        for (int i = 0; i < 30; i++)
+        {
+            var user = usersStudent[random.Next(usersStudent.Count)];
+            var template = rewardTemplates[random.Next(rewardTemplates.Length)];
+
+            list.Add(new RedeemedReward
+            {
+                Name = template.Name,
+                Description = "Nagroda odebrana w przeszłości",
+                UserId = user.Id,
+                HouseholdId = hStudent.Id,
+                RedeemedDate = DateTime.UtcNow.AddDays(-i).AddHours(random.Next(-5, 5)),
+                PointsSpent = template.Cost,
+                IsFulfilled = random.NextDouble() > 0.2
+            });
+        }
+
+        return list;
+    }
+
     #endregion
 }
