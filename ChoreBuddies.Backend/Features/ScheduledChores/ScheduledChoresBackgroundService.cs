@@ -33,12 +33,20 @@ public class ScheduledChoresBackgroundService : BackgroundService
                 if (!ShouldGenerate(pc))
                     continue;
 
+                DateTime dueDate = pc.Frequency switch
+                {
+                    Frequency.Daily => DateTime.Now,
+                    Frequency.Weekly => DateTime.Now.AddDays(7),
+                    Frequency.Monthly => DateTime.Now.AddMonths(1),
+                    _ => DateTime.Now
+                };
+
                 var chore = new Chore(
                     name: pc.Name,
                     description: pc.Description,
                     userId: null,
                     householdId: pc.HouseholdId,
-                    dueDate: DateTime.Now,
+                    dueDate: dueDate,
                     status: Shared.Chores.Status.Assigned,
                     room: pc.Room,
                     rewardPointsCount: pc.RewardPointsCount
