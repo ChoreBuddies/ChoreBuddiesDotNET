@@ -2,11 +2,11 @@ using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Chat;
 using ChoreBuddies.Backend.Features.Chores;
 using ChoreBuddies.Backend.Features.DefaultChores;
-using ChoreBuddies.Backend.Features.DefaultRewards;
 using ChoreBuddies.Backend.Features.Households;
 using ChoreBuddies.Backend.Features.Notifications;
 using ChoreBuddies.Backend.Features.Notifications.Email;
 using ChoreBuddies.Backend.Features.Notifications.NotificationPreferences;
+using ChoreBuddies.Backend.Features.PredefinedRewards;
 using ChoreBuddies.Backend.Features.RedeemedRewards;
 using ChoreBuddies.Backend.Features.RedeemRewards;
 using ChoreBuddies.Backend.Features.Rewards;
@@ -143,8 +143,8 @@ public class Program
         builder.Services.AddScoped<IChoresRepository, ChoresRepository>();
         builder.Services.AddScoped<IChoresService, ChoresService>();
         // Default Chores
-        builder.Services.AddScoped<IDefaultChoreRepository, DefaultChoreRepository>();
-        builder.Services.AddScoped<IDefaultChoreService, DefaultChoreService>();
+        builder.Services.AddScoped<IPredefinedChoreRepository, PredefinedChoreRepository>();
+        builder.Services.AddScoped<IPredefinedChoreService, PredefinedChoreService>();
         // ScheduledChore
         builder.Services.AddScoped<IScheduledChoresRepository, ScheduledChoresRepository>();
         builder.Services.AddScoped<IScheduledChoresService, ScheduledChoresService>();
@@ -161,8 +161,8 @@ public class Program
         builder.Services.AddScoped<IRewardsRepository, RewardsRepository>();
         builder.Services.AddScoped<IRewardsService, RewardsService>();
         // Default Rewards
-        builder.Services.AddScoped<IDefaultRewardsRepository, DefaultRewardsRepository>();
-        builder.Services.AddScoped<IDefaultRewardsService, DefaultRewardsService>();
+        builder.Services.AddScoped<IPredefinedRewardsRepository, PredefinedRewardsRepository>();
+        builder.Services.AddScoped<IPredefinedRewardsService, PredefinedRewardsService>();
         // Redeemed Rewards
         builder.Services.AddScoped<IRedeemedRewardsRepository, RedeemedRewardsRepository>();
         builder.Services.AddScoped<IRedeemedRewardsService, RedeemedRewardsService>();

@@ -4,16 +4,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChoreBuddies.Backend.Features.DefaultChores;
 
-public interface IDefaultChoreRepository
+public interface IPredefinedChoreRepository
 {
-    public Task<ICollection<PredefinedChore>> GetAllDefaultChoreAsync();
+    public Task<ICollection<PredefinedChore>> GetAllPredefinedChoreAsync();
 }
 
-public class DefaultChoreRepository(ChoreBuddiesDbContext dbContext) : IDefaultChoreRepository
+public class PredefinedChoreRepository(ChoreBuddiesDbContext dbContext) : IPredefinedChoreRepository
 {
     private ChoreBuddiesDbContext _dbContext = dbContext;
 
-    public async Task<ICollection<PredefinedChore>> GetAllDefaultChoreAsync()
+    public async Task<ICollection<PredefinedChore>> GetAllPredefinedChoreAsync()
     {
         return await _dbContext.PredefinedChores.ToListAsync();
     }
