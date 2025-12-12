@@ -18,7 +18,7 @@ public class MappingProfile : Profile
         CreateMap<Chore, ChoreDto>().ReverseMap();
         CreateMap<Chore, ChoreOverviewDto>().ReverseMap();
         CreateMap<Chore, CreateChoreDto>().ReverseMap();
-        CreateMap<DefaultChore, DefaultChoreDto>().ReverseMap();
+        CreateMap<PredefinedChore, DefaultChoreDto>().ReverseMap();
         CreateMap<Household, HouseholdDto>().ReverseMap();
         CreateMap<Household, CreateHouseholdDto>().ReverseMap();
         CreateMap<AppUser, AppUserDto>().ReverseMap();

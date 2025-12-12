@@ -6,15 +6,15 @@ namespace ChoreBuddies.Backend.Features.DefaultChores;
 
 public interface IDefaultChoreRepository
 {
-    public Task<ICollection<DefaultChore>> GetAllDefaultChoreAsync();
+    public Task<ICollection<PredefinedChore>> GetAllDefaultChoreAsync();
 }
 
 public class DefaultChoreRepository(ChoreBuddiesDbContext dbContext) : IDefaultChoreRepository
 {
     private ChoreBuddiesDbContext _dbContext = dbContext;
 
-    public async Task<ICollection<DefaultChore>> GetAllDefaultChoreAsync()
+    public async Task<ICollection<PredefinedChore>> GetAllDefaultChoreAsync()
     {
-        return await _dbContext.DefaultChores.ToListAsync();
+        return await _dbContext.PredefinedChores.ToListAsync();
     }
 }

@@ -11,14 +11,14 @@ namespace ChoreBuddies.Backend.Infrastructure.Data;
 public class DbSeeder
 {
     private readonly List<AppUser> _users;
-    private readonly List<DefaultChore> _defaultChores;
+    private readonly List<PredefinedChore> _defaultChores;
     private readonly List<DefaultReward> _defaultRewards;
 
     public DbSeeder()
     {
         _users = generateUsers(15);
-        _defaultChores = readDefaultChoresFromCsv("Infrastructure/Data/Csv/default_chores.csv");
-        _defaultRewards = readDefaultRewardsFromCsv("Infrastructure/Data/Csv/default_rewards.csv");
+        _defaultChores = readDefaultChoresFromCsv("Infrastructure/Data/Csv/predefined_chores.csv");
+        _defaultRewards = readDefaultRewardsFromCsv("Infrastructure/Data/Csv/predefined_rewards.csv");
     }
 
     public void SetUpDbSeeding(DbContextOptionsBuilder optionsBuilder)
@@ -109,18 +109,18 @@ public class DbSeeder
 
     private void SeedDefaultChores(DbContext context)
     {
-        if (!context.Set<DefaultChore>().Any())
+        if (!context.Set<PredefinedChore>().Any())
         {
-            context.Set<DefaultChore>().AddRange(_defaultChores);
+            context.Set<PredefinedChore>().AddRange(_defaultChores);
             context.SaveChanges();
         }
     }
 
     private async Task SeedDefaultChoresAsync(DbContext context, CancellationToken ct)
     {
-        if (!await context.Set<DefaultChore>().AnyAsync(ct))
+        if (!await context.Set<PredefinedChore>().AnyAsync(ct))
         {
-            await context.Set<DefaultChore>().AddRangeAsync(_defaultChores, ct);
+            await context.Set<PredefinedChore>().AddRangeAsync(_defaultChores, ct);
             await context.SaveChangesAsync(ct);
         }
     }
@@ -348,14 +348,14 @@ public class DbSeeder
         return prefs;
     }
 
-    private List<DefaultChore> readDefaultChoresFromCsv(string filePath)
+    private List<PredefinedChore> readDefaultChoresFromCsv(string filePath)
     {
         var absolutePath = Path.Combine(AppContext.BaseDirectory, filePath);
 
         if (!File.Exists(absolutePath))
         {
             Console.Error.WriteLine($"Error: CSV file not found at path: {absolutePath}");
-            return new List<DefaultChore>();
+            return new List<PredefinedChore>();
         }
 
         try
@@ -366,22 +366,29 @@ public class DbSeeder
                        .Select(line =>
                        {
                            string[] columns = line.Split(';');
-                           return new DefaultChore()
+
+                           // Parsing Frequency enum with error handling
+                           if (!Enum.TryParse<Frequency>(columns[6].Trim(), true, out var frequency))
+                           {
+                               frequency = Frequency.Daily;
+                           }
+
+                           return new PredefinedChore()
                            {
                                Name = columns[1].Trim(),
                                Description = columns[2].Trim(),
-                               Frequency = columns[3].Trim(),
-                               MinAge = int.Parse(columns[4]),
+                               Room = columns[3].Trim(),
+                               RewardPointsCount = int.Parse(columns[4]),
                                ChoreDuration = int.Parse(columns[5]),
-                               RewardPointsCount = int.Parse(columns[6]),
-                               Room = columns[7].Trim()
+                               Frequency = frequency,
+                               EveryX = int.Parse(columns[7])
                            };
                        }).ToList();
         }
         catch (Exception ex)
         {
             Console.Error.WriteLine($"Error parsing CSV file '{absolutePath}': {ex.Message}");
-            return new List<DefaultChore>();
+            return new List<PredefinedChore>();
         }
     }
 
