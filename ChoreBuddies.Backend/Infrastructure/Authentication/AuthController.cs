@@ -1,5 +1,4 @@
-﻿using Docker.DotNet.Models;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Shared.Authentication;
@@ -29,7 +28,7 @@ public class AuthController(IAuthService authService, ITokenService tokenService
     }
 
     [HttpPost("refresh")]
-    public async Task<ActionResult<AuthResponse>> Refresh([FromBody] RefreshTokenRequestDto request)
+    public async Task<ActionResult<AuthResponseDto>> Refresh([FromBody] RefreshTokenRequestDto request)
     {
         try
         {

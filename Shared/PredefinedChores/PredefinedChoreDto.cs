@@ -1,6 +1,6 @@
 ﻿namespace Shared.DefalutChores;
 
-public record DefaultChoreDto(
+public record PredefinedChoreDto(
     string name,
     string description,
     DateTime dueDate,

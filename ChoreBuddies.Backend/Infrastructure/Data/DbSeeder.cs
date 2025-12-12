@@ -11,12 +11,14 @@ namespace ChoreBuddies.Backend.Infrastructure.Data;
 public class DbSeeder
 {
     private readonly List<AppUser> _users;
-    private readonly List<DefaultChore> _defaultChores;
+    private readonly List<PredefinedChore> _defaultChores;
+    private readonly List<PredefinedReward> _defaultRewards;
 
     public DbSeeder()
     {
         _users = generateUsers(15);
-        _defaultChores = readDefaultChoresFromCsv("Infrastructure/Data/Csv/default_chores.csv");
+        _defaultChores = readDefaultChoresFromCsv("Infrastructure/Data/Csv/predefined_chores.csv");
+        _defaultRewards = readDefaultRewardsFromCsv("Infrastructure/Data/Csv/predefined_rewards.csv");
     }
 
     public void SetUpDbSeeding(DbContextOptionsBuilder optionsBuilder)
@@ -31,6 +33,7 @@ public class DbSeeder
                 SeedScheduledChores(context);
                 SeedRewards(context);
                 SeedRedeemedRewards(context);
+                SeedDefaultRewards(context);
             })
             .UseAsyncSeeding(async (context, _, ct) =>
             {
@@ -41,6 +44,7 @@ public class DbSeeder
                 await SeedScheduledChoresAsync(context, ct);
                 await SeedRewardsAsync(context, ct);
                 await SeedRedeemedRewardsAsync(context, ct);
+                await SeedDefaultRewardsAsync(context, ct);
             });
     }
 
@@ -105,18 +109,18 @@ public class DbSeeder
 
     private void SeedDefaultChores(DbContext context)
     {
-        if (!context.Set<DefaultChore>().Any())
+        if (!context.Set<PredefinedChore>().Any())
         {
-            context.Set<DefaultChore>().AddRange(_defaultChores);
+            context.Set<PredefinedChore>().AddRange(_defaultChores);
             context.SaveChanges();
         }
     }
 
     private async Task SeedDefaultChoresAsync(DbContext context, CancellationToken ct)
     {
-        if (!await context.Set<DefaultChore>().AnyAsync(ct))
+        if (!await context.Set<PredefinedChore>().AnyAsync(ct))
         {
-            await context.Set<DefaultChore>().AddRangeAsync(_defaultChores, ct);
+            await context.Set<PredefinedChore>().AddRangeAsync(_defaultChores, ct);
             await context.SaveChangesAsync(ct);
         }
     }
@@ -220,6 +224,24 @@ public class DbSeeder
         var redeemed = createRedeemedRewardScenarios(households);
         await context.Set<RedeemedReward>().AddRangeAsync(redeemed, ct);
         await context.SaveChangesAsync(ct);
+    }
+
+    private void SeedDefaultRewards(DbContext context)
+    {
+        if (!context.Set<PredefinedReward>().Any())
+        {
+            context.Set<PredefinedReward>().AddRange(_defaultRewards);
+            context.SaveChanges();
+        }
+    }
+
+    private async Task SeedDefaultRewardsAsync(DbContext context, CancellationToken ct)
+    {
+        if (!await context.Set<PredefinedReward>().AnyAsync(ct))
+        {
+            await context.Set<PredefinedReward>().AddRangeAsync(_defaultRewards, ct);
+            await context.SaveChangesAsync(ct);
+        }
     }
 
     #endregion
@@ -326,14 +348,14 @@ public class DbSeeder
         return prefs;
     }
 
-    private List<DefaultChore> readDefaultChoresFromCsv(string filePath)
+    private List<PredefinedChore> readDefaultChoresFromCsv(string filePath)
     {
         var absolutePath = Path.Combine(AppContext.BaseDirectory, filePath);
 
         if (!File.Exists(absolutePath))
         {
             Console.Error.WriteLine($"Error: CSV file not found at path: {absolutePath}");
-            return new List<DefaultChore>();
+            return new List<PredefinedChore>();
         }
 
         try
@@ -344,22 +366,63 @@ public class DbSeeder
                        .Select(line =>
                        {
                            string[] columns = line.Split(';');
-                           return new DefaultChore
+
+                           // Parsing Frequency enum with error handling
+                           if (!Enum.TryParse<Frequency>(columns[6].Trim(), true, out var frequency))
+                           {
+                               frequency = Frequency.Daily;
+                           }
+
+                           return new PredefinedChore()
                            {
                                Name = columns[1].Trim(),
                                Description = columns[2].Trim(),
-                               Frequency = columns[3].Trim(),
-                               MinAge = int.Parse(columns[4]),
+                               Room = columns[3].Trim(),
+                               RewardPointsCount = int.Parse(columns[4]),
                                ChoreDuration = int.Parse(columns[5]),
-                               RewardPointsCount = int.Parse(columns[6]),
-                               Room = columns[7].Trim()
+                               Frequency = frequency,
+                               EveryX = int.Parse(columns[7])
                            };
                        }).ToList();
         }
         catch (Exception ex)
         {
             Console.Error.WriteLine($"Error parsing CSV file '{absolutePath}': {ex.Message}");
-            return new List<DefaultChore>();
+            return new List<PredefinedChore>();
+        }
+    }
+
+    private List<PredefinedReward> readDefaultRewardsFromCsv(string filePath)
+    {
+        var absolutePath = Path.Combine(AppContext.BaseDirectory, filePath);
+
+        if (!File.Exists(absolutePath))
+        {
+            Console.Error.WriteLine($"Error: CSV file not found at path: {absolutePath}");
+            return new List<PredefinedReward>();
+        }
+
+        try
+        {
+            return File.ReadAllLines(absolutePath)
+                       .Skip(1)
+                       .Where(line => !string.IsNullOrWhiteSpace(line))
+                       .Select(line =>
+                       {
+                           string[] columns = line.Split(';');
+                           return new PredefinedReward
+                           {
+                               Name = columns[1].Trim(),
+                               Description = columns[2].Trim(),
+                               Cost = int.Parse(columns[3]),
+                               QuantityAvailable = int.Parse(columns[4])
+                           };
+                       }).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error parsing CSV file '{absolutePath}': {ex.Message}");
+            return new List<PredefinedReward>();
         }
     }
 

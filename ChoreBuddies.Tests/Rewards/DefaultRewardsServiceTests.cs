@@ -1,23 +1,23 @@
 ﻿using AutoMapper;
 using ChoreBuddies.Backend.Domain;
-using ChoreBuddies.Backend.Features.DefaultRewards;
+using ChoreBuddies.Backend.Features.PredefinedRewards;
 using FluentAssertions;
 using Moq;
-using Shared.Rewards;
+using Shared.PredefinedRewards;
 using Xunit;
 
 namespace ChoreBuddies.Tests.Rewards;
 
 public class DefaultRewardsServiceTests
 {
-    private readonly Mock<IDefaultRewardsRepository> _defaultRewardRepo = new();
+    private readonly Mock<IPredefinedRewardsRepository> _defaultRewardRepo = new();
     private readonly Mock<IMapper> _mapper = new();
 
-    private readonly DefaultRewardsService _service;
+    private readonly PredefinedRewardsService _service;
 
     public DefaultRewardsServiceTests()
     {
-        _service = new DefaultRewardsService(
+        _service = new PredefinedRewardsService(
             _defaultRewardRepo.Object,
             _mapper.Object
         );
@@ -30,25 +30,25 @@ public class DefaultRewardsServiceTests
     [Fact]
     public async Task GetAllDefaultRewardsAsync_ShouldReturnMappedList()
     {
-        var defaultRewards = new List<DefaultReward>
+        var defaultRewards = new List<PredefinedReward>
         {
             new() { Id = 1, Name = "Reward 1", Description="Test" }
         };
 
-        var defaultRewardDtos = new List<DefaultRewardDto>
+        var defaultRewardDtos = new List<PredefinedRewardDto>
         {
             new(1, "Reward 1", "test", 50)
         };
 
         _defaultRewardRepo
-            .Setup(r => r.GetAllDefaultRewardsAsync())
+            .Setup(r => r.GetAllPredefinedRewardsAsync())
             .ReturnsAsync(defaultRewards);
 
         _mapper
-            .Setup(m => m.Map<List<DefaultRewardDto>>(defaultRewards))
+            .Setup(m => m.Map<List<PredefinedRewardDto>>(defaultRewards))
             .Returns(defaultRewardDtos);
 
-        var result = await _service.GetAllDefaultRewardsAsync();
+        var result = await _service.GetAllPredefinedRewardsAsync();
 
         result.Should().NotBeNull();
         result.Should().HaveCount(1);
@@ -58,18 +58,18 @@ public class DefaultRewardsServiceTests
     [Fact]
     public async Task GetAllDefaultRewardsAsync_ShouldReturnEmptyList_WhenRepositoryReturnsEmpty()
     {
-        var emptyList = new List<DefaultReward>();
-        var emptyDtoList = new List<DefaultRewardDto>();
+        var emptyList = new List<PredefinedReward>();
+        var emptyDtoList = new List<PredefinedRewardDto>();
 
         _defaultRewardRepo
-            .Setup(r => r.GetAllDefaultRewardsAsync())
+            .Setup(r => r.GetAllPredefinedRewardsAsync())
             .ReturnsAsync(emptyList);
 
         _mapper
-            .Setup(m => m.Map<List<DefaultRewardDto>>(emptyList))
+            .Setup(m => m.Map<List<PredefinedRewardDto>>(emptyList))
             .Returns(emptyDtoList);
 
-        var result = await _service.GetAllDefaultRewardsAsync();
+        var result = await _service.GetAllPredefinedRewardsAsync();
 
         result.Should().NotBeNull();
         result.Should().BeEmpty();

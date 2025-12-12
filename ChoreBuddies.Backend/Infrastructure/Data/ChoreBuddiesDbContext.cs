@@ -9,11 +9,11 @@ public class ChoreBuddiesDbContext : IdentityDbContext<AppUser, IdentityRole<int
 {
     public DbSet<AppUser> ApplicationUsers { get; set; }
     public DbSet<Chore> Chores { get; set; }
-    public DbSet<DefaultChore> DefaultChores { get; set; }
+    public DbSet<PredefinedChore> PredefinedChores { get; set; }
     public DbSet<Household> Households { get; set; }
     public DbSet<ChatMessage> ChatMessages { get; set; }
     public DbSet<NotificationPreference> NotificationPreference { get; set; }
-    public DbSet<DefaultReward> DefaultRewards { get; set; }
+    public DbSet<PredefinedReward> PredefinedRewards { get; set; }
     public DbSet<RedeemedReward> RedeemedRewards { get; set; }
     public DbSet<Reward> Rewards { get; set; }
     public DbSet<ScheduledChore> ScheduledChores { get; set; }
