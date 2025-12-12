@@ -30,7 +30,7 @@ public class DefaultRewardsServiceTests
     [Fact]
     public async Task GetAllDefaultRewardsAsync_ShouldReturnMappedList()
     {
-        var defaultRewards = new List<DefaultReward>
+        var defaultRewards = new List<PredefinedReward>
         {
             new() { Id = 1, Name = "Reward 1", Description="Test" }
         };
@@ -58,7 +58,7 @@ public class DefaultRewardsServiceTests
     [Fact]
     public async Task GetAllDefaultRewardsAsync_ShouldReturnEmptyList_WhenRepositoryReturnsEmpty()
     {
-        var emptyList = new List<DefaultReward>();
+        var emptyList = new List<PredefinedReward>();
         var emptyDtoList = new List<DefaultRewardDto>();
 
         _defaultRewardRepo

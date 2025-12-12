@@ -25,7 +25,7 @@ public class MappingProfile : Profile
         CreateMap<NotificationPreference, NotificationPreferenceDto>().ReverseMap();
         CreateMap<Reward, RewardDto>().ReverseMap();
         CreateMap<Reward, CreateRewardDto>().ReverseMap();
-        CreateMap<DefaultReward, DefaultRewardDto>().ReverseMap();
+        CreateMap<PredefinedReward, DefaultRewardDto>().ReverseMap();
         CreateMap<RedeemedReward, RedeemedRewardDto>().ReverseMap();
         CreateMap<ScheduledChore, CreateScheduledChoreDto>().ReverseMap();
         CreateMap<ScheduledChore, ScheduledChoreDto>().ReverseMap();

@@ -12,7 +12,7 @@ public class DbSeeder
 {
     private readonly List<AppUser> _users;
     private readonly List<PredefinedChore> _defaultChores;
-    private readonly List<DefaultReward> _defaultRewards;
+    private readonly List<PredefinedReward> _defaultRewards;
 
     public DbSeeder()
     {
@@ -228,18 +228,18 @@ public class DbSeeder
 
     private void SeedDefaultRewards(DbContext context)
     {
-        if (!context.Set<DefaultReward>().Any())
+        if (!context.Set<PredefinedReward>().Any())
         {
-            context.Set<DefaultReward>().AddRange(_defaultRewards);
+            context.Set<PredefinedReward>().AddRange(_defaultRewards);
             context.SaveChanges();
         }
     }
 
     private async Task SeedDefaultRewardsAsync(DbContext context, CancellationToken ct)
     {
-        if (!await context.Set<DefaultReward>().AnyAsync(ct))
+        if (!await context.Set<PredefinedReward>().AnyAsync(ct))
         {
-            await context.Set<DefaultReward>().AddRangeAsync(_defaultRewards, ct);
+            await context.Set<PredefinedReward>().AddRangeAsync(_defaultRewards, ct);
             await context.SaveChangesAsync(ct);
         }
     }
@@ -392,14 +392,14 @@ public class DbSeeder
         }
     }
 
-    private List<DefaultReward> readDefaultRewardsFromCsv(string filePath)
+    private List<PredefinedReward> readDefaultRewardsFromCsv(string filePath)
     {
         var absolutePath = Path.Combine(AppContext.BaseDirectory, filePath);
 
         if (!File.Exists(absolutePath))
         {
             Console.Error.WriteLine($"Error: CSV file not found at path: {absolutePath}");
-            return new List<DefaultReward>();
+            return new List<PredefinedReward>();
         }
 
         try
@@ -410,7 +410,7 @@ public class DbSeeder
                        .Select(line =>
                        {
                            string[] columns = line.Split(';');
-                           return new DefaultReward
+                           return new PredefinedReward
                            {
                                Name = columns[1].Trim(),
                                Description = columns[2].Trim(),
@@ -422,7 +422,7 @@ public class DbSeeder
         catch (Exception ex)
         {
             Console.Error.WriteLine($"Error parsing CSV file '{absolutePath}': {ex.Message}");
-            return new List<DefaultReward>();
+            return new List<PredefinedReward>();
         }
     }
 

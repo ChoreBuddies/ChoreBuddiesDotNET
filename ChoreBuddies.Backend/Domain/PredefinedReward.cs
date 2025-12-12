@@ -1,13 +1,13 @@
 ﻿namespace ChoreBuddies.Backend.Domain;
 
-public class DefaultReward(
+public class PredefinedReward(
     string name,
     string description,
     int cost,
     int quantityAvailable
     )
 {
-    public DefaultReward() : this("", "", 0, 0)
+    public PredefinedReward() : this("", "", 0, 0)
     {
     }
 
