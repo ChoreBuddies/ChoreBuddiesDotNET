@@ -1,7 +1,23 @@
 ﻿namespace ChoreBuddies.Backend.Domain;
 
-// TODO add [StringLength(50, MinimumLength = 1)]
 public class DefaultChore
+//    (
+//    string name,
+//    string description,
+//    DateTime? dueDate,
+//    string room,
+//    int rewardPointsCount)
+//{
+//    public DefaultChore() : this("", "", null,  "", -1) { }
+
+//    public int Id { get; set; } = 0;
+//    public string Name { get; set; } = name;
+//    public string Description { get; set; } = description;
+//    public DateTime? DueDate { get; set; } = dueDate;
+//    public string Room { get; set; } = room;
+//    public int RewardPointsCount { get; set; } = rewardPointsCount;
+//}
+
 {
     public int Id { get; set; }
     public required string Name { get; set; }

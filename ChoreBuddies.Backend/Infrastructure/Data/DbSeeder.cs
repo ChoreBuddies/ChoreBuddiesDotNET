@@ -12,11 +12,13 @@ public class DbSeeder
 {
     private readonly List<AppUser> _users;
     private readonly List<DefaultChore> _defaultChores;
+    private readonly List<DefaultReward> _defaultRewards;
 
     public DbSeeder()
     {
         _users = generateUsers(15);
         _defaultChores = readDefaultChoresFromCsv("Infrastructure/Data/Csv/default_chores.csv");
+        _defaultRewards = readDefaultRewardsFromCsv("Infrastructure/Data/Csv/default_rewards.csv");
     }
 
     public void SetUpDbSeeding(DbContextOptionsBuilder optionsBuilder)
@@ -31,6 +33,7 @@ public class DbSeeder
                 SeedScheduledChores(context);
                 SeedRewards(context);
                 SeedRedeemedRewards(context);
+                SeedDefaultRewards(context);
             })
             .UseAsyncSeeding(async (context, _, ct) =>
             {
@@ -41,6 +44,7 @@ public class DbSeeder
                 await SeedScheduledChoresAsync(context, ct);
                 await SeedRewardsAsync(context, ct);
                 await SeedRedeemedRewardsAsync(context, ct);
+                await SeedDefaultRewardsAsync(context, ct);
             });
     }
 
@@ -222,6 +226,24 @@ public class DbSeeder
         await context.SaveChangesAsync(ct);
     }
 
+    private void SeedDefaultRewards(DbContext context)
+    {
+        if (!context.Set<DefaultReward>().Any())
+        {
+            context.Set<DefaultReward>().AddRange(_defaultRewards);
+            context.SaveChanges();
+        }
+    }
+
+    private async Task SeedDefaultRewardsAsync(DbContext context, CancellationToken ct)
+    {
+        if (!await context.Set<DefaultReward>().AnyAsync(ct))
+        {
+            await context.Set<DefaultReward>().AddRangeAsync(_defaultRewards, ct);
+            await context.SaveChangesAsync(ct);
+        }
+    }
+
     #endregion
 
     #region ScenarioMethods
@@ -344,7 +366,7 @@ public class DbSeeder
                        .Select(line =>
                        {
                            string[] columns = line.Split(';');
-                           return new DefaultChore
+                           return new DefaultChore()
                            {
                                Name = columns[1].Trim(),
                                Description = columns[2].Trim(),
@@ -360,6 +382,40 @@ public class DbSeeder
         {
             Console.Error.WriteLine($"Error parsing CSV file '{absolutePath}': {ex.Message}");
             return new List<DefaultChore>();
+        }
+    }
+
+    private List<DefaultReward> readDefaultRewardsFromCsv(string filePath)
+    {
+        var absolutePath = Path.Combine(AppContext.BaseDirectory, filePath);
+
+        if (!File.Exists(absolutePath))
+        {
+            Console.Error.WriteLine($"Error: CSV file not found at path: {absolutePath}");
+            return new List<DefaultReward>();
+        }
+
+        try
+        {
+            return File.ReadAllLines(absolutePath)
+                       .Skip(1)
+                       .Where(line => !string.IsNullOrWhiteSpace(line))
+                       .Select(line =>
+                       {
+                           string[] columns = line.Split(';');
+                           return new DefaultReward
+                           {
+                               Name = columns[1].Trim(),
+                               Description = columns[2].Trim(),
+                               Cost = int.Parse(columns[3]),
+                               QuantityAvailable = int.Parse(columns[4])
+                           };
+                       }).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error parsing CSV file '{absolutePath}': {ex.Message}");
+            return new List<DefaultReward>();
         }
     }
 
