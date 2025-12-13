@@ -1,0 +1,258 @@
+﻿@page "/chores/new"
+@page "/chore-details/{ChoreId:int}"
+@using Shared.Chores
+@using Shared.Users
+@using System.ComponentModel.DataAnnotations
+
+@inject IAuthService authService
+@inject NavigationManager navigationManager
+@inject ISnackbar Snackbar
+@inject Chores.IChoresService choresService
+@inject User.IUserService userService
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+
+    <MudText Typo="Typo.h5" Style="font-weight: 800;" Class="mb-6">
+        @GetPageTitle()
+    </MudText>
+
+    <MudForm @ref="form" @bind-IsValid="@success">
+        @if (model is not null)
+        {
+            <MudStack Spacing="3">
+
+
+                <div>
+                    <MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Chore Name</MudText>
+                    <MudTextField @bind-Value="model.ChoreName"
+                    Variant="Variant.Outlined"
+                    Margin="Margin.Dense"
+                    ReadOnly="@IsReadOnly"
+                    Class="@GetInputClass()"
+                    Required="true"
+                    RequiredError="Chore name is required!" />
+                </div>
+
+                <div>
+                    <MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Description</MudText>
+                    <MudTextField @bind-Value="model.Description"
+                    Variant="Variant.Outlined"
+                    Lines="6"
+                    Margin="Margin.Dense"
+                    ReadOnly="@IsReadOnly"
+                    Class="@GetInputClass()" />
+                </div>
+
+                <div>
+                    <MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Assigned To</MudText>
+                    <MudSelect @bind-Value="model.AssignedTo"
+                    Variant="Variant.Outlined"
+                    Margin="Margin.Dense"
+                    AnchorOrigin="Origin.BottomCenter"
+                    ReadOnly="@IsReadOnly"
+                    Class="@GetInputClass()"
+                    Placeholder="Select a user">
+
+                        @foreach (var user in AvailableUsers)
+                        {
+                            <MudSelectItem Value="@user.Id">@user.UserName</MudSelectItem>
+                        }
+
+                    </MudSelect>
+                </div>
+
+                <div>
+                    <MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Due Date</MudText>
+                    <MudDatePicker @bind-Date="model.DueDate"
+                    Variant="Variant.Outlined"
+                    Margin="Margin.Dense"
+                    ReadOnly="@IsReadOnly"
+                    Class="@GetInputClass()"
+                    Placeholder="" />
+                </div>
+
+                <div>
+                    <MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Reward Points</MudText>
+                    <MudNumericField @bind-Value="model.RewardPoints"
+                    Variant="Variant.Outlined"
+                    Margin="Margin.Dense"
+                    HideSpinButtons="true"
+                    ReadOnly="@IsReadOnly"
+                    Class="@GetInputClass()" />
+                </div>
+
+            </MudStack>
+
+
+
+            <div class="d-flex justify-end gap-3 mt-8">
+
+                @if (CurrentMode == PageMode.View)
+                {
+                    <MudButton Variant="Variant.Filled"
+                    DisableElevation="true"
+                    Style="background-color: #f0f0f0; color: #333; text-transform: none; font-weight: 600; padding: 6px 24px;"
+                    OnClick="SwitchToEditMode">
+                        Edit
+                    </MudButton>
+
+                    <MudButton Variant="Variant.Filled"
+                    Color="Color.Primary"
+                    DisableElevation="true"
+                    Style="background-color: #597ef7; text-transform: none; font-weight: 600; padding: 6px 24px;"
+                    OnClick="MarkAsCompleted">
+                        Mark as Completed
+                    </MudButton>
+                }
+                else
+                {
+                    @if (CurrentMode == PageMode.Edit)
+                    {
+                        <MudButton Variant="Variant.Text"
+                        OnClick="CancelEdit"
+                        Style="text-transform: none; color: #666;">
+                            Cancel
+                        </MudButton>
+                    }
+
+                    <MudButton Variant="Variant.Filled"
+                    Color="Color.Primary"
+                    DisableElevation="true"
+                    Style="background-color: #597ef7; text-transform: none; font-weight: 600; padding: 6px 40px;"
+                    OnClick="SaveChore">
+                        Save
+                    </MudButton>
+                }
+            </div>
+
+        }
+    </MudForm>
+</MudContainer>
+
+@code {
+    [Parameter] public int? ChoreId { get; set; }
+
+    private MudForm? form;
+    private bool success;
+    private ChoreDto? chore { get; set; }
+    private ChoreModel? model { get; set; }
+    private List<AppUserDto> AvailableUsers = new();
+
+    private enum PageMode { Create, View, Edit }
+    private PageMode CurrentMode = PageMode.Create;
+
+    private bool IsReadOnly => CurrentMode == PageMode.View;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (ChoreId.HasValue)
+        {
+            CurrentMode = PageMode.View;
+            chore = await choresService.GetChoreByIdAsync((int)ChoreId);
+            if(chore is null) return; 
+            LoadModel();
+        }
+        else
+        {
+            CurrentMode = PageMode.Create;
+            LoadModel();
+        }
+    }
+
+    private string GetPageTitle() => CurrentMode switch
+    {
+        PageMode.Create => "Add New Chore",
+        PageMode.Edit => "Edit Chore",
+        _ => "Chore Details"
+    };
+
+    private string GetInputClass() => IsReadOnly
+        ? "rounded-lg bg-gray-100"
+        : "rounded-lg bg-white";
+
+    private async Task SwitchToEditMode()
+    {
+        CurrentMode = PageMode.Edit;
+        var result = await userService.GetCurrentUserAsync();
+        if(result is not null)
+            AvailableUsers.Add(result);
+    }
+
+    private void CancelEdit()
+    {
+        CurrentMode = PageMode.View;
+        LoadModel();
+        AvailableUsers.Clear();
+    }
+
+    private async Task SaveChore()
+    {
+        if (form is null) return;
+        await form.Validate();
+        if (success && model is not null)
+        {
+            ChoreDto? result = null;
+            if(CurrentMode == PageMode.Edit)
+            {
+                result = await choresService.UpdateChoreAsync(
+                new ChoreDto(chore!.Id, model.ChoreName!, model?.Description ?? String.Empty, model?.AssignedTo?.Id,
+                    chore.HouseholdId, model?.DueDate, chore.Status, chore.Room, model?.RewardPoints ?? 0));
+            }
+            else if(CurrentMode == PageMode.Create)
+            {
+                result = await choresService.CreateChoreAsync(
+                    new CreateChoreDto(model.ChoreName!, model?.Description ?? String.Empty, model?.AssignedTo?.Id,
+                    chore?.HouseholdId ?? 0, model?.DueDate, 
+                    model?.AssignedTo?.Id > 0 ? Status.Assigned : Status.Unassigned, 
+                    "", model?.RewardPoints ?? 0));
+            }
+            if (result is not null)
+            {
+                CurrentMode = PageMode.View;
+                Snackbar.Add("Saved successfully", Severity.Success);
+                navigationManager.NavigateTo($"/chore-details/{result.Id}");
+                //chore = result;
+                //AvailableUsers.Clear();
+                //LoadModel();
+            }
+            else
+            {
+                Snackbar.Add("Unknown error occured", Severity.Error);
+            }
+        }
+    }
+
+    private void MarkAsCompleted()
+    {
+        // TODO: Logika zakończenia zadania
+        Console.WriteLine("Task completed!");
+        // Np. nawigacja powrotna do listy
+    }
+
+    private void LoadModel()
+    {
+        if (chore is null) 
+        {
+            model = new ChoreModel();
+            return;
+        }
+        var result = userService.GetCurrentUserAsync().GetAwaiter().GetResult();
+        if (result is null) return;
+        model = new ChoreModel()
+            {
+                ChoreName = chore.Name,
+                Description = chore.Description,
+                AssignedTo = result,
+                DueDate = chore.DueDate,
+                RewardPoints = chore.RewardPointsCount
+            };
+    }
+    public class ChoreModel
+    {
+        public string? ChoreName { get; set; }
+        public string? Description { get; set; }
+        public AppUserDto? AssignedTo { get; set; }
+        public DateTime? DueDate { get; set; }
+        public int? RewardPoints { get; set; }
+    }
+}
