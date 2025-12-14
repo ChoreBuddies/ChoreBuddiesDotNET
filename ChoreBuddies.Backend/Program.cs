@@ -14,6 +14,8 @@ using ChoreBuddies.Backend.Features.ScheduledChores;
 using ChoreBuddies.Backend.Features.Users;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using ChoreBuddies.Backend.Infrastructure.Data;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Maileroo.DotNet.SDK;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -199,6 +201,14 @@ public class Program
         builder.Services.AddScoped<INotificationChannel>(sp => sp.GetRequiredService<EmailService>());
         builder.Services.AddScoped<INotificationService, NotificationService>();
         builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
+
+        if (FirebaseApp.DefaultInstance == null)
+        {
+            FirebaseApp.Create(new AppOptions()
+            {
+                Credential = GoogleCredential.FromFile("firebase-config.json")
+            });
+        }
 
         var app = builder.Build();
 
