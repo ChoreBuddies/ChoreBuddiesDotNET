@@ -16,5 +16,10 @@ public interface INotificationService
         string rewardName,
         string requester,
         CancellationToken cancellationToken = default);
+    Task<bool> SendNewMessageNotificationAsync(
+        AppUser recipient,
+        string sender,
+        string content,
+        CancellationToken cancellationToken = default);
 }
 

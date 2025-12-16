@@ -67,4 +67,26 @@ public class NotificationService : INotificationService
 
         return true;
     }
+
+    public async Task<bool> SendNewMessageNotificationAsync(AppUser recipient, string sender, string content, CancellationToken cancellationToken = default)
+    {
+        var requiredChannels = await _preferenceService.GetActiveChannelsAsync(recipient, NotificationEvent.NewMessage, cancellationToken);
+        var channelsToUse = GetChannelsToExecute(requiredChannels);
+
+        int successCount = 0;
+        foreach (var channel in channelsToUse)
+        {
+            try
+            {
+                await channel.SendNewMessageNotificationAsync(recipient, sender, content, cancellationToken);
+                successCount++;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        return true;
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Households;
+using ChoreBuddies.Backend.Features.Notifications;
 using ChoreBuddies.Backend.Features.Users;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using ChoreBuddies.Backend.Infrastructure.Data;
@@ -15,7 +16,8 @@ public class ChatHub(ChoreBuddiesDbContext context,
     ITokenService tokenService,
     IAppUserService userService,
     IHouseholdService householdService,
-    TimeProvider timeProvider) : Hub
+IServiceScopeFactory scopeFactory,
+TimeProvider timeProvider) : Hub
 {
     public async Task JoinHouseholdChat(int householdId)
     {
@@ -71,6 +73,50 @@ public class ChatHub(ChoreBuddiesDbContext context,
 
         // 5. Send to Caller (IsMine = true)
         await Clients.Caller.SendAsync(ChatConstants.ReceiveMessage, messageDto with { IsMine = true });
+
+        // 6. Send Notifications
+        var allMembers = await userService.GetUsersHouseholdMembers(user.Id);
+        var recipientIds = allMembers
+            .Where(m => m.Id != user.Id)
+            .Select(m => m.Id)
+            .ToList();
+
+        if (recipientIds.Any())
+        {
+            _ = SendPushNotificationsInBackground(recipientIds, user.UserName ?? "Domownik", messageContent);
+        }
+    }
+
+    private async Task SendPushNotificationsInBackground(List<int> recipientIds, string senderName, string messageContent)
+    {
+        await Task.Run(async () =>
+        {
+            using var scope = scopeFactory.CreateScope();
+
+            var scopedUserService = scope.ServiceProvider.GetRequiredService<IAppUserService>();
+            var scopedNotificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+
+            foreach (var recipientId in recipientIds)
+            {
+                try
+                {
+                    var recipient = await scopedUserService.GetUserByIdAsync(recipientId);
+
+                    if (recipient != null)
+                    {
+                        await scopedNotificationService.SendNewMessageNotificationAsync(
+                            recipient,
+                            senderName,
+                            messageContent
+                        );
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Notification Sending Error for user {recipientId}: {ex.Message}");
+                }
+            }
+        });
     }
 
     public async Task SendTyping(int householdId)

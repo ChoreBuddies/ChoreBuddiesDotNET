@@ -12,9 +12,7 @@ public class EmailServiceOptions
 
 public class EmailService : INotificationChannel, IEmailService
 {
-    public NotificationChannel ChannelType => NotificationChannel.Email;
-
-    NotificationChannel INotificationChannel.ChannelType => throw new NotImplementedException();
+    NotificationChannel INotificationChannel.ChannelType => NotificationChannel.Email;
 
     private readonly MailerooClient _client;
     private readonly string _defaultFrom;
@@ -114,6 +112,30 @@ public class EmailService : INotificationChannel, IEmailService
             recipient.UserName ?? recipient.FirstName ?? "Unknown",
             MailerooConstants.NewRewardRequestTemplate,
             MailSubjects.NewRewardRequest,
+            parameters,
+            cancellationToken);
+    }
+
+    public async Task<string> SendNewMessageNotificationAsync(AppUser recipient, string sender, string content, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(MailerooConstants.NewMessageTemplate))
+            throw new ArgumentNullException(nameof(MailerooConstants.NewMessageTemplate), "Maileroo Template ID is required.");
+
+        var parameters = new Dictionary<string, object>
+        {
+            { "recipientName", recipient.UserName ?? recipient.FirstName ?? "Unknown" },
+            { "sender", sender },
+            { "content", content }
+        };
+        if (recipient.Email is null)
+        {
+            throw new ArgumentNullException(nameof(recipient.Email));
+        }
+        return await SendTemplatedEmailAsync(
+            recipient.Email,
+            recipient.UserName ?? recipient.FirstName ?? "Unknown",
+            MailerooConstants.NewMessageTemplate,
+            MailSubjects.NewMessage,
             parameters,
             cancellationToken);
     }

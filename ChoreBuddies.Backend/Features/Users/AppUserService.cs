@@ -11,6 +11,8 @@ public interface IAppUserService
 
     public Task<bool> UpdateUserAsync(int userId, UpdateAppUserDto userDto);
     public Task<bool> UpdateFcmTokenAsync(int userId, UpdateFcmTokenDto updateFcmTokenDto);
+
+    public Task<ICollection<AppUser>> GetUsersHouseholdMembers(int userId);
 }
 
 public class AppUserService(IAppUserRepository userRepository) : IAppUserService
@@ -75,6 +77,14 @@ public class AppUserService(IAppUserRepository userRepository) : IAppUserService
         await _userRepository.SaveChangesAsync();
 
         return true;
+    }
+
+    public async Task<ICollection<AppUser>> GetUsersHouseholdMembers(int userId)
+    {
+        var user = await _userRepository.GetUserWithHouseholdByIdAsync(userId);
+        if (user == null) return [];
+
+        return user.Household.Users;
     }
 }
 

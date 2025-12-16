@@ -6,6 +6,7 @@ using ChoreBuddies.Backend.Features.Households;
 using ChoreBuddies.Backend.Features.Notifications;
 using ChoreBuddies.Backend.Features.Notifications.Email;
 using ChoreBuddies.Backend.Features.Notifications.NotificationPreferences;
+using ChoreBuddies.Backend.Features.Notifications.Push;
 using ChoreBuddies.Backend.Features.PredefinedRewards;
 using ChoreBuddies.Backend.Features.RedeemedRewards;
 using ChoreBuddies.Backend.Features.RedeemRewards;
@@ -199,6 +200,7 @@ public class Program
         builder.Services.AddScoped<IEmailService>(sp => sp.GetRequiredService<EmailService>());
         builder.Services.AddScoped<INotificationPreferenceService, NotificationPreferenceService>();
         builder.Services.AddScoped<INotificationChannel>(sp => sp.GetRequiredService<EmailService>());
+        builder.Services.AddScoped<INotificationChannel, FirebaseNotificationsService>();
         builder.Services.AddScoped<INotificationService, NotificationService>();
         builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 

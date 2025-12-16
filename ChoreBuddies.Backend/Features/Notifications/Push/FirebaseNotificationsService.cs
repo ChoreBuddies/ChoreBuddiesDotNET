@@ -6,7 +6,7 @@ namespace ChoreBuddies.Backend.Features.Notifications.Push;
 
 public class FirebaseNotificationsService : INotificationChannel
 {
-    public NotificationChannel ChannelType => throw new NotImplementedException();
+    public NotificationChannel ChannelType => NotificationChannel.Push;
     async Task<string> SendNotificationAsync(string userToken, string title, string body, Dictionary<string, string>? data = null)
     {
         var message = new Message()
@@ -64,6 +64,21 @@ public class FirebaseNotificationsService : INotificationChannel
             };
 
             return await SendNotificationAsync(recipient.FcmToken, title, body, data);
+        }
+        return "No token present";
+    }
+
+    public async Task<string> SendNewMessageNotificationAsync(AppUser recipient, string sender, string content, CancellationToken cancellationToken = default)
+    {
+        if (recipient.FcmToken is not null)
+        {
+            var title = $"New message from {sender}";
+
+            var data = new Dictionary<string, string>
+            {
+            };
+
+            return await SendNotificationAsync(recipient.FcmToken, title, content, data);
         }
         return "No token present";
     }
