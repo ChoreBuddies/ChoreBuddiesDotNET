@@ -12,6 +12,7 @@ using ChoreBuddies.Backend.Features.RedeemRewards;
 using ChoreBuddies.Backend.Features.Rewards;
 using ChoreBuddies.Backend.Features.ScheduledChores;
 using ChoreBuddies.Backend.Features.Users;
+using ChoreBuddies.Backend.Infrastructure;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using ChoreBuddies.Backend.Infrastructure.Data;
 using Maileroo.DotNet.SDK;
@@ -200,7 +201,13 @@ public class Program
         builder.Services.AddScoped<INotificationService, NotificationService>();
         builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
+        // Global Exception Handler & Problem Details
+        builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+        builder.Services.AddProblemDetails();
+
         var app = builder.Build();
+
+        app.UseExceptionHandler();
 
         // Apply migrations to database
         await using (var serviceScope = app.Services.CreateAsyncScope())
