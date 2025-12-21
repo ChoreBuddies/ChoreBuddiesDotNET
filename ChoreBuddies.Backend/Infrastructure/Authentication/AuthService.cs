@@ -93,7 +93,7 @@ public class AuthService(UserManager<AppUser> userManager, ITokenService tokenSe
 
         if (user == null)
         {
-            throw new InvalidOperationException("Invalid user identifier.");
+            throw new ArgumentException("Invalid user identifier.");
         }
 
         return await _tokenService.CreateAccessTokenAsync(user);
