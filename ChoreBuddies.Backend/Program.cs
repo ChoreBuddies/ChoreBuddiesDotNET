@@ -204,11 +204,11 @@ public class Program
         builder.Services.AddScoped<INotificationService, NotificationService>();
         builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
-        if (FirebaseApp.DefaultInstance == null)
+        if (FirebaseApp.DefaultInstance == null && Path.Exists(ProgramConstants.FireBaseCredentialsPath))
         {
             FirebaseApp.Create(new AppOptions()
             {
-                Credential = GoogleCredential.FromFile("firebase-config.json")
+                Credential = GoogleCredential.FromFile(ProgramConstants.FireBaseCredentialsPath)
             });
         }
 
