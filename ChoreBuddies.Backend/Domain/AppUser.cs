@@ -13,6 +13,7 @@ public class AppUser : IdentityUser<int>
     public int? HouseholdId { get; set; }
 
     public int PointsCount { get; set; } = 0;
+    public string? FcmToken { get; set; }
 
     // Refresh Token Properties
     public string? RefreshToken { get; set; }
