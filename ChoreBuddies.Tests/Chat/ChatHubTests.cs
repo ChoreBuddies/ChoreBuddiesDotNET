@@ -2,10 +2,9 @@
 using ChoreBuddies.Backend.Features.Households;
 using ChoreBuddies.Backend.Features.Users;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
-using ChoreBuddies.Backend.Infrastructure.Data;
 using ChoreBuddies.Tests.Infrastructure;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System.Security.Claims;
 
@@ -17,6 +16,7 @@ public class ChatHubTests : BaseIntegrationTest
     private readonly Mock<IAppUserService> _userServiceMock;
     private readonly Mock<IHouseholdService> _householdServiceMock;
     private readonly Mock<TimeProvider> _timeProviderMock;
+    private readonly Mock<IServiceScopeFactory> _scopeFactoryMock;
 
     // Mocki SignalR
     private readonly Mock<IHubCallerClients> _clientsMock;
@@ -30,6 +30,7 @@ public class ChatHubTests : BaseIntegrationTest
         _userServiceMock = new Mock<IAppUserService>();
         _householdServiceMock = new Mock<IHouseholdService>();
         _timeProviderMock = new Mock<TimeProvider>();
+        _scopeFactoryMock = new Mock<IServiceScopeFactory>();
 
         _clientsMock = new Mock<IHubCallerClients>();
         _clientProxyMock = new Mock<IClientProxy>();
@@ -40,6 +41,7 @@ public class ChatHubTests : BaseIntegrationTest
             _tokenServiceMock.Object,
             _userServiceMock.Object,
             _householdServiceMock.Object,
+            _scopeFactoryMock.Object,
             _timeProviderMock.Object
         )
         {
