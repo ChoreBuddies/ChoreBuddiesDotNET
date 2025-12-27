@@ -150,12 +150,12 @@
             CurrentMode = PageMode.View;
             chore = await choresService.GetChoreByIdAsync((int)ChoreId);
             if(chore is null) return; 
-            LoadModel();
+            await LoadModel();
         }
         else
         {
             CurrentMode = PageMode.Create;
-            LoadModel();
+            await LoadModel();
         }
     }
 
@@ -173,15 +173,15 @@
     private async Task SwitchToEditMode()
     {
         CurrentMode = PageMode.Edit;
-        var result = await userService.GetCurrentUserAsync();
+        var result = await userService.GetCurrentUserAsync(); // TODO: Get all users from household
         if(result is not null)
             AvailableUsers.Add(result);
     }
 
-    private void CancelEdit()
+    private async Task CancelEdit()
     {
         CurrentMode = PageMode.View;
-        LoadModel();
+        await LoadModel();
         AvailableUsers.Clear();
     }
 
@@ -211,9 +211,6 @@
                 CurrentMode = PageMode.View;
                 Snackbar.Add("Saved successfully", Severity.Success);
                 navigationManager.NavigateTo($"/chore-details/{result.Id}");
-                //chore = result;
-                //AvailableUsers.Clear();
-                //LoadModel();
             }
             else
             {
@@ -229,15 +226,19 @@
         // Np. nawigacja powrotna do listy
     }
 
-    private void LoadModel()
+    private async Task LoadModel()
     {
+        var result = await userService.GetCurrentUserAsync();
+        if (result is null) return;
+        if(CurrentMode != PageMode.View)
+        {
+            AvailableUsers.Add(result); // TODO: Get all users from household
+        }
         if (chore is null) 
         {
             model = new ChoreModel();
             return;
         }
-        var result = userService.GetCurrentUserAsync().GetAwaiter().GetResult();
-        if (result is null) return;
         model = new ChoreModel()
             {
                 ChoreName = chore.Name,
