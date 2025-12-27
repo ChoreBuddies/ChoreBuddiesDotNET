@@ -1,10 +1,8 @@
 ﻿using AutoMapper;
 using ChoreBuddies.Backend.Domain;
-using ChoreBuddies.Backend.Features.DefaultChores;
-using ChoreBuddies.Backend.Features.Households;
+using ChoreBuddies.Backend.Features.Notifications;
 using ChoreBuddies.Backend.Features.Users;
 using Shared.Chores;
-using System.Security.Claims;
 
 namespace ChoreBuddies.Backend.Features.Chores;
 
@@ -13,11 +11,13 @@ public class ChoresService : IChoresService
     private readonly IChoresRepository _repository;
     private readonly IAppUserRepository _userRepository;
     private readonly IMapper _mapper;
-    public ChoresService(IMapper mapper, IChoresRepository choresRepository, IAppUserRepository appUserRepository)
+    private readonly INotificationService _notificationsService;
+    public ChoresService(IMapper mapper, IChoresRepository choresRepository, IAppUserRepository appUserRepository, INotificationService notificationService)
     {
         _mapper = mapper;
         _repository = choresRepository;
         _userRepository = appUserRepository;
+        _notificationsService = notificationService;
     }
 
     public async Task<ChoreDto?> GetChoreDetailsAsync(int choreId)
@@ -80,7 +80,12 @@ public class ChoresService : IChoresService
 
     public async Task AssignChoreAsync(ChoreDto choreDto, int userId)
     {
-        await _repository.AssignChoreAsync(userId, _mapper.Map<Chore>(choreDto));
+        var assignee = await _userRepository.GetUserByIdAsync(userId);
+        if (assignee != null)
+        {
+            await _repository.AssignChoreAsync(userId, _mapper.Map<Chore>(choreDto));
+            await _notificationsService.SendNewChoreNotificationAsync(assignee, choreDto.Name, choreDto.Description, choreDto.DueDate);
+        }
     }
 
     public async Task<ChoreDto> MarkChoreAsDone(int choreId, int userId)
