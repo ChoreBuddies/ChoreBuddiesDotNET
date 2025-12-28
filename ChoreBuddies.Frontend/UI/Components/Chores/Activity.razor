@@ -26,7 +26,7 @@
     {
         if(_choreDto?.Status == Status.Assigned)
         {
-            return $"Assigned to {_choreDto.Name}";
+            return $"Assigned to {_choreDto.Name}"; //TODO: change to get user by Id when available
         }
         return _choreDto?.Status.ToString();
     }

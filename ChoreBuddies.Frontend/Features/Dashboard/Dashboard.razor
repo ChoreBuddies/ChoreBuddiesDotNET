@@ -47,7 +47,7 @@
                     {
                         @foreach (var chore in _userChores)
                         {
-                            <UpcomingChore _choreDto="chore" />
+                            <UpcomingChore _choreDto="chore" OnChanged="ComponentStateChanged"/>
                         }
                     }
 
@@ -114,7 +114,7 @@
         List<ChoreDto> householdChores = new();
         if (householdChoresEnum is not null && householdChoresEnum.Count() != 0)
         {
-            _householdCompletionPercent = (int)Math.Round(Convert.ToDouble(householdChoresEnum.Where(c => c.Status == Status.Completed).Count()) / Convert.ToDouble(householdChoresEnum.Count()));
+            _householdCompletionPercent = (int)Math.Round(Convert.ToDouble(householdChoresEnum.Where(c => c.Status == Status.Completed).Count()) * 100 / Convert.ToDouble(householdChoresEnum.Count()));
             householdChores = householdChoresEnum.OrderBy(c => c.DueDate).ToList(); // change order by to last changed date
             if (householdChores.Count > 4)
             {
@@ -126,5 +126,9 @@
     private void GoToLogin()
     {
         _navigationManager.NavigateTo("/login");
+    }
+    private void ComponentStateChanged()
+    {
+        _navigationManager.NavigateTo(_navigationManager.Uri, true);
     }
 }

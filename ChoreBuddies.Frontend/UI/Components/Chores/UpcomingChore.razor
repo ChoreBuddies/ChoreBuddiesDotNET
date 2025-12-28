@@ -2,6 +2,7 @@
 @using Shared.Chores
 
 @inject IChoresService choresService
+@inject ISnackbar Snackbar
 @inject NavigationManager navigationManager
 
 <MudPaper Elevation="1" Class="pa-4 rounded-lg">
@@ -21,7 +22,7 @@
                 <MudButton Color="Color.Default" Variant="Variant.Outlined" Class="mt-1"> @*TODO: Add navigation to chores when they're done*@
                     Set a reminder
                 </MudButton>
-                <MudButton Color="Color.Default" Variant="Variant.Outlined" Class="mt-1"> @*TODO: Add navigation to chores when they're done*@
+                <MudButton Color="Color.Default" Variant="Variant.Outlined" Class="mt-1" OnClick="MarkChoreAsDone">
                     Mark as done
                 </MudButton>
             </MudStack>
@@ -31,8 +32,21 @@
 
 @code {
     [Parameter] public ChoreDto? _choreDto { get; set; }
+    [Parameter] public EventCallback OnChanged { get; set; }
     public string? GetTitle() => _choreDto?.Name;
     public string? GetDescription() => _choreDto?.Description;
     public string? GetDueText() => _choreDto?.DueDate.ToString();
     public void ViewChoreDetails() => navigationManager.NavigateTo($"/chore-details/{_choreDto!.Id}");
+    public async Task MarkChoreAsDone()
+    {
+        if (await choresService.MarkChoreAsDoneAsync(_choreDto!.Id) is not null)
+        {
+            Snackbar.Add("Marked successfully", Severity.Success);
+            await OnChanged.InvokeAsync();
+        }
+        else
+        {
+            Snackbar.Add("An enexpected error occured while marking chore as done", Severity.Error);
+        }
+    }
 }

@@ -48,14 +48,20 @@
                     <MudSelect @bind-Value="model.AssignedTo"
                     Variant="Variant.Outlined"
                     Margin="Margin.Dense"
-                    AnchorOrigin="Origin.BottomCenter"
                     ReadOnly="@IsReadOnly"
                     Class="@GetInputClass()"
-                    Placeholder="Select a user">
+                    Placeholder="None">
 
-                        @foreach (var user in AvailableUsers)
+                        @if(model.AssignedTo is not null)
                         {
-                            <MudSelectItem Value="@user.Id">@user.UserName</MudSelectItem>
+                            <MudSelectItem Value="@model.AssignedTo">@model.AssignedTo.UserName</MudSelectItem>
+                        }
+                        else
+                        {
+                            @foreach (var user in AvailableUsers)
+                            {
+                                <MudSelectItem Value="@user">@user.UserName</MudSelectItem>
+                            }
                         }
 
                     </MudSelect>
@@ -150,13 +156,12 @@
             CurrentMode = PageMode.View;
             chore = await choresService.GetChoreByIdAsync((int)ChoreId);
             if(chore is null) return; 
-            await LoadModel();
         }
         else
         {
             CurrentMode = PageMode.Create;
-            await LoadModel();
         }
+        await LoadModel();
     }
 
     private string GetPageTitle() => CurrentMode switch
@@ -219,11 +224,17 @@
         }
     }
 
-    private void MarkAsCompleted()
+    private async Task MarkAsCompleted()
     {
-        // TODO: Logika zakończenia zadania
-        Console.WriteLine("Task completed!");
-        // Np. nawigacja powrotna do listy
+        if(await choresService.MarkChoreAsDoneAsync(chore!.Id) is not null)
+        {
+            Snackbar.Add("Marked successfully", Severity.Success);
+            navigationManager.NavigateTo("/dashboard");
+        }
+        else
+        {
+            Snackbar.Add("An enexpected error occured while marking chore as done", Severity.Error);
+        }
     }
 
     private async Task LoadModel()
@@ -232,7 +243,7 @@
         if (result is null) return;
         if(CurrentMode != PageMode.View)
         {
-            AvailableUsers.Add(result); // TODO: Get all users from household
+            AvailableUsers.Add(result); // TODO: Get all users from household when available
         }
         if (chore is null) 
         {

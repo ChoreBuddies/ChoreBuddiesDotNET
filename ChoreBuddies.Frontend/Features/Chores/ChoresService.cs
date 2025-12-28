@@ -12,6 +12,7 @@ public interface IChoresService
     public Task<IEnumerable<ChoreDto>?> GetMyChoresAsync();
     public Task<IEnumerable<ChoreDto>?> GetMyHouseholdChoresAsync();
     public Task<ChoreDto?> UpdateChoreAsync(ChoreDto choreDto);
+    public Task<ChoreDto?> MarkChoreAsDoneAsync(int choreId);
 }
 public class ChoresService(HttpClientUtils httpUtils) : IChoresService
 {
@@ -72,6 +73,18 @@ public class ChoresService(HttpClientUtils httpUtils) : IChoresService
             return await httpUtils.PostAsync<ChoreDto, ChoreDto?>(
                 ChoresConstants.ApiEndpointUpdateChore,
                 choreDto,
+                authorized: true
+            );
+        });
+        return result;
+    }
+    public async Task<ChoreDto?> MarkChoreAsDoneAsync(int choreId)
+    {
+        var result = await httpUtils.TryRequestAsync(async () =>
+        {
+            return await httpUtils.PostAsync<ChoreDto?, ChoreDto>(
+                $"{ChoresConstants.ApiEndpointMarkChoreAsDone}{choreId}",
+                null,
                 authorized: true
             );
         });
