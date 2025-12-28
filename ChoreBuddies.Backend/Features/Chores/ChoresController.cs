@@ -36,6 +36,10 @@ public class ChoresController : ControllerBase
     [HttpPost("add")]
     public async Task<ActionResult<ChoreDto>> AddChore([FromBody] CreateChoreDto createChoreDto)
     {
+        if (createChoreDto.HouseholdId <= 0)
+        {
+            createChoreDto = createChoreDto with { HouseholdId = _tokenService.GetHouseholdIdFromToken(User) };
+        }
         var result = await _choresService.CreateChoreAsync(createChoreDto);
         return Ok(result);
     }
@@ -100,7 +104,7 @@ public class ChoresController : ControllerBase
             return Ok();
         }
     }
-    [HttpPut("markAsDone")]
+    [HttpPost("markAsDone")]
     public async Task<ActionResult<ChoreDto>> MarkChoreAsDone([FromQuery] int choreId)
     {
         var userId = _tokenService.GetUserIdFromToken(User);
