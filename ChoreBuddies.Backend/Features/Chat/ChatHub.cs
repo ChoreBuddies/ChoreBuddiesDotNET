@@ -75,7 +75,7 @@ TimeProvider timeProvider) : Hub
         await Clients.Caller.SendAsync(ChatConstants.ReceiveMessage, messageDto with { IsMine = true });
 
         // 6. Send Notifications
-        var allMembers = await userService.GetUsersHouseholdMembers(user.Id);
+        var allMembers = await userService.GetUsersHouseholdMembersAsync(user.Id);
         var recipientIds = allMembers
             .Where(m => m.Id != user.Id)
             .Select(m => m.Id)
@@ -105,7 +105,7 @@ TimeProvider timeProvider) : Hub
                     if (recipient != null)
                     {
                         await scopedNotificationService.SendNewMessageNotificationAsync(
-                            recipient,
+                            recipient.Id,
                             senderName,
                             messageContent
                         );
