@@ -31,6 +31,10 @@ public class ChoresService : IChoresService
     {
         var newChore = _mapper.Map<Chore>(createChoreDto);
         var chore = await _repository.CreateChoreAsync(newChore);
+        if (chore?.UserId is not null)
+        {
+            await SendNewChoreAssignedNotification((int)chore.UserId, newChore);
+        }
         return _mapper.Map<ChoreDto>(chore);
     }
 
@@ -41,6 +45,10 @@ public class ChoresService : IChoresService
         {
             var newChore = _mapper.Map<Chore>(choreDto);
             var resultChore = await _repository.UpdateChoreAsync(newChore);
+            if (resultChore?.UserId is not null && chore.UserId != resultChore.UserId)
+            {
+                await SendNewChoreAssignedNotification((int)resultChore.UserId, newChore);
+            }
             return _mapper.Map<ChoreDto>(resultChore);
         }
         else
@@ -83,8 +91,9 @@ public class ChoresService : IChoresService
         var assignee = await _userRepository.GetUserByIdAsync(userId);
         if (assignee != null)
         {
-            await _repository.AssignChoreAsync(userId, _mapper.Map<Chore>(choreDto));
-            await _notificationsService.SendNewChoreNotificationAsync(assignee, choreDto.Name, choreDto.Description, choreDto.DueDate);
+            var newChore = _mapper.Map<Chore>(choreDto);
+            await _repository.AssignChoreAsync(userId, newChore);
+            await SendNewChoreAssignedNotification(userId, newChore);
         }
     }
 
@@ -99,5 +108,10 @@ public class ChoresService : IChoresService
         var user = await _userRepository.GetUserByIdAsync(userId) ?? throw new Exception("User not found");
         user.PointsCount += chore!.RewardPointsCount;
         return _mapper.Map<ChoreDto>(await _repository.UpdateChoreAsync(chore!));
+    }
+
+    private async Task SendNewChoreAssignedNotification(int userId, Chore chore)
+    {
+        await _notificationsService.SendNewChoreNotificationAsync(userId, chore.Name, chore.Description, chore.DueDate);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Notifications.NotificationPreferences;
+using ChoreBuddies.Backend.Features.Users;
 using Microsoft.EntityFrameworkCore;
 using Shared.Notifications;
 
@@ -9,13 +10,16 @@ public class NotificationService : INotificationService
 {
     private readonly IEnumerable<INotificationChannel> _channels;
     private readonly INotificationPreferenceService _preferenceService;
+    private readonly IAppUserService _appUserService;
 
     public NotificationService(
         IEnumerable<INotificationChannel> channels,
-        INotificationPreferenceService preferenceService)
+        INotificationPreferenceService preferenceService,
+        IAppUserService appUserService)
     {
         _channels = channels;
         _preferenceService = preferenceService;
+        _appUserService = appUserService;
     }
 
     private IEnumerable<INotificationChannel> GetChannelsToExecute(IEnumerable<NotificationChannel> requiredChannels)
@@ -23,8 +27,19 @@ public class NotificationService : INotificationService
         return _channels.Where(c => requiredChannels.Contains(c.ChannelType));
     }
 
-    public async Task<bool> SendNewChoreNotificationAsync(AppUser recipient, string choreName, string choreDescription, DateTime? dueDate, CancellationToken ct = default)
+    private async Task<AppUser> getRecipient(int recipientId)
     {
+        var recipient = await _appUserService.GetUserByIdAsync(recipientId);
+        if (recipient == null)
+        {
+            throw new ArgumentException("Invalid recipient");
+        }
+        return recipient!;
+    }
+
+    public async Task<bool> SendNewChoreNotificationAsync(int recipientId, string choreName, string choreDescription, DateTime? dueDate, CancellationToken ct = default)
+    {
+        var recipient = await getRecipient(recipientId);
         var requiredChannels = await _preferenceService.GetActiveChannelsAsync(recipient, NotificationEvent.NewChore, ct);
 
         var channelsToUse = GetChannelsToExecute(requiredChannels);
@@ -46,8 +61,10 @@ public class NotificationService : INotificationService
         return true;
     }
 
-    public async Task<bool> SendNewRewardRequestNotificationAsync(AppUser recipient, string rewardName, string requester, CancellationToken ct = default)
+    public async Task<bool> SendNewRewardRequestNotificationAsync(int recipientId, string rewardName, string requester, CancellationToken ct = default)
     {
+        var recipient = await getRecipient(recipientId);
+
         var requiredChannels = await _preferenceService.GetActiveChannelsAsync(recipient, NotificationEvent.RewardRequest, ct);
         var channelsToUse = GetChannelsToExecute(requiredChannels);
 
@@ -68,8 +85,10 @@ public class NotificationService : INotificationService
         return true;
     }
 
-    public async Task<bool> SendNewMessageNotificationAsync(AppUser recipient, string sender, string content, CancellationToken cancellationToken = default)
+    public async Task<bool> SendNewMessageNotificationAsync(int recipientId, string sender, string content, CancellationToken cancellationToken = default)
     {
+        var recipient = await getRecipient(recipientId);
+
         var requiredChannels = await _preferenceService.GetActiveChannelsAsync(recipient, NotificationEvent.NewMessage, cancellationToken);
         var channelsToUse = GetChannelsToExecute(requiredChannels);
 
