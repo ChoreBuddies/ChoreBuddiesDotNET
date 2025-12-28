@@ -80,4 +80,18 @@ public class AppUserController(IAppUserService userService, IMapper mapper) : Co
         return Ok(result);
     }
 
+    [HttpGet("household")]
+    public async Task<IActionResult> GetMyHouseholdMembers()
+    {
+        var user = await GetCurrentUser();
+        if (user == null)
+            return BadRequest();
+
+        var result = await _userService.GetUsersHouseholdMembers(user.Id);
+
+        var resultDto = result.Select(v => _mapper.Map<AppUserDto>(v));
+
+        return Ok(resultDto);
+    }
+
 }
