@@ -1,10 +1,8 @@
 ﻿using AutoMapper;
 using ChoreBuddies.Backend.Domain;
-using ChoreBuddies.Backend.Features.DefaultChores;
-using ChoreBuddies.Backend.Features.Households;
+using ChoreBuddies.Backend.Features.Notifications;
 using ChoreBuddies.Backend.Features.Users;
 using Shared.Chores;
-using System.Security.Claims;
 
 namespace ChoreBuddies.Backend.Features.Chores;
 
@@ -13,11 +11,13 @@ public class ChoresService : IChoresService
     private readonly IChoresRepository _repository;
     private readonly IAppUserRepository _userRepository;
     private readonly IMapper _mapper;
-    public ChoresService(IMapper mapper, IChoresRepository choresRepository, IAppUserRepository appUserRepository)
+    private readonly INotificationService _notificationsService;
+    public ChoresService(IMapper mapper, IChoresRepository choresRepository, IAppUserRepository appUserRepository, INotificationService notificationService)
     {
         _mapper = mapper;
         _repository = choresRepository;
         _userRepository = appUserRepository;
+        _notificationsService = notificationService;
     }
 
     public async Task<ChoreDto?> GetChoreDetailsAsync(int choreId)
@@ -31,6 +31,10 @@ public class ChoresService : IChoresService
     {
         var newChore = _mapper.Map<Chore>(createChoreDto);
         var chore = await _repository.CreateChoreAsync(newChore);
+        if (chore?.UserId is not null)
+        {
+            await SendNewChoreAssignedNotification((int)chore.UserId, newChore);
+        }
         return _mapper.Map<ChoreDto>(chore);
     }
 
@@ -41,6 +45,10 @@ public class ChoresService : IChoresService
         {
             var newChore = _mapper.Map<Chore>(choreDto);
             var resultChore = await _repository.UpdateChoreAsync(newChore);
+            if (resultChore?.UserId is not null && chore.UserId != resultChore.UserId)
+            {
+                await SendNewChoreAssignedNotification((int)resultChore.UserId, newChore);
+            }
             return _mapper.Map<ChoreDto>(resultChore);
         }
         else
@@ -80,7 +88,13 @@ public class ChoresService : IChoresService
 
     public async Task AssignChoreAsync(ChoreDto choreDto, int userId)
     {
-        await _repository.AssignChoreAsync(userId, _mapper.Map<Chore>(choreDto));
+        var assignee = await _userRepository.GetUserByIdAsync(userId);
+        if (assignee != null)
+        {
+            var newChore = _mapper.Map<Chore>(choreDto);
+            await _repository.AssignChoreAsync(userId, newChore);
+            await SendNewChoreAssignedNotification(userId, newChore);
+        }
     }
 
     public async Task<ChoreDto> MarkChoreAsDone(int choreId, int userId)
@@ -94,5 +108,10 @@ public class ChoresService : IChoresService
         var user = await _userRepository.GetUserByIdAsync(userId) ?? throw new Exception("User not found");
         user.PointsCount += chore!.RewardPointsCount;
         return _mapper.Map<ChoreDto>(await _repository.UpdateChoreAsync(chore!));
+    }
+
+    private async Task SendNewChoreAssignedNotification(int userId, Chore chore)
+    {
+        await _notificationsService.SendNewChoreNotificationAsync(userId, chore.Name, chore.Description, chore.DueDate);
     }
 }

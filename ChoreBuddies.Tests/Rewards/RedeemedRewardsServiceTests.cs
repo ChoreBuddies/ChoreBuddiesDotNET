@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ChoreBuddies.Backend.Domain;
+using ChoreBuddies.Backend.Features.Notifications;
 using ChoreBuddies.Backend.Features.RedeemedRewards;
 using ChoreBuddies.Backend.Features.RedeemRewards;
 using ChoreBuddies.Backend.Features.Rewards;
@@ -7,10 +8,6 @@ using ChoreBuddies.Backend.Features.Users;
 using FluentAssertions;
 using Moq;
 using Shared.Rewards;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace ChoreBuddies.Tests.Rewards;
 
@@ -19,6 +16,8 @@ public class RedeemedRewardsServiceTests
     private readonly Mock<IRedeemedRewardsRepository> _redeemedRepo = new();
     private readonly Mock<IRewardsRepository> _rewardRepo = new();
     private readonly Mock<IAppUserRepository> _userRepo = new();
+    private readonly Mock<IAppUserService> _userService = new();
+    private readonly Mock<INotificationService> _notificationService = new();
     private readonly Mock<IMapper> _mapper = new();
 
     private readonly RedeemedRewardsService _service;
@@ -29,6 +28,8 @@ public class RedeemedRewardsServiceTests
             _redeemedRepo.Object,
             _rewardRepo.Object,
             _userRepo.Object,
+            _userService.Object,
+            _notificationService.Object,
             _mapper.Object
         );
     }

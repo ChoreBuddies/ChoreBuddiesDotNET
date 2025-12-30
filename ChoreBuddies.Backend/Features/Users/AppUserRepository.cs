@@ -9,6 +9,7 @@ public interface IAppUserRepository
     public Task<AppUser?> GetUserByEmailAsync(string email);
 
     public Task<AppUser?> GetUserByIdAsync(int id);
+    public Task<AppUser?> GetUserWithHouseholdByIdAsync(int id);
 
     public Task UpdateUserAsync(AppUser appUser);
 
@@ -39,4 +40,9 @@ public class AppUserRepository(ChoreBuddiesDbContext dbContext) : IAppUserReposi
 
     public async Task SaveChangesAsync() => await _dbContext.SaveChangesAsync();
 
+    public async Task<AppUser?> GetUserWithHouseholdByIdAsync(int id)
+    {
+        return await _dbContext.ApplicationUsers.Include(u => u.Household.Users)
+            .FirstOrDefaultAsync(x => x.Id == id);
+    }
 }

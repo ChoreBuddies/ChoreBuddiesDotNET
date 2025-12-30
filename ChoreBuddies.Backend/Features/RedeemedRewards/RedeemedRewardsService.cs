@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ChoreBuddies.Backend.Domain;
+using ChoreBuddies.Backend.Features.Notifications;
 using ChoreBuddies.Backend.Features.RedeemRewards;
 using ChoreBuddies.Backend.Features.Rewards;
 using ChoreBuddies.Backend.Features.Users;
@@ -10,12 +11,16 @@ namespace ChoreBuddies.Backend.Features.RedeemedRewards;
 public class RedeemedRewardsService(IRedeemedRewardsRepository redeemedRewardsRepository,
     IRewardsRepository rewardsRepository,
     IAppUserRepository appUserRepository,
+    IAppUserService appUserService,
+    INotificationService notificationService,
     IMapper mapper) : IRedeemedRewardsService
 {
     private readonly IRedeemedRewardsRepository _redeemedRewardsRepository = redeemedRewardsRepository;
     private readonly IRewardsRepository _rewardRepository = rewardsRepository;
     private readonly IAppUserRepository _appUserRepository = appUserRepository;
     private readonly IMapper _mapper = mapper;
+    private readonly IAppUserService _appUserService = appUserService;
+    private readonly INotificationService _notificationService = notificationService;
 
     public async Task<ICollection<RedeemedRewardDto>> GetHouseholdsRedeemedRewardsAsync(int householdId)
     {
@@ -50,6 +55,16 @@ public class RedeemedRewardsService(IRedeemedRewardsRepository redeemedRewardsRe
             PointsSpent = reward.Cost,
             IsFulfilled = isFulfilled
         };
-        return _mapper.Map<RedeemedRewardDto>(await _redeemedRewardsRepository.RedeemRewardAsync(redeemedReward));
+        var result = await _redeemedRewardsRepository.RedeemRewardAsync(redeemedReward);
+
+        if (!isFulfilled)
+        {
+            var adults = await _appUserService.GetUsersHouseholdParentsAsync(userId);
+            foreach (var adult in adults)
+            {
+                await _notificationService.SendNewRewardRequestNotificationAsync(adult.Id, result?.Name ?? "REWARD", user?.UserName ?? "USER");
+            }
+        }
+        return _mapper.Map<RedeemedRewardDto>(result);
     }
 }

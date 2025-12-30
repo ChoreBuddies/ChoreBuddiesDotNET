@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
 using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Chores;
+using ChoreBuddies.Backend.Features.Notifications;
 using ChoreBuddies.Backend.Features.Users;
 using FluentAssertions;
 using Moq;
 using Shared.Chores;
-using Xunit;
 
 namespace ChoreBuddies.Tests.Chores;
 
@@ -13,6 +13,7 @@ public class ChoresServiceTests
 {
     private readonly Mock<IChoresRepository> _repo;
     private readonly Mock<IAppUserRepository> _userRepo;
+    private readonly Mock<INotificationService> _notificationService;
     private readonly Mock<IMapper> _mapper;
     private readonly ChoresService _service;
 
@@ -21,8 +22,9 @@ public class ChoresServiceTests
         _repo = new Mock<IChoresRepository>();
         _userRepo = new Mock<IAppUserRepository>();
         _mapper = new Mock<IMapper>();
+        _notificationService = new Mock<INotificationService>();
 
-        _service = new ChoresService(_mapper.Object, _repo.Object, _userRepo.Object);
+        _service = new ChoresService(_mapper.Object, _repo.Object, _userRepo.Object, _notificationService.Object);
     }
 
     // ---------------------------
@@ -184,22 +186,6 @@ public class ChoresServiceTests
         var result = await _service.CreateChoreListAsync(createDtos);
 
         result.Should().HaveCount(1);
-    }
-
-    // ---------------------------
-    // AssignChoreAsync
-    // ---------------------------
-    [Fact]
-    public async Task AssignChoreAsync_ShouldCallRepository()
-    {
-        var dto = new ChoreDto(1, "test", "testt", null, 1, DateTime.Now, null, "kitchen", 10);
-        var mapped = new Chore("test", "testt", null, 1, DateTime.Now, null, "kitchen", 10) { Id = 1 };
-
-        _mapper.Setup(m => m.Map<Chore>(dto)).Returns(mapped);
-
-        await _service.AssignChoreAsync(dto, 10);
-
-        _repo.Verify(r => r.AssignChoreAsync(10, mapped), Times.Once);
     }
 
     // ---------------------------

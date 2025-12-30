@@ -6,6 +6,7 @@ using ChoreBuddies.Backend.Features.Households;
 using ChoreBuddies.Backend.Features.Notifications;
 using ChoreBuddies.Backend.Features.Notifications.Email;
 using ChoreBuddies.Backend.Features.Notifications.NotificationPreferences;
+using ChoreBuddies.Backend.Features.Notifications.Push;
 using ChoreBuddies.Backend.Features.PredefinedRewards;
 using ChoreBuddies.Backend.Features.RedeemedRewards;
 using ChoreBuddies.Backend.Features.RedeemRewards;
@@ -15,6 +16,8 @@ using ChoreBuddies.Backend.Features.Users;
 using ChoreBuddies.Backend.Infrastructure;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using ChoreBuddies.Backend.Infrastructure.Data;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Maileroo.DotNet.SDK;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -198,8 +201,17 @@ public class Program
         builder.Services.AddScoped<IEmailService>(sp => sp.GetRequiredService<EmailService>());
         builder.Services.AddScoped<INotificationPreferenceService, NotificationPreferenceService>();
         builder.Services.AddScoped<INotificationChannel>(sp => sp.GetRequiredService<EmailService>());
+        builder.Services.AddScoped<INotificationChannel, FirebaseNotificationsService>();
         builder.Services.AddScoped<INotificationService, NotificationService>();
         builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
+
+        if (FirebaseApp.DefaultInstance == null && Path.Exists(ProgramConstants.FireBaseCredentialsPath))
+        {
+            FirebaseApp.Create(new AppOptions()
+            {
+                Credential = GoogleCredential.FromFile(ProgramConstants.FireBaseCredentialsPath)
+            });
+        }
 
         // Global Exception Handler & Problem Details
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
