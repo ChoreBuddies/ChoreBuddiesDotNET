@@ -86,13 +86,12 @@ public class ChoresService : IChoresService
         return _mapper.Map<List<ChoreDto>>(await _repository.CreateChoreListAsync(_mapper.Map<List<Chore>>(createChoreDtoList)));
     }
 
-    public async Task AssignChoreAsync(ChoreDto choreDto, int userId)
+    public async Task AssignChoreAsync(int choreId, int userId)
     {
         var assignee = await _appUserService.GetUserByIdAsync(userId);
         if (assignee != null)
         {
-            var newChore = _mapper.Map<Chore>(choreDto);
-            await _repository.AssignChoreAsync(userId, newChore);
+            var newChore = await _repository.UpdateChoreAsync(userId, new Chore());
             await SendNewChoreAssignedNotification(userId, newChore);
         }
     }
