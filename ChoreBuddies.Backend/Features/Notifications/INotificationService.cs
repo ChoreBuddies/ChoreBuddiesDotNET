@@ -19,5 +19,9 @@ public interface INotificationService
         string sender,
         string content,
         CancellationToken cancellationToken = default);
+    Task<bool> SendReminderAsync(
+    int recipientId,
+    string content,
+    CancellationToken cancellationToken = default);
 }
 
