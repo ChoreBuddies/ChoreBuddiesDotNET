@@ -14,6 +14,7 @@ public interface IAppUserService
 
     public Task<ICollection<AppUser>> GetUsersHouseholdMembersAsync(int userId);
     public Task<ICollection<AppUser>> GetUsersHouseholdParentsAsync(int userId);
+    public Task<bool> AddPointsToUser(int userId, int pointsCount);
 
 }
 

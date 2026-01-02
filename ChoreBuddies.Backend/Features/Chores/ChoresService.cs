@@ -9,14 +9,14 @@ namespace ChoreBuddies.Backend.Features.Chores;
 public class ChoresService : IChoresService
 {
     private readonly IChoresRepository _repository;
-    private readonly IAppUserRepository _userRepository;
     private readonly IMapper _mapper;
+    private readonly IAppUserService _appUserService;
     private readonly INotificationService _notificationsService;
-    public ChoresService(IMapper mapper, IChoresRepository choresRepository, IAppUserRepository appUserRepository, INotificationService notificationService)
+    public ChoresService(IMapper mapper, IChoresRepository choresRepository, IAppUserService appUserService, INotificationService notificationService)
     {
         _mapper = mapper;
         _repository = choresRepository;
-        _userRepository = appUserRepository;
+        _appUserService = appUserService;
         _notificationsService = notificationService;
     }
 
@@ -86,15 +86,11 @@ public class ChoresService : IChoresService
         return _mapper.Map<List<ChoreDto>>(await _repository.CreateChoreListAsync(_mapper.Map<List<Chore>>(createChoreDtoList)));
     }
 
-    public async Task AssignChoreAsync(ChoreDto choreDto, int userId)
+    public async Task AssignChoreAsync(int choreId, int userId)
     {
-        var assignee = await _userRepository.GetUserByIdAsync(userId);
-        if (assignee != null)
-        {
-            var newChore = _mapper.Map<Chore>(choreDto);
-            await _repository.AssignChoreAsync(userId, newChore);
-            await SendNewChoreAssignedNotification(userId, newChore);
-        }
+        var assignee = await _appUserService.GetUserByIdAsync(userId) ?? throw new Exception("User not found");
+        var newChore = await _repository.AssignChoreAsync(choreId, userId) ?? throw new Exception("Chore not found");
+        await SendNewChoreAssignedNotification(userId, newChore);
     }
 
     public async Task<ChoreDto> MarkChoreAsDone(int choreId, int userId)
@@ -105,8 +101,10 @@ public class ChoresService : IChoresService
         if (chore.UserId != userId)
             throw new Exception("Only user who has to do this chore can mark it as done");
         chore.Status = Status.Completed;
-        var user = await _userRepository.GetUserByIdAsync(userId) ?? throw new Exception("User not found");
-        user.PointsCount += chore!.RewardPointsCount;
+        if (!await _appUserService.AddPointsToUser(userId, chore!.RewardPointsCount))
+        {
+            throw new Exception("There was an error while adding points to the user.");
+        }
         return _mapper.Map<ChoreDto>(await _repository.UpdateChoreAsync(chore!));
     }
 
