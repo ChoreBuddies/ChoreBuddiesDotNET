@@ -88,12 +88,9 @@ public class ChoresService : IChoresService
 
     public async Task AssignChoreAsync(int choreId, int userId)
     {
-        var assignee = await _appUserService.GetUserByIdAsync(userId);
-        if (assignee != null)
-        {
-            var newChore = await _repository.UpdateChoreAsync(userId, new Chore());
-            await SendNewChoreAssignedNotification(userId, newChore);
-        }
+        var assignee = await _appUserService.GetUserByIdAsync(userId) ?? throw new Exception("User not found");
+        var newChore = await _repository.AssignChoreAsync(choreId, userId) ?? throw new Exception("Chore not found");
+        await SendNewChoreAssignedNotification(userId, newChore);
     }
 
     public async Task<ChoreDto> MarkChoreAsDone(int choreId, int userId)

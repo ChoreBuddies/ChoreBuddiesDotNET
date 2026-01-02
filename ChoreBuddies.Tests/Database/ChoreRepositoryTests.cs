@@ -185,7 +185,7 @@ public class ChoresRepositoryTests : BaseIntegrationTest
         await DbContext.SaveChangesAsync();
 
         // Act
-        await _repository.AssignChoreAsync(user.Id, chore);
+        await _repository.AssignChoreAsync(user.Id, chore.Id);
 
         // Assert
         var dbChore = await DbContext.Chores.FindAsync(chore.Id);

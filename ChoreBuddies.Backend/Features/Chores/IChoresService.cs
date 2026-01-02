@@ -16,6 +16,6 @@ public interface IChoresService
     public Task<IEnumerable<ChoreDto>> GetUsersChoreDetailsAsync(int userId);
     public Task<IEnumerable<ChoreDto>> GetMyHouseholdChoreDetailsAsync(int userId);
     public Task<IEnumerable<ChoreDto>> CreateChoreListAsync(IEnumerable<CreateChoreDto> createChoreDtoList);
-    public Task AssignChoreAsync(ChoreDto choreDto, int userId);
+    public Task AssignChoreAsync(int choreId, int userId);
     public Task<ChoreDto> MarkChoreAsDone(int choreId, int userId);
 }

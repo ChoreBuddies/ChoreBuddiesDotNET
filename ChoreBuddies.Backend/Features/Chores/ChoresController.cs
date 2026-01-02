@@ -86,11 +86,11 @@ public class ChoresController : ControllerBase
         return Ok(result);
     }
     [HttpPost("assign")]
-    public async Task<ActionResult> AssignChore([FromBody] ChoreDto choreDto, [FromQuery] int? userId)
+    public async Task<ActionResult> AssignChore([FromQuery] int choreId, [FromQuery] int? userId)
     {
         if (userId is not null)
         {
-            await _choresService.AssignChoreAsync(choreDto, (int)userId);
+            await _choresService.AssignChoreAsync(choreId, (int)userId);
             return Ok();
         }
         else
@@ -100,7 +100,7 @@ public class ChoresController : ControllerBase
             if (myUserId is null)
                 return Unauthorized();
 
-            await _choresService.AssignChoreAsync(choreDto, int.Parse(myUserId));
+            await _choresService.AssignChoreAsync(choreId, int.Parse(myUserId));
             return Ok();
         }
     }

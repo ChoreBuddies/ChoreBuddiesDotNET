@@ -22,7 +22,7 @@ public interface IChoresRepository
     public Task<IEnumerable<Chore>?> GetUsersChoresAsync(int userId);
     public Task<IEnumerable<Chore>?> GetHouseholdChoresAsync(int userId);
     public Task<IEnumerable<Chore>?> CreateChoreListAsync(IEnumerable<Chore> createChoreDtoList);
-    public Task AssignChoreAsync(int userId, Chore choreDto);
+    public Task<Chore?> AssignChoreAsync(int choreId, int userId);
 
 }
 
@@ -152,9 +152,12 @@ public class ChoresRepository(ChoreBuddiesDbContext dbContext) : IChoresReposito
         return chores;
     }
 
-    public async Task AssignChoreAsync(int userId, Chore chore)
+    public async Task<Chore?> AssignChoreAsync(int choreId, int userId)
     {
+        var chore = await GetChoreByIdAsync(choreId);
+        if (chore is null) return null;
         chore.UserId = userId;
         await _dbContext.SaveChangesAsync();
+        return chore;
     }
 }
