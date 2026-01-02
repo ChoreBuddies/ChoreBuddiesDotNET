@@ -185,12 +185,11 @@ public class ChoresRepositoryTests : BaseIntegrationTest
         await DbContext.SaveChangesAsync();
 
         // Act
-        await _repository.AssignChoreAsync(user.Id, chore.Id);
+        var result = await _repository.AssignChoreAsync(chore.Id, user.Id);
 
         // Assert
-        var dbChore = await DbContext.Chores.FindAsync(chore.Id);
-        dbChore.Should().NotBeNull();
-        dbChore!.UserId.Should().Be(user.Id);
+        result.Should().NotBeNull();
+        result!.UserId.Should().Be(user.Id);
     }
 
     // --- DELETE ---
