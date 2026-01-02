@@ -142,8 +142,8 @@ public class EmailService : INotificationChannel, IEmailService
 
     public async Task<string> SendReminderNotificationAsync(AppUser recipient, string choreName, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(MailerooConstants.NewMessageTemplate))
-            throw new ArgumentNullException(nameof(MailerooConstants.NewMessageTemplate), "Maileroo Template ID is required.");
+        if (string.IsNullOrWhiteSpace(MailerooConstants.ReminderTemplate))
+            throw new ArgumentNullException(nameof(MailerooConstants.ReminderTemplate), "Maileroo Template ID is required.");
 
         var parameters = new Dictionary<string, object>
         {
