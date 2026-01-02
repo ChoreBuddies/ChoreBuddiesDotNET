@@ -10,6 +10,7 @@ using ChoreBuddies.Backend.Features.Notifications.Push;
 using ChoreBuddies.Backend.Features.PredefinedRewards;
 using ChoreBuddies.Backend.Features.RedeemedRewards;
 using ChoreBuddies.Backend.Features.RedeemRewards;
+using ChoreBuddies.Backend.Features.Reminders;
 using ChoreBuddies.Backend.Features.Rewards;
 using ChoreBuddies.Backend.Features.ScheduledChores;
 using ChoreBuddies.Backend.Features.Users;
@@ -17,6 +18,8 @@ using ChoreBuddies.Backend.Infrastructure.Authentication;
 using ChoreBuddies.Backend.Infrastructure.Data;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
+using Hangfire;
+using Hangfire.SqlServer;
 using Maileroo.DotNet.SDK;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -34,6 +37,9 @@ public class Program
     public async static Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
         builder.AddServiceDefaults();
         builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
         builder.Services.AddSignalR();
@@ -54,8 +60,22 @@ public class Program
         // Database configuration
         builder.Services.AddDbContext<ChoreBuddiesDbContext>(opt =>
         {
-            opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+            opt.UseSqlServer(connectionString);
         });
+
+        // Hangfire
+        builder.Services.AddHangfire(configuration => configuration
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_170).UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings().UseSqlServerStorage(connectionString, new SqlServerStorageOptions
+    {
+        CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+        SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+        QueuePollInterval = TimeSpan.Zero,
+        UseRecommendedIsolationLevel = true,
+        DisableGlobalLocks = true
+    }));
+
+        builder.Services.AddHangfireServer();
 
         // Asp.net Identity
         builder.Services.AddIdentity<AppUser, IdentityRole<int>>(opt =>
@@ -202,6 +222,7 @@ public class Program
         builder.Services.AddScoped<INotificationChannel>(sp => sp.GetRequiredService<EmailService>());
         builder.Services.AddScoped<INotificationChannel, FirebaseNotificationsService>();
         builder.Services.AddScoped<INotificationService, NotificationService>();
+        builder.Services.AddScoped<IRemindersService, RemindersService>();
         builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
         if (FirebaseApp.DefaultInstance == null && Path.Exists(ProgramConstants.FireBaseCredentialsPath))
@@ -213,6 +234,10 @@ public class Program
         }
 
         var app = builder.Build();
+
+        // Hangfire
+
+        app.UseHangfireDashboard();
 
         // Apply migrations to database
         await using (var serviceScope = app.Services.CreateAsyncScope())

@@ -24,4 +24,8 @@ public interface INotificationChannel
     string sender,
     string content,
     CancellationToken cancellationToken = default);
+    Task<string> SendReminderNotificationAsync(
+AppUser recipient,
+string choreName,
+CancellationToken cancellationToken = default);
 }

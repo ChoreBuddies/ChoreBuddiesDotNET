@@ -139,4 +139,27 @@ public class EmailService : INotificationChannel, IEmailService
             parameters,
             cancellationToken);
     }
+
+    public async Task<string> SendReminderNotificationAsync(AppUser recipient, string choreName, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(MailerooConstants.ReminderTemplate))
+            throw new ArgumentNullException(nameof(MailerooConstants.ReminderTemplate), "Maileroo Template ID is required.");
+
+        var parameters = new Dictionary<string, object>
+        {
+            { "recipientName", recipient.UserName ?? recipient.FirstName ?? "Unknown" },
+            { "choreName", choreName }
+        };
+        if (recipient.Email is null)
+        {
+            throw new ArgumentNullException(nameof(recipient.Email));
+        }
+        return await SendTemplatedEmailAsync(
+            recipient.Email,
+            recipient.UserName ?? recipient.FirstName ?? "Unknown",
+            MailerooConstants.ReminderTemplate,
+            MailSubjects.Reminder,
+            parameters,
+            cancellationToken);
+    }
 }

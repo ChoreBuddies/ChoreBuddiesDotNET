@@ -108,4 +108,26 @@ public class NotificationService : INotificationService
 
         return true;
     }
+
+    public async Task<bool> SendReminderAsync(int recipientId, string choreName, CancellationToken cancellationToken = default)
+    {
+        var recipient = await getRecipient(recipientId);
+
+        var requiredChannels = await _preferenceService.GetActiveChannelsAsync(recipient, NotificationEvent.NewMessage, cancellationToken);
+        var channelsToUse = GetChannelsToExecute(requiredChannels);
+
+        foreach (var channel in channelsToUse)
+        {
+            try
+            {
+                await channel.SendReminderNotificationAsync(recipient, choreName, cancellationToken);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        return true;
+    }
 }
