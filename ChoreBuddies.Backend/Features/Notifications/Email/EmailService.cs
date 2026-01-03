@@ -1,5 +1,6 @@
 ﻿using ChoreBuddies.Backend.Domain;
 using Maileroo.DotNet.SDK;
+using Microsoft.Extensions.Options;
 using Shared.Notifications;
 
 namespace ChoreBuddies.Backend.Features.Notifications.Email;
@@ -18,23 +19,30 @@ public class EmailService : INotificationChannel, IEmailService
     private readonly string _defaultFrom;
     private readonly string _defaultFromName;
 
-    public EmailService(MailerooClient mailerooClient, string defaultFrom, string defaultFromName)
+    public EmailService(MailerooClient mailerooClient, IOptions<EmailServiceOptions> options)
     {
         _client = mailerooClient;
-        _defaultFrom = defaultFrom;
-        _defaultFromName = defaultFromName;
+        _defaultFrom = options.Value.From;
+        _defaultFromName = options.Value.FromName;
     }
-
-    public async Task<string> SendTemplatedEmailAsync(
-        string toEmail,
+    private static string GetRecipientName(AppUser user)
+    {
+        return user.UserName ?? user.FirstName ?? "Unknown";
+    }
+    private async Task<string> SendTemplatedEmailAsync(
+        AppUser recipient,
         string toName,
         string templateId,
         string subject,
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(templateId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(subject);
+        ArgumentException.ThrowIfNullOrWhiteSpace(recipient.Email);
+
         var from = new EmailAddress(_defaultFrom, _defaultFromName);
-        var to = new EmailAddress(toEmail, toName);
+        var to = new EmailAddress(recipient.Email, toName);
 
         var payload = new Dictionary<string, object?>
         {
@@ -51,40 +59,33 @@ public class EmailService : INotificationChannel, IEmailService
 
     public async Task<string> SendNewChoreNotificationAsync(AppUser recipient, string choreName, string choreDescription, DateTime? dueDate, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(MailerooConstants.NewChoreTemplate))
-            throw new ArgumentNullException(nameof(MailerooConstants.NewChoreTemplate), "Maileroo Template ID is required.");
+        var recipientName = GetRecipientName(recipient);
 
         var parameters = new Dictionary<string, object>
         {
             { "choreName", choreName },
             { "choreDescription", choreDescription},
             { "dueDate", dueDate?.ToString("f") ?? "No due date" },
-            { "recipientName", recipient.UserName ?? recipient.FirstName ?? "Unknown"}
+            { "recipientName", recipientName}
         };
-        if (recipient.Email is null)
-        {
-            throw new ArgumentNullException(nameof(recipient.Email));
-        }
+
         return await SendTemplatedEmailAsync(
-            recipient.Email,
-            recipient.UserName ?? recipient.FirstName ?? "Unknown",
+            recipient,
+            recipientName,
             MailerooConstants.NewChoreTemplate,
             MailSubjects.NewChore,
             parameters,
             cancellationToken);
     }
 
-    public async Task<string> SendRegisterConfirmationNotificationAsync(string recipientEmail, string recipientName, CancellationToken cancellationToken = default)
+    public async Task<string> SendRegisterConfirmationNotificationAsync(AppUser recipient, string recipientName, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(MailerooConstants.RegisterConfirmationTemplate))
-            throw new ArgumentNullException(nameof(MailerooConstants.RegisterConfirmationTemplate), "Maileroo Template ID is required.");
-
         var parameters = new Dictionary<string, object>
     {
         { "recipientName", recipientName }
     };
         return await SendTemplatedEmailAsync(
-            recipientEmail,
+            recipient,
             recipientName,
             MailerooConstants.RegisterConfirmationTemplate,
             MailSubjects.RegisterConfirmation,
@@ -94,22 +95,17 @@ public class EmailService : INotificationChannel, IEmailService
 
     public async Task<string> SendNewRewardRequestNotificationAsync(AppUser recipient, string rewardName, string requester, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(MailerooConstants.NewRewardRequestTemplate))
-            throw new ArgumentNullException(nameof(MailerooConstants.NewRewardRequestTemplate), "Maileroo Template ID is required.");
+        var recipientName = GetRecipientName(recipient);
 
         var parameters = new Dictionary<string, object>
         {
-            { "recipientName", recipient.UserName ?? recipient.FirstName ?? "Unknown" },
+            { "recipientName",recipientName},
             { "rewardName", rewardName },
             { "requester", requester }
         };
-        if (recipient.Email is null)
-        {
-            throw new ArgumentNullException(nameof(recipient.Email));
-        }
         return await SendTemplatedEmailAsync(
-            recipient.Email,
-            recipient.UserName ?? recipient.FirstName ?? "Unknown",
+            recipient,
+            recipientName,
             MailerooConstants.NewRewardRequestTemplate,
             MailSubjects.NewRewardRequest,
             parameters,
@@ -118,21 +114,16 @@ public class EmailService : INotificationChannel, IEmailService
 
     public async Task<string> SendNewMessageNotificationAsync(AppUser recipient, string sender, string content, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(MailerooConstants.NewMessageTemplate))
-            throw new ArgumentNullException(nameof(MailerooConstants.NewMessageTemplate), "Maileroo Template ID is required.");
+        var recipientName = GetRecipientName(recipient);
 
         var parameters = new Dictionary<string, object>
         {
-            { "recipientName", recipient.UserName ?? recipient.FirstName ?? "Unknown" },
+            { "recipientName", GetRecipientName(recipient)},
             { "sender", sender },
             { "content", content }
         };
-        if (recipient.Email is null)
-        {
-            throw new ArgumentNullException(nameof(recipient.Email));
-        }
         return await SendTemplatedEmailAsync(
-            recipient.Email,
+            recipient,
             recipient.UserName ?? recipient.FirstName ?? "Unknown",
             MailerooConstants.NewMessageTemplate,
             MailSubjects.NewMessage,
@@ -142,21 +133,16 @@ public class EmailService : INotificationChannel, IEmailService
 
     public async Task<string> SendReminderNotificationAsync(AppUser recipient, string choreName, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(MailerooConstants.ReminderTemplate))
-            throw new ArgumentNullException(nameof(MailerooConstants.ReminderTemplate), "Maileroo Template ID is required.");
+        var recipientName = GetRecipientName(recipient);
 
         var parameters = new Dictionary<string, object>
         {
-            { "recipientName", recipient.UserName ?? recipient.FirstName ?? "Unknown" },
+            { "recipientName",recipientName},
             { "choreName", choreName }
         };
-        if (recipient.Email is null)
-        {
-            throw new ArgumentNullException(nameof(recipient.Email));
-        }
         return await SendTemplatedEmailAsync(
-            recipient.Email,
-            recipient.UserName ?? recipient.FirstName ?? "Unknown",
+            recipient,
+            recipientName,
             MailerooConstants.ReminderTemplate,
             MailSubjects.Reminder,
             parameters,

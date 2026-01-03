@@ -25,7 +25,6 @@ using Maileroo.DotNet.SDK;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -203,20 +202,16 @@ public class Program
             return new MailerooClient(apiKey);
         });
 
-        builder.Services.Configure<EmailServiceOptions>(builder.Configuration.GetSection("Maileroo"));
+        builder.Services
+            .AddOptions<EmailServiceOptions>()
+            .Bind(builder.Configuration.GetSection("Maileroo"))
+            .Validate(o =>
+                !string.IsNullOrWhiteSpace(o.From) &&
+                !string.IsNullOrWhiteSpace(o.FromName),
+                "Maileroo EmailServiceOptions are not configured correctly")
+            .ValidateOnStart();
 
-        builder.Services.AddScoped<EmailService>(sp =>
-        {
-            var client = sp.GetRequiredService<MailerooClient>();
-            var options = sp.GetRequiredService<IOptions<EmailServiceOptions>>().Value;
-
-            return new EmailService(
-                client,
-                options.From,
-                options.FromName
-            );
-        });
-
+        builder.Services.AddScoped<EmailService>();
         builder.Services.AddScoped<INotificationPreferenceRepository, NotificationPreferenceRepository>();
         builder.Services.AddScoped<IEmailService>(sp => sp.GetRequiredService<EmailService>());
         builder.Services.AddScoped<INotificationPreferenceService, NotificationPreferenceService>();
