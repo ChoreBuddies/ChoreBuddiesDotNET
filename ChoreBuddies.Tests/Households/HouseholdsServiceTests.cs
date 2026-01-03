@@ -4,6 +4,7 @@ using ChoreBuddies.Backend.Features.Users;
 using Moq;
 
 namespace ChoreBuddies.Tests.Households;
+
 public class HouseholdsServiceTests
 {
     private readonly Mock<IHouseholdRepository> _householdRepo;

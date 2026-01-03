@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Shared.Rewards;
 
 namespace ChoreBuddies.Backend.Features.Rewards;
+
 [Route("api/v1/rewards")]
 [ApiController]
 [Authorize]

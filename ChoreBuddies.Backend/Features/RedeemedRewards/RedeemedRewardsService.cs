@@ -42,7 +42,7 @@ public class RedeemedRewardsService(IRedeemedRewardsRepository redeemedRewardsRe
             throw new InvalidOperationException("User does not have enough points");
         if (!await _appUserService.RemovePointsFromUser(userId, reward.Cost))
             throw new Exception("There was an error while removing points from user");
-        reward = await _rewardsService.UpdateRewardAsync(reward with { QuantityAvailable = reward.QuantityAvailable - 1}) ?? 
+        reward = await _rewardsService.UpdateRewardAsync(reward with { QuantityAvailable = reward.QuantityAvailable - 1 }) ??
             throw new Exception("There was an error while editing Quantity Available from reward");
         var redeemedReward = new RedeemedReward()
         {

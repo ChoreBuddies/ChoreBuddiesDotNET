@@ -1,4 +1,5 @@
 ﻿namespace Shared.Notifications;
+
 public enum NotificationEvent
 {
     NewChore = 1,
