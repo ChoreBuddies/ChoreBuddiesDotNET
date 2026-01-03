@@ -228,7 +228,7 @@ public class AuthServiceTests
             .ReturnsAsync((AppUser?)null);
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+        await Assert.ThrowsAsync<ArgumentException>(() =>
             _authService.GenerateAccessTokenAsync(userId));
     }
 }
