@@ -6,4 +6,5 @@ public static class MailSubjects
     public const string RegisterConfirmation = "Congratulations on your new journey";
     public const string NewRewardRequest = "Your child redeemed reward!";
     public const string NewMessage = "Someone wants to contact you!";
+    public const string Reminder = "Time is up!";
 }

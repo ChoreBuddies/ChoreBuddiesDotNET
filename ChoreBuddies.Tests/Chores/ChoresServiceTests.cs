@@ -12,7 +12,7 @@ namespace ChoreBuddies.Tests.Chores;
 public class ChoresServiceTests
 {
     private readonly Mock<IChoresRepository> _repo;
-    private readonly Mock<IAppUserRepository> _userRepo;
+    private readonly Mock<IAppUserService> _userService;
     private readonly Mock<INotificationService> _notificationService;
     private readonly Mock<IMapper> _mapper;
     private readonly ChoresService _service;
@@ -20,11 +20,11 @@ public class ChoresServiceTests
     public ChoresServiceTests()
     {
         _repo = new Mock<IChoresRepository>();
-        _userRepo = new Mock<IAppUserRepository>();
+        _userService = new Mock<IAppUserService>();
         _mapper = new Mock<IMapper>();
         _notificationService = new Mock<INotificationService>();
 
-        _service = new ChoresService(_mapper.Object, _repo.Object, _userRepo.Object, _notificationService.Object);
+        _service = new ChoresService(_mapper.Object, _repo.Object, _userService.Object, _notificationService.Object);
     }
 
     // ---------------------------
@@ -189,6 +189,32 @@ public class ChoresServiceTests
     }
 
     // ---------------------------
+    // AssignChoreAsync
+    // ---------------------------
+
+    [Fact]
+    public async Task AssignChoreAsync_ShouldThrow_WhenChoreNotFound()
+    {
+        _repo.Setup(r => r.GetChoreByIdAsync(1)).ReturnsAsync((Chore?)null);
+        _userService.Setup(u => u.GetUserByIdAsync(10)).ReturnsAsync(new AppUser() { Id = 10 });
+
+        await _service.Invoking(s => s.AssignChoreAsync(1, 10))
+            .Should().ThrowAsync<Exception>()
+            .WithMessage("Chore not found");
+    }
+    [Fact]
+    public async Task AssignChoreAsync_ShouldThrow_WhenUserNotFound()
+    {
+        var chore = new Chore("test", "testt", null, 1, DateTime.Now, Status.Assigned, "kitchen", 10) { Id = 1 };
+        _repo.Setup(r => r.GetChoreByIdAsync(1)).ReturnsAsync(chore);
+        _userService.Setup(u => u.GetUserByIdAsync(10)).ReturnsAsync((AppUser?)null);
+
+        await _service.Invoking(s => s.AssignChoreAsync(1, 10))
+            .Should().ThrowAsync<Exception>()
+            .WithMessage("User not found");
+    }
+
+    // ---------------------------
     // MarkChoreAsDone
     // ---------------------------
     [Fact]
@@ -201,14 +227,14 @@ public class ChoresServiceTests
         var mappedDto = new ChoreDto(1, "test", "testt", 10, 1, DateTime.Now, Status.Completed, "kitchen", 10);
 
         _repo.Setup(r => r.GetChoreByIdAsync(1)).ReturnsAsync(chore);
-        _userRepo.Setup(u => u.GetUserByIdAsync(10)).ReturnsAsync(user);
+        _userService.Setup(u => u.GetUserByIdAsync(10)).ReturnsAsync(user);
+        _userService.Setup(u => u.AddPointsToUser(10, 10)).ReturnsAsync(true);
         _repo.Setup(r => r.UpdateChoreAsync(chore)).ReturnsAsync(updatedChore);
         _mapper.Setup(m => m.Map<ChoreDto>(updatedChore)).Returns(mappedDto);
 
         var result = await _service.MarkChoreAsDone(1, 10);
 
         result.Status.Should().Be(Status.Completed);
-        user.PointsCount.Should().Be(10);
     }
 
     [Fact]
@@ -244,19 +270,6 @@ public class ChoresServiceTests
         await _service.Invoking(s => s.MarkChoreAsDone(1, 99))
             .Should().ThrowAsync<Exception>()
             .WithMessage("Only user who has to do this chore can mark it as done");
-    }
-
-    [Fact]
-    public async Task MarkChoreAsDone_ShouldThrow_WhenUserNotFound()
-    {
-        var chore = new Chore("test", "testt", 10, 1, DateTime.Now, Status.Assigned, "kitchen", 10) { Id = 1 };
-
-        _repo.Setup(r => r.GetChoreByIdAsync(1)).ReturnsAsync(chore);
-        _userRepo.Setup(u => u.GetUserByIdAsync(10)).ReturnsAsync((AppUser?)null);
-
-        await _service.Invoking(s => s.MarkChoreAsDone(1, 10))
-            .Should().ThrowAsync<Exception>()
-            .WithMessage("User not found");
     }
 }
 
