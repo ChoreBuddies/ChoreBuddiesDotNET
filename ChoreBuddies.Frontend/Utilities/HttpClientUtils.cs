@@ -8,34 +8,6 @@ public class HttpClientUtils(IHttpClientFactory httpClientFactory)
 {
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
 
-    private HttpClient CreateClient(bool authorized)
-    {
-        return _httpClientFactory.CreateClient(authorized ? AuthFrontendConstants.AuthorizedClient : AuthFrontendConstants.UnauthorizedClient);
-    }
-
-    private async Task<T?> ProcessResponseAsync<T>(HttpResponseMessage response)
-    {
-        // We don't throw on 401 here; redirecting to login
-        if (response.StatusCode == HttpStatusCode.Unauthorized)
-        {
-            return default;
-        }
-
-        response.EnsureSuccessStatusCode();
-
-        if (typeof(T) == typeof(HttpResponseMessage))
-        {
-            return (T)(object)response;
-        }
-
-        if (response.Content.Headers.ContentLength == 0)
-        {
-            return default; // Return default value (e.g., null) if there's no content
-        }
-
-        return await response.Content.ReadFromJsonAsync<T>();
-    }
-
     public async Task<T?> GetAsync<T>(string requestUri, bool authorized = false)
     {
         var client = CreateClient(authorized);
@@ -47,10 +19,6 @@ public class HttpClientUtils(IHttpClientFactory httpClientFactory)
     {
         var client = CreateClient(authorized);
         var response = await client.PostAsJsonAsync(requestUri, content);
-
-        if (response.StatusCode == HttpStatusCode.Unauthorized) return;
-
-        response.EnsureSuccessStatusCode();
     }
 
     public async Task<TResponse?> PostAsync<TRequest, TResponse>(string requestUri, TRequest content, bool authorized = false)
@@ -63,10 +31,6 @@ public class HttpClientUtils(IHttpClientFactory httpClientFactory)
     {
         var client = CreateClient(authorized);
         var response = await client.PutAsJsonAsync(requestUri, content);
-
-        if (response.StatusCode == HttpStatusCode.Unauthorized) return;
-
-        response.EnsureSuccessStatusCode();
     }
 
     public async Task<TResponse?> PutAsync<TRequest, TResponse>(string requestUri, TRequest content, bool authorized = false)
@@ -80,10 +44,31 @@ public class HttpClientUtils(IHttpClientFactory httpClientFactory)
     {
         var client = CreateClient(authorized);
         var response = await client.DeleteAsync(requestUri);
+    }
 
-        if (response.StatusCode == HttpStatusCode.Unauthorized) return;
+    private HttpClient CreateClient(bool authorized)
+    {
+        return _httpClientFactory.CreateClient(authorized ? AuthFrontendConstants.AuthorizedClient : AuthFrontendConstants.UnauthorizedClient);
+    }
 
-        response.EnsureSuccessStatusCode();
+    private async Task<T?> ProcessResponseAsync<T>(HttpResponseMessage response)
+    {
+        if (!response.IsSuccessStatusCode)
+        {
+            return default;
+        }
+
+        if (typeof(T) == typeof(HttpResponseMessage))
+        {
+            return (T)(object)response;
+        }
+
+        if (response.Content.Headers.ContentLength == 0)
+        {
+            return default; // Return default value (e.g., null) if there's no content
+        }
+
+        return await response.Content.ReadFromJsonAsync<T>();
     }
 }
 

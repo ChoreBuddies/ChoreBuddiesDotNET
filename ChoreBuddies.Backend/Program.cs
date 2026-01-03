@@ -14,6 +14,7 @@ using ChoreBuddies.Backend.Features.Reminders;
 using ChoreBuddies.Backend.Features.Rewards;
 using ChoreBuddies.Backend.Features.ScheduledChores;
 using ChoreBuddies.Backend.Features.Users;
+using ChoreBuddies.Backend.Infrastructure;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using ChoreBuddies.Backend.Infrastructure.Data;
 using FirebaseAdmin;
@@ -233,10 +234,15 @@ public class Program
             });
         }
 
+        // Global Exception Handler & Problem Details
+        builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+        builder.Services.AddProblemDetails();
+
         var app = builder.Build();
 
-        // Hangfire
+        app.UseExceptionHandler();
 
+        // Hangfire
         app.UseHangfireDashboard();
 
         // Apply migrations to database

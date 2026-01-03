@@ -3,6 +3,8 @@
 @inject IAuthApiService authApiService
 @inject NavigationManager navigationManager
 
+<MudSnackbarProvider />
+
 <AuthorizeView>
     <Authorized>
         @{
@@ -18,9 +20,9 @@
         <MudPaper Class="pa-4">
             <MudText Typo="Typo.h4" Align="Align.Center" Color="Color.Secondary" style="margin-bottom:16px">Login</MudText>
             <MudForm @bind-IsValid="@success" @bind-Errors="@errors">
-                <MudTextField @ref="emailField" T="string" Label="Email" Required="true" RequiredError="Email is required!"
+                <MudTextField @bind-Value="email" T="string" Label="Email" Required="true" RequiredError="Email is required!"
                               Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})" style="margin-bottom:8px" />
-                <MudTextField @ref="passwordField" T="string" Label="Password" InputType="InputType.Password"
+                <MudTextField @bind-Value="password" T="string" Label="Password" InputType="InputType.Password"
                               Required="true" RequiredError="Password is required!" Style="margin-bottom:32px" />
             </MudForm>
             <MudText>Don’t have an account yet?  <MudLink Href="/signup">Sign up here</MudLink></MudText>
@@ -31,54 +33,25 @@
 
     </MudContainer>
 </div>
-@if (_showAlert)
-{
-    <MudCard Class="centered-top rounded-xl">
-        <MudAlert Class="rounded-xl" Severity="Severity.Error" ShowCloseIcon="true"
-                  CloseIconClicked="(() => CloseAlert(true))">@_alertText</MudAlert>
-    </MudCard>
-}
 
 
 @code {
     bool success;
     string[] errors = { };
-    MudTextField<string>? emailField;
-    MudTextField<string>? passwordField;
-
-    private bool _showAlert = false;
-    private string _alertText = "";
+    string email = "";
+    string password = "";
 
     private async Task LoginAction()
     {
-        if (emailField is null || passwordField is null) return;
+        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password)) return;
 
-        var email = emailField.Value ?? "";
-        var password = passwordField.Value ?? "";
-        var result = await authApiService.LoginAsync(new LoginRequestDto(email, password));
-        
-        if (!result.Succeeded)
+
+        var succeeded = await authApiService.LoginAsync(new LoginRequestDto(email, password));
+
+        if (succeeded)
         {
-            await ShowAlert("Login failed!", 5000);
-            return;
+            navigationManager.NavigateTo("/");
+            StateHasChanged();
         }
-
-        navigationManager.NavigateTo("/");
-        StateHasChanged();
-    }
-
-    public async Task ShowAlert(string text, int delay)
-    {
-        _alertText = text;
-        _showAlert = true;
-        StateHasChanged();
-        await Task.Delay(delay);
-        CloseAlert(true);
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private void CloseAlert(bool value)
-    {
-        _showAlert = !value;
     }
 }

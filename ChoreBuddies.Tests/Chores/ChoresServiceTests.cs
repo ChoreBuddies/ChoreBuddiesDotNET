@@ -207,7 +207,7 @@ public class ChoresServiceTests
     {
         var chore = new Chore("test", "testt", null, 1, DateTime.Now, Status.Assigned, "kitchen", 10) { Id = 1 };
         _repo.Setup(r => r.GetChoreByIdAsync(1)).ReturnsAsync(chore);
-        _userService.Setup(u => u.GetUserByIdAsync(10)).ReturnsAsync((AppUser?) null);
+        _userService.Setup(u => u.GetUserByIdAsync(10)).ReturnsAsync((AppUser?)null);
 
         await _service.Invoking(s => s.AssignChoreAsync(1, 10))
             .Should().ThrowAsync<Exception>()

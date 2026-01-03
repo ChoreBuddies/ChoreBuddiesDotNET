@@ -36,9 +36,7 @@ public class AuthorizedHttpClient(ILocalStorageService localStorage, IAuthServic
 
                 newRequest.Headers.Authorization = null;
                 if (!string.IsNullOrWhiteSpace(token))
-                {
                     newRequest.Headers.Authorization = new AuthenticationHeaderValue(AuthFrontendConstants.Bearer, token);
-                }
 
                 return await base.SendAsync(newRequest, cancellationToken);
             }
