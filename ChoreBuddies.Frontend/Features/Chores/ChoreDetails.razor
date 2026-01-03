@@ -3,11 +3,12 @@
 @using Shared.Chores
 @using Shared.Users
 @using System.ComponentModel.DataAnnotations
+@using Utilities
 
 @inject IAuthService authService
 @inject NavigationManager navigationManager
 @inject ISnackbar Snackbar
-@inject Chores.IChoresService choresService
+@inject IChoresService choresService
 @inject User.IUserService userService
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
@@ -201,13 +202,13 @@
             {
                 result = await choresService.UpdateChoreAsync(
                 new ChoreDto(chore!.Id, model.ChoreName!, model?.Description ?? String.Empty, model?.AssignedTo?.Id,
-                    chore.HouseholdId, model?.DueDate, chore.Status, chore.Room, model?.RewardPoints ?? 0));
+                    chore.HouseholdId, model?.DueDate?.AtEndOfDay(), chore.Status, chore.Room, model?.RewardPoints ?? 0));
             }
             else if(CurrentMode == PageMode.Create)
             {
                 result = await choresService.CreateChoreAsync(
                     new CreateChoreDto(model.ChoreName!, model?.Description ?? String.Empty, model?.AssignedTo?.Id,
-                    chore?.HouseholdId ?? 0, model?.DueDate, 
+                    chore?.HouseholdId ?? 0, model?.DueDate?.AtEndOfDay(),
                     model?.AssignedTo?.Id > 0 ? Status.Assigned : Status.Unassigned, 
                     "", model?.RewardPoints ?? 0));
             }

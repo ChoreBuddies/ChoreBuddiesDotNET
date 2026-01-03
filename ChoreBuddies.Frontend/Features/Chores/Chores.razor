@@ -1,0 +1,77 @@
+﻿@page "/chores"
+
+@using ChoreBuddies.Frontend.UI.Components.Chores
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
+@using Shared.Chores
+
+@inject IAuthService authService
+@inject IChoresService choresService
+@inject NavigationManager _navigationManager
+
+<AuthorizeView>
+    <NotAuthorized>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="pa-4">
+            <p>You are not authorized to view this content</p>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Size="Size.Large"
+                       OnClick="@GoToLogin">
+                Login
+            </MudButton>
+        </MudContainer>
+    </NotAuthorized>
+    <Authorized>
+        <PageTitle>Home</PageTitle>
+
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="pa-4">
+
+            <MudPaper Class="p-6" Elevation="0" Style="width: 100%; max-width: 900px;">
+
+                <MudStack Spacing="1">
+                    @if (_userChores == null || _userChores.Count == 0)
+                    {
+                        <p>Add a chore to view it here!</p>
+                    }
+                    else
+                    {
+                        @foreach (var chore in _userChores)
+                        {
+                            <UpcomingChore _choreDto="chore" OnChanged="ComponentStateChanged" />
+                        }
+                    }
+
+                </MudStack>
+            </MudPaper>
+        </MudContainer>
+    </Authorized>
+</AuthorizeView>
+
+@code
+{
+    public List<ChoreDto>? _userChores { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _userChores = await GetUserChores();
+    }
+    private async Task<List<ChoreDto>> GetUserChores()
+    {
+        var userChoresEnum = (await choresService.GetMyChoresAsync());
+        List<ChoreDto> userChores = new();
+        if (userChoresEnum is not null)
+        {
+            userChores = userChoresEnum.OrderBy(c => c.DueDate).ToList();
+        }
+        return userChores;
+    }
+    private void GoToLogin()
+    {
+        _navigationManager.NavigateTo("/login");
+    }
+    private void ComponentStateChanged()
+    {
+        _navigationManager.NavigateTo(_navigationManager.Uri, true);
+    }
+}
