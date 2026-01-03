@@ -69,7 +69,7 @@ public class AuthService(UserManager<AppUser> userManager, ITokenService tokenSe
         newUser.RefreshTokenExpiry = _tokenService.GetRefreshTokenExpiration();
         await _userManager.UpdateAsync(newUser);
 
-        await _emailService.SendRegisterConfirmationNotificationAsync(newUser.Email, newUser.UserName);
+        await _emailService.SendRegisterConfirmationNotificationAsync(newUser, newUser.UserName);
 
         return new AuthResponseDto(accessToken, refreshToken);
     }
