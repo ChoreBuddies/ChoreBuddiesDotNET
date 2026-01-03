@@ -5,8 +5,8 @@ namespace ChoreBuddies.Frontend.Features.Authentication;
 
 public interface IAuthApiService
 {
-    Task<Result> LoginAsync(LoginRequestDto request);
-    Task<Result> SignupAsync(RegisterRequestDto request);
+    Task<bool> LoginAsync(LoginRequestDto request);
+    Task<bool> SignupAsync(RegisterRequestDto request);
     Task RevokeAsync();
 }
 
@@ -21,44 +21,37 @@ public class AuthApiService : IAuthApiService
         _authService = authService;
     }
 
-    public async Task<Result> LoginAsync(LoginRequestDto request)
+    public async Task<bool> LoginAsync(LoginRequestDto request)
     {
-        var response = await _httpUtils.TryRequestAsync(
-            () => _httpUtils.PostAsync<LoginRequestDto, AuthResponseDto>(AuthFrontendConstants.ApiEndpointLogin, request)
-        );
+        var response = await _httpUtils.PostAsync<LoginRequestDto, AuthResponseDto>(
+            AuthFrontendConstants.ApiEndpointLogin, request);
 
         if (response?.AccessToken is not null && response?.RefreshToken is not null)
         {
             await _authService.LoginAsync(response.AccessToken, response.RefreshToken);
-            return Result.Success();
+            return true;
         }
 
-        return Result.Fail("Login failed. Please check your credentials.");
+        return false;
     }
 
-    public async Task<Result> SignupAsync(RegisterRequestDto request)
+    public async Task<bool> SignupAsync(RegisterRequestDto request)
     {
-        var response = await _httpUtils.TryRequestAsync(
-             () => _httpUtils.PostAsync<RegisterRequestDto, AuthResponseDto>(AuthFrontendConstants.ApiEndpointSignup, request)
-        );
+        var response = await _httpUtils.PostAsync<RegisterRequestDto, AuthResponseDto>(
+            AuthFrontendConstants.ApiEndpointSignup, request);
 
         if (response?.AccessToken is not null && response?.RefreshToken is not null)
         {
-            await _authService.LoginAsync(response.AccessToken, response.RefreshToken); // TODO when we add email confirmation, we might not want to log in the user right away
-            return Result.Success();
+            await _authService.LoginAsync(response.AccessToken, response.RefreshToken);
+            return true;
         }
 
-        return Result.Fail("Registration failed. Please try again.");
+        return false;
     }
 
     public async Task RevokeAsync()
     {
-        await _httpUtils.TryRequestAsync<object>(async () =>
-        {
-            await _httpUtils.PostAsync(AuthFrontendConstants.ApiEndpointRevoke, new { }, authorized: true);
-            return null;
-        });
-
+        await _httpUtils.PostAsync(AuthFrontendConstants.ApiEndpointRevoke, new { }, authorized: true);
         await _authService.LogoutAsync();
     }
 }

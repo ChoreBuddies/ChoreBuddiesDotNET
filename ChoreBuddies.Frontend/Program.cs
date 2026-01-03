@@ -2,15 +2,18 @@ using Blazored.LocalStorage;
 using ChoreBuddies.Frontend.Features.Authentication;
 using ChoreBuddies.Frontend.Features.Chat;
 using ChoreBuddies.Frontend.Features.Chores;
+using ChoreBuddies.Frontend.Features.ExceptionHandler;
 using ChoreBuddies.Frontend.Features.Household;
 using ChoreBuddies.Frontend.Features.Notifications;
 using ChoreBuddies.Frontend.Features.User;
 using ChoreBuddies.Frontend.UI;
+using ChoreBuddies.Frontend.UI.Services;
 using ChoreBuddies.Frontend.Utilities;
 using ChoreBuddies.Frontend.Utilities.Constants;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using MudBlazor;
 using MudBlazor.Services;
 
 namespace ChoreBuddies.Frontend;
@@ -23,7 +26,19 @@ public class Program
 
         builder.RootComponents.Add<App>("#app");
         builder.RootComponents.Add<HeadOutlet>("head::after");
-        builder.Services.AddMudServices();
+        builder.Services.AddMudServices(config =>
+        {
+            config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomCenter;
+            config.SnackbarConfiguration.PreventDuplicates = false;
+            config.SnackbarConfiguration.NewestOnTop = false;
+            config.SnackbarConfiguration.ShowCloseIcon = true;
+            config.SnackbarConfiguration.VisibleStateDuration = 5000;
+            config.SnackbarConfiguration.HideTransitionDuration = 500;
+            config.SnackbarConfiguration.ShowTransitionDuration = 500;
+            config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
+        });
+        builder.Services.AddSingleton<ISnackbar, SnackbarService>();
+        builder.Services.AddScoped<ToastService>();
         builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
 
         builder.Services.AddBlazoredLocalStorage();
@@ -39,16 +54,20 @@ public class Program
 
         // Register the custom HttpMessageHandler and configure the HttpClient
         builder.Services.AddTransient<AuthorizedHttpClient>();
+        builder.Services.AddTransient<ApiExceptionInterceptor>();
+
         var apiUrl = builder.Configuration[AppConstants.ApiUrl] ?? AppConstants.DefaultApiUrl;
         builder.Services.AddHttpClient(AuthFrontendConstants.AuthorizedClient, client =>
         {
             client.BaseAddress = new Uri(apiUrl);
-        }).AddHttpMessageHandler<AuthorizedHttpClient>(); // This adds the auth header to all requests made by this client
+        }).AddHttpMessageHandler<ApiExceptionInterceptor>() // This checks from API exceptions (must be before AuthorizedHttpClient)
+          .AddHttpMessageHandler<AuthorizedHttpClient>(); // This adds the auth header 
 
         builder.Services.AddHttpClient(AuthFrontendConstants.UnauthorizedClient, client =>
         {
             client.BaseAddress = new Uri(apiUrl);
-        });
+        }).AddHttpMessageHandler<ApiExceptionInterceptor>();
+
         builder.Services.AddScoped<HttpClientUtils>();
         builder.Services.AddScoped<IAuthApiService, AuthApiService>();
 

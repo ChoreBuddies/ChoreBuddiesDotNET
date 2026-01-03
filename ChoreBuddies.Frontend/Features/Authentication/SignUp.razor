@@ -6,20 +6,20 @@
 <AuthorizeView>
     <Authorized>
         @{
+            Console.WriteLine("User is already authorized, redirecting to home page.");
             navigationManager.NavigateTo("/");
         }
     </Authorized>
 </AuthorizeView>
 
 <MudContainer Style="justify-content: center" MaxWidth="MaxWidth.Small">
-
     <MudPaper Class="pa-4">
         <MudText Typo="Typo.h4" Align="Align.Center" Color="Color.Secondary" style="margin-bottom:16px">Signup</MudText>
         <MudForm @bind-IsValid="@success" @bind-Errors="@errors">
-            <MudTextField @ref="usernameField" T="string" Label="Username" Required="true" RequiredError="User name is required!" Style="margin-bottom:8px" />
-            <MudTextField @ref="emailField" T="string" Label="Email" Required="true" RequiredError="Email is required!"
+            <MudTextField @bind-Value="username" T="string" Label="Username" Required="true" RequiredError="User name is required!" Style="margin-bottom:8px" />
+            <MudTextField @bind-Value="email" T="string" Label="Email" Required="true" RequiredError="Email is required!"
                 Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})" Style="margin-bottom:8px" />
-            <MudTextField @ref="passwordField" T="string" Label="Password" HelperText="Choose a strong password" InputType="InputType.Password"
+            <MudTextField @bind-Value="password" T="string" Label="Password" HelperText="Choose a strong password" InputType="InputType.Password"
                            Required="true"
                           Style="margin-bottom:8px" RequiredError="Password is required!" />@* Validation="@(new Func<string, IEnumerable<string>>(validationService.PasswordStrength))" *@
             <MudTextField T="string"
@@ -33,65 +33,32 @@
     </MudPaper>
 </MudContainer>
 
-@if (_showAlert)
-{
-    <MudCard Class="centered-top rounded-xl">
-        <MudAlert Class="rounded-xl" Severity="Severity.Error" ShowCloseIcon="true"
-        CloseIconClicked="(() => CloseAlert(true))">@_alertText</MudAlert>
-    </MudCard>
-}
-
 @code {
     bool success;
     string[] errors = { };
-    MudTextField<string>? usernameField;
-    MudTextField<string>? emailField;
-    MudTextField<string>? passwordField;
-
-    private bool _showAlert = false;
-    private string _alertText = "";
+    string username = "";
+    string email = "";
+    string password = "";
 
     private string PasswordMatch(string arg)
     {
-        if (passwordField?.Value != arg)
+        if (password != arg)
             return "Passwords don't match";
         return String.Empty;
     }
 
     private async Task SignUpAction()
     {
-        if (usernameField is null || emailField is null ||
-            passwordField is null ) 
+        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(email) ||
+            string.IsNullOrEmpty(password))
             return;
 
-        var username = usernameField.Value ?? "";
-        var email = emailField.Value ?? "";
-        var password = passwordField.Value ?? "";
+        var succeeded = await authApiService.SignupAsync(new RegisterRequestDto(email, password, username));
 
-        var result = await authApiService.SignupAsync(new RegisterRequestDto(email, password, username));
-
-        if (!result.Succeeded)
+        if (succeeded)
         {
-            await ShowAlert("Registration failed!", 5000);
-            return;
+            navigationManager.NavigateTo("/");
+            StateHasChanged();
         }
-
-        navigationManager.NavigateTo("/");
-        StateHasChanged();
-    }
-
-    public async Task ShowAlert(string text, int delay)
-    {
-        _alertText = text;
-        _showAlert = true;
-        StateHasChanged();
-        await Task.Delay(delay);
-        CloseAlert(true);
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private void CloseAlert(bool value)
-    {
-        _showAlert = !value;
     }
 }

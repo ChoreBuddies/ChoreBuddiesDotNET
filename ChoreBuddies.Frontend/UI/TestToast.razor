@@ -1,0 +1,95 @@
+@page "/test-toast"
+@inject ChoreBuddies.Frontend.UI.Services.ToastService ToastService
+@inject ISnackbar Snackbar
+
+<MudContainer>
+    <MudText Typo="Typo.h3" Class="mb-4">Toast Diagnostic Page</MudText>
+    
+    <MudStack Spacing="3">
+        <MudPaper Class="pa-4">
+            <MudText Typo="Typo.h6" Class="mb-2">Test 1: Direct ISnackbar</MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="TestDirectSnackbar">
+                Test Direct Snackbar
+            </MudButton>
+            <MudText Typo="Typo.caption" Class="mt-2">
+                This tests if MudBlazor's ISnackbar is working at all
+            </MudText>
+        </MudPaper>
+
+        <MudPaper Class="pa-4">
+            <MudText Typo="Typo.h6" Class="mb-2">Test 2: ToastService Success</MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="TestSuccess">
+                Test Success Toast
+            </MudButton>
+            <MudText Typo="Typo.caption" Class="mt-2">
+                This tests your ToastService.ShowSuccess method
+            </MudText>
+        </MudPaper>
+
+        <MudPaper Class="pa-4">
+            <MudText Typo="Typo.h6" Class="mb-2">Test 3: ToastService Error</MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="TestError">
+                Test Error Toast
+            </MudButton>
+            <MudText Typo="Typo.caption" Class="mt-2">
+                This tests your ToastService.ShowError method
+            </MudText>
+        </MudPaper>
+
+        <MudPaper Class="pa-4">
+            <MudText Typo="Typo.h6" Class="mb-2">Test 4: Multiple Toasts</MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="TestMultiple">
+                Test Multiple Toasts
+            </MudButton>
+            <MudText Typo="Typo.caption" Class="mt-2">
+                This creates 3 toasts in sequence
+            </MudText>
+        </MudPaper>
+
+        <MudDivider Class="my-4" />
+
+        <MudAlert Severity="Severity.Info">
+            <strong>What to check:</strong>
+            <ul>
+                <li>Look at the bottom-right corner of your screen</li>
+                <li>Check your browser's developer console for errors</li>
+                <li>Verify that MudSnackbarProvider is in your MainLayout</li>
+                <li>Make sure you're not in an iframe or popup that might hide toasts</li>
+            </ul>
+        </MudAlert>
+    </MudStack>
+</MudContainer>
+
+@code {
+    private void TestDirectSnackbar()
+    {
+        Console.WriteLine("Testing direct snackbar...");
+        Snackbar.Add("Direct snackbar test!", Severity.Normal);
+        Console.WriteLine("Direct snackbar called");
+    }
+
+    private void TestSuccess()
+    {
+        Console.WriteLine("Testing success toast...");
+        ToastService.ShowSuccess("Success! This is a test message.");
+        Console.WriteLine("Success toast called");
+    }
+
+    private void TestError()
+    {
+        Console.WriteLine("Testing error toast...");
+        ToastService.ShowError("Test Error", "This is a test error message.");
+        Console.WriteLine("Error toast called");
+    }
+
+    private void TestMultiple()
+    {
+        Console.WriteLine("Testing multiple toasts...");
+        ToastService.ShowSuccess("First toast");
+        Task.Delay(100).Wait();
+        Snackbar.Add("Second toast (direct)", Severity.Info);
+        Task.Delay(100).Wait();
+        ToastService.ShowSuccess("Third toast");
+        Console.WriteLine("Multiple toasts called");
+    }
+}

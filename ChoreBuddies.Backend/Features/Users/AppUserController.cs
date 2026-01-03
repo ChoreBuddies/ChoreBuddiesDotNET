@@ -87,7 +87,7 @@ public class AppUserController(IAppUserService userService, IMapper mapper) : Co
         if (user == null)
             return BadRequest();
 
-        var result = await _userService.GetUsersHouseholdMembers(user.Id);
+        var result = await _userService.GetUsersHouseholdMembersAsync(user.Id);
 
         var resultDto = result.Select(v => _mapper.Map<AppUserDto>(v));
 
