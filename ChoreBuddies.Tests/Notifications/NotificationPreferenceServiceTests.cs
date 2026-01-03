@@ -4,6 +4,7 @@ using Moq;
 using Shared.Notifications;
 
 namespace ChoreBuddies.Tests.Notifications;
+
 public class NotificationPreferenceServiceTests
 {
     private readonly Mock<INotificationPreferenceRepository> _repoMock;

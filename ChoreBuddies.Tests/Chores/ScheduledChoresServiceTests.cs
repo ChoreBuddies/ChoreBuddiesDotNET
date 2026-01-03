@@ -1,4 +1,5 @@
 ﻿namespace ChoreBuddies.Tests.Chores;
+
 using AutoMapper;
 using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.ScheduledChores;

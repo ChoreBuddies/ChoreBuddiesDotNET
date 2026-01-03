@@ -1,4 +1,5 @@
 ﻿namespace Shared.Chat;
+
 public static class ChatConstants
 {
     public const string ReceiveMessage = "ReceiveMessage";

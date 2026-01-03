@@ -1,4 +1,5 @@
 ﻿namespace Shared.ScheduledChores;
+
 public enum Frequency
 {
     Daily,

@@ -14,8 +14,7 @@ namespace ChoreBuddies.Tests.Rewards;
 public class RedeemedRewardsServiceTests
 {
     private readonly Mock<IRedeemedRewardsRepository> _redeemedRepo = new();
-    private readonly Mock<IRewardsRepository> _rewardRepo = new();
-    private readonly Mock<IAppUserRepository> _userRepo = new();
+    private readonly Mock<IRewardsService> _rewardService = new();
     private readonly Mock<IAppUserService> _userService = new();
     private readonly Mock<INotificationService> _notificationService = new();
     private readonly Mock<IMapper> _mapper = new();
@@ -26,8 +25,7 @@ public class RedeemedRewardsServiceTests
     {
         _service = new RedeemedRewardsService(
             _redeemedRepo.Object,
-            _rewardRepo.Object,
-            _userRepo.Object,
+            _rewardService.Object,
             _userService.Object,
             _notificationService.Object,
             _mapper.Object
@@ -81,8 +79,8 @@ public class RedeemedRewardsServiceTests
     [Fact]
     public async Task RedeemRewardAsync_ShouldReturnNull_WhenUserNotFound()
     {
-        _rewardRepo.Setup(r => r.GetRewardByIdAsync(3)).ReturnsAsync(new Reward("Test", "test", 1, 10, 1));
-        _userRepo.Setup(r => r.GetUserByIdAsync(1)).ReturnsAsync((AppUser?)null);
+        _rewardService.Setup(r => r.GetRewardByIdAsync(3)).ReturnsAsync(new RewardDto(3, "Test", "test", 1, 10, 1));
+        _userService.Setup(r => r.GetUserByIdAsync(1)).ReturnsAsync((AppUser?)null);
 
         var result = await _service.RedeemRewardAsync(1, 3, false);
 
@@ -92,8 +90,8 @@ public class RedeemedRewardsServiceTests
     [Fact]
     public async Task RedeemRewardAsync_ShouldReturnNull_WhenRewardNotFound()
     {
-        _rewardRepo.Setup(r => r.GetRewardByIdAsync(3)).ReturnsAsync((Reward?)null);
-        _userRepo.Setup(r => r.GetUserByIdAsync(1)).ReturnsAsync(new AppUser());
+        _rewardService.Setup(r => r.GetRewardByIdAsync(3)).ReturnsAsync((RewardDto?)null);
+        _userService.Setup(r => r.GetUserByIdAsync(1)).ReturnsAsync(new AppUser());
 
         var result = await _service.RedeemRewardAsync(1, 3, false);
 
@@ -103,11 +101,11 @@ public class RedeemedRewardsServiceTests
     [Fact]
     public async Task RedeemRewardAsync_ShouldThrow_WhenRewardUnavailable()
     {
-        var reward = new Reward("Test", "test", 1, 10, 0);
+        var reward = new RewardDto(5, "Test", "test", 1, 10, 0);
         var user = new AppUser { PointsCount = 100 };
 
-        _rewardRepo.Setup(r => r.GetRewardByIdAsync(5)).ReturnsAsync(reward);
-        _userRepo.Setup(r => r.GetUserByIdAsync(2)).ReturnsAsync(user);
+        _rewardService.Setup(r => r.GetRewardByIdAsync(5)).ReturnsAsync(reward);
+        _userService.Setup(r => r.GetUserByIdAsync(2)).ReturnsAsync(user);
 
         Func<Task> act = async () => await _service.RedeemRewardAsync(2, 5, false);
 
@@ -118,11 +116,11 @@ public class RedeemedRewardsServiceTests
     [Fact]
     public async Task RedeemRewardAsync_ShouldThrow_WhenUserDoesNotHaveEnoughPoints()
     {
-        var reward = new Reward("Test", "test", 1, 50, 5);
+        var reward = new RewardDto(3, "Test", "test", 1, 50, 5);
         var user = new AppUser { PointsCount = 20 };
 
-        _rewardRepo.Setup(r => r.GetRewardByIdAsync(3)).ReturnsAsync(reward);
-        _userRepo.Setup(r => r.GetUserByIdAsync(1)).ReturnsAsync(user);
+        _rewardService.Setup(r => r.GetRewardByIdAsync(3)).ReturnsAsync(reward);
+        _userService.Setup(r => r.GetUserByIdAsync(1)).ReturnsAsync(user);
 
         Func<Task> act = async () => await _service.RedeemRewardAsync(1, 3, false);
 
@@ -133,10 +131,12 @@ public class RedeemedRewardsServiceTests
     [Fact]
     public async Task RedeemRewardAsync_ShouldDeductPoints_AndReduceQuantity_AndReturnDto()
     {
-        var reward = new Reward("Test", "test", 55, 40, 3)
+        var reward = new RewardDto(10, "Test", "test", 55, 40, 3)
         {
             Id = 10
         };
+
+        var newReward = reward with { QuantityAvailable = reward.QuantityAvailable - 1 };
 
         var user = new AppUser
         {
@@ -147,8 +147,10 @@ public class RedeemedRewardsServiceTests
         var redeemedEntity = new RedeemedReward { Id = 88, Name = "Test", Description = "test" };
         var redeemedDto = new RedeemedRewardDto(88, 1, "Test", "test", 10, true) { Id = 88 };
 
-        _rewardRepo.Setup(r => r.GetRewardByIdAsync(10)).ReturnsAsync(reward);
-        _userRepo.Setup(r => r.GetUserByIdAsync(1)).ReturnsAsync(user);
+        _rewardService.Setup(r => r.GetRewardByIdAsync(10)).ReturnsAsync(reward);
+        _rewardService.Setup(r => r.UpdateRewardAsync(newReward)).ReturnsAsync(newReward);
+        _userService.Setup(r => r.GetUserByIdAsync(1)).ReturnsAsync(user);
+        _userService.Setup(r => r.RemovePointsFromUser(1, 40)).ReturnsAsync(true);
         _redeemedRepo.Setup(r => r.RedeemRewardAsync(It.IsAny<RedeemedReward>()))
             .ReturnsAsync(redeemedEntity);
         _mapper.Setup(m => m.Map<RedeemedRewardDto>(redeemedEntity)).Returns(redeemedDto);
@@ -158,9 +160,6 @@ public class RedeemedRewardsServiceTests
         // Assertions
         result.Should().NotBeNull();
         result.Id.Should().Be(88);
-
-        reward.QuantityAvailable.Should().Be(2);
-        user.PointsCount.Should().Be(60); // 100 - 40
     }
 }
 

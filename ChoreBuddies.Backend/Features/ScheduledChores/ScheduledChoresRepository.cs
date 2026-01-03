@@ -3,6 +3,7 @@ using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChoreBuddies.Backend.Features.ScheduledChores;
+
 public interface IScheduledChoresRepository
 {
     public Task<ICollection<ScheduledChore>> GetAllChoresAsync();
