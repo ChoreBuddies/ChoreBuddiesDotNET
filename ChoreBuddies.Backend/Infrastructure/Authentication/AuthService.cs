@@ -52,6 +52,9 @@ public class AuthService(UserManager<AppUser> userManager, ITokenService tokenSe
         var newUser = new AppUser
         {
             Email = registerRequest.Email,
+            FirstName = registerRequest.FirstName,
+            LastName = registerRequest.LastName,
+            DateOfBirth = registerRequest.DateOfBirth,
             UserName = registerRequest.UserName
         };
         var result = await _userManager.CreateAsync(newUser, registerRequest.Password);
