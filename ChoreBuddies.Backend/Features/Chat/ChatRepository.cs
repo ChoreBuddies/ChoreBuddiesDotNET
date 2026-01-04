@@ -27,7 +27,7 @@ public class ChatRepository(ChoreBuddiesDbContext dbContext) : IChatRepository
         var messages = _dbContext.ChatMessages
             .Where(m => m.HouseholdId == householdId)
             .OrderByDescending(m => m.SentAt)
-            .Take(50)
+            .Take(numberOfMessages)
             .Include(m => m.Sender);
 
         return await messages.ToListAsync();

@@ -68,10 +68,10 @@ public class ChatHub(IChatService chatService,
 
         // 6. Send Notifications
         var allMembers = await _userService.GetUsersHouseholdMembersAsync(user.Id);
-        var recipientIds = allMembers
+        var recipientIds = allMembers?
             .Where(m => m.Id != user.Id)
             .Select(m => m.Id)
-            .ToList();
+            .ToList() ?? new List<int>();
 
         if (recipientIds.Any())
         {
