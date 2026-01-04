@@ -11,36 +11,28 @@ namespace ChoreBuddies.Backend.Features.Chat;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class ChatController(ChoreBuddiesDbContext context,
+public class ChatController(IChatService chatService,
     ITokenService tokenService,
     IHouseholdService householdService) : ControllerBase
 {
+
+    private readonly IChatService _chatService = chatService;
+    private readonly ITokenService _tokenService = tokenService;
+    private readonly IHouseholdService _householdService = householdService;
+
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ChatMessageDto>>> GetMessages()
     {
-        var userId = tokenService.GetUserIdFromToken(User);
-        var householdId = tokenService.GetHouseholdIdFromToken(User);
+        var userId = _tokenService.GetUserIdFromToken(User);
+        var householdId = _tokenService.GetHouseholdIdFromToken(User);
 
         // Check if user belongs to the household
-        bool hasAccess = await householdService.CheckIfUserBelongsAsync(householdId, userId);
+        bool hasAccess = await _householdService.CheckIfUserBelongsAsync(householdId, userId);
 
         if (!hasAccess)
             return Forbid();
 
-        var messages = await context.ChatMessages
-            .Where(m => m.HouseholdId == householdId)
-            .OrderByDescending(m => m.SentAt)
-            .Take(50)
-            .Include(m => m.Sender)
-            .Select(m => new ChatMessageDto(
-                m.Id,
-                (m.Sender != null && m.Sender.UserName != null) ? m.Sender.UserName : "Unknown",
-                m.Content,
-                m.SentAt,
-                m.SenderId == userId,
-                null
-            ))
-            .ToListAsync();
+        var messages = await _chatService.GetNewestMessagesAsync(userId, householdId);
 
         // Reverse order to send from oldest to newest
         return Ok(messages.OrderBy(m => m.SentAt));

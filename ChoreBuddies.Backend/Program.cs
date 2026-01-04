@@ -65,15 +65,15 @@ public class Program
 
         // Hangfire
         builder.Services.AddHangfire(configuration => configuration
-    .SetDataCompatibilityLevel(CompatibilityLevel.Version_170).UseSimpleAssemblyNameTypeSerializer()
-    .UseRecommendedSerializerSettings().UseSqlServerStorage(connectionString, new SqlServerStorageOptions
-    {
-        CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
-        SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
-        QueuePollInterval = TimeSpan.Zero,
-        UseRecommendedIsolationLevel = true,
-        DisableGlobalLocks = true
-    }));
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_170).UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings().UseSqlServerStorage(connectionString, new SqlServerStorageOptions
+            {
+                CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                QueuePollInterval = TimeSpan.Zero,
+                UseRecommendedIsolationLevel = true,
+                DisableGlobalLocks = true
+            }));
 
         builder.Services.AddHangfireServer();
 
@@ -189,6 +189,9 @@ public class Program
         // Redeemed Rewards
         builder.Services.AddScoped<IRedeemedRewardsRepository, RedeemedRewardsRepository>();
         builder.Services.AddScoped<IRedeemedRewardsService, RedeemedRewardsService>();
+        // Chat
+        builder.Services.AddScoped<IChatRepository, ChatRepository>();
+        builder.Services.AddScoped<IChatService, ChatService>();
 
         builder.Services.AddSingleton(sp =>
         {
@@ -219,6 +222,7 @@ public class Program
         builder.Services.AddScoped<INotificationChannel, FirebaseNotificationsService>();
         builder.Services.AddScoped<INotificationService, NotificationService>();
         builder.Services.AddScoped<IRemindersService, RemindersService>();
+
         builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
         if (FirebaseApp.DefaultInstance == null && Path.Exists(ProgramConstants.FireBaseCredentialsPath))
