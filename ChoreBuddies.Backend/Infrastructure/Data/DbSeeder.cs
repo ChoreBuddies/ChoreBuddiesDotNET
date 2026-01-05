@@ -10,6 +10,9 @@ namespace ChoreBuddies.Backend.Infrastructure.Data;
 
 public class DbSeeder
 {
+    private readonly string[] roleNames = { "Adult", "Child" };
+    private readonly string[] children = { "UserName3", "UserName4" };
+
     private readonly List<AppUser> _users;
     private readonly List<PredefinedChore> _defaultChores;
     private readonly List<PredefinedReward> _defaultRewards;
@@ -26,6 +29,7 @@ public class DbSeeder
         optionsBuilder
             .UseSeeding((context, _) =>
             {
+                SeedRoles(context);
                 SeedUsers(context);
                 SeedHouseholds(context);
                 SeedDefaultChores(context);
@@ -37,6 +41,7 @@ public class DbSeeder
             })
             .UseAsyncSeeding(async (context, _, ct) =>
             {
+                await SeedRolesAsync(context, ct);
                 await SeedUsersAsync(context, ct);
                 await SeedHouseholdsAsync(context, ct);
                 await SeedDefaultChoresAsync(context, ct);
@@ -49,6 +54,32 @@ public class DbSeeder
     }
 
     #region SeedMethods
+    private void SeedRoles(DbContext context)
+    {
+        var roleManager = context.GetService<RoleManager<IdentityRole<int>>>();
+
+        foreach (var roleName in roleNames)
+        {
+            if (!roleManager.RoleExistsAsync(roleName).Result)
+            {
+                roleManager.CreateAsync(new IdentityRole<int>(roleName)).Wait();
+            }
+        }
+    }
+
+    private async Task SeedRolesAsync(DbContext context, CancellationToken ct)
+    {
+        var roleManager = context.GetService<RoleManager<IdentityRole<int>>>();
+
+        foreach (var roleName in roleNames)
+        {
+            if (!await roleManager.RoleExistsAsync(roleName))
+            {
+                await roleManager.CreateAsync(new IdentityRole<int>(roleName));
+            }
+        }
+    }
+
     private void SeedUsers(DbContext context)
     {
         var userManager = context.GetService<UserManager<AppUser>>();
@@ -57,6 +88,7 @@ public class DbSeeder
             var result = userManager.CreateAsync(newUser, "Pass123!").Result;
             if (result.Succeeded)
             {
+                AssignRoleToUser(userManager, newUser);
                 var preferences = generateAndCustomizePreferences(newUser);
                 context.Set<NotificationPreference>().AddRange(preferences);
             }
@@ -72,11 +104,36 @@ public class DbSeeder
             var result = await userManager.CreateAsync(newUser, "Pass123!");
             if (result.Succeeded)
             {
+                await AssignRoleToUserAsync(userManager, newUser);
                 var preferences = generateAndCustomizePreferences(newUser);
                 await context.Set<NotificationPreference>().AddRangeAsync(preferences, ct);
             }
         }
         await context.SaveChangesAsync(ct);
+    }
+
+    private void AssignRoleToUser(UserManager<AppUser> userManager, AppUser user)
+    {
+        if (children.Contains(user.UserName))
+        {
+            userManager.AddToRoleAsync(user, "Child").Wait();
+        }
+        else
+        {
+            userManager.AddToRoleAsync(user, "Adult").Wait();
+        }
+    }
+
+    private async Task AssignRoleToUserAsync(UserManager<AppUser> userManager, AppUser user)
+    {
+        if (children.Contains(user.UserName))
+        {
+            await userManager.AddToRoleAsync(user, "Child");
+        }
+        else
+        {
+            await userManager.AddToRoleAsync(user, "Adult");
+        }
     }
 
     private void SeedHouseholds(DbContext context)
