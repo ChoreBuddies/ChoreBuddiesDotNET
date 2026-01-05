@@ -101,7 +101,14 @@ public class AuthServiceTests
     public async Task SignupUserAsync_WhenEmailExists_ThrowsUserAlreadyExistsException()
     {
         // Arrange
-        var request = new RegisterRequestDto("existing@test.com", "Pass123!", "User");
+        var request = new RegisterRequestDto(
+            "existing@test.com",
+            "Pass123!",
+            "John",
+            "Doe",
+            DateTime.UtcNow.AddYears(-25),
+            "User"
+        );
         _userManagerMock.Setup(x => x.FindByEmailAsync(request.Email))
             .ReturnsAsync(new AppUser());
 
@@ -113,7 +120,14 @@ public class AuthServiceTests
     public async Task SignupUserAsync_Success_CreatesUserAndSendsEmail()
     {
         // Arrange
-        var request = new RegisterRequestDto("new@test.com", "Pass123!", "NewUser");
+        var request = new RegisterRequestDto(
+            "new@test.com",
+            "Pass123!",
+            "John",
+            "Doe",
+            DateTime.UtcNow.AddYears(-25),
+            "NewUser"
+        );
 
         _userManagerMock.Setup(x => x.FindByEmailAsync(request.Email))
             .ReturnsAsync((AppUser?)null);
@@ -142,7 +156,14 @@ public class AuthServiceTests
     public async Task SignupUserAsync_IdentityFailure_ThrowsRegistrationFailedException()
     {
         // Arrange
-        var request = new RegisterRequestDto("weak@test.com", "123", "User");
+        var request = new RegisterRequestDto(
+            "weak@test.com",
+            "123",
+            "John",
+            "Doe",
+            DateTime.UtcNow.AddYears(-20),
+            "User"
+        );
         var identityErrors = new IdentityError[] { new IdentityError { Description = "Password too short" } };
 
         _userManagerMock.Setup(x => x.FindByEmailAsync(request.Email))
