@@ -1,6 +1,7 @@
 ﻿@page "/signup"
 
 @inject IAuthApiService authApiService
+@inject TimeProvider timeProvider
 @inject NavigationManager navigationManager
 
 <AuthorizeView>
@@ -14,31 +15,82 @@
 
 <MudContainer Style="justify-content: center" MaxWidth="MaxWidth.Small">
     <MudPaper Class="pa-4">
-        <MudText Typo="Typo.h4" Align="Align.Center" Color="Color.Secondary" style="margin-bottom:16px">Signup</MudText>
-        <MudForm @bind-IsValid="@success" @bind-Errors="@errors">
-            <MudTextField @bind-Value="username" T="string" Label="Username" Required="true" RequiredError="User name is required!" Style="margin-bottom:8px" />
-            <MudTextField @bind-Value="email" T="string" Label="Email" Required="true" RequiredError="Email is required!"
-                Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})" Style="margin-bottom:8px" />
-            <MudTextField @bind-Value="password" T="string" Label="Password" HelperText="Choose a strong password" InputType="InputType.Password"
-                           Required="true"
-                          Style="margin-bottom:8px" RequiredError="Password is required!" />@* Validation="@(new Func<string, IEnumerable<string>>(validationService.PasswordStrength))" *@
-            <MudTextField T="string"
-                Label="Password" HelperText="Repeat the password" InputType="InputType.Password"
-                          Style="margin-bottom:8px" /> @* Validation="@(new Func<string, string>(PasswordMatch))" *@
+        <MudText Typo="Typo.h4" Align="Align.Center" Color="Color.Secondary" Class="mb-4">Signup</MudText>
+
+        <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+            <MudGrid Spacing="2">
+
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="firstName" T="string" Label="First Name"
+                                  Required="true" RequiredError="First name is required!"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="lastName" T="string" Label="Last Name"
+                                  Required="true" RequiredError="Last name is required!"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+
+                <MudItem xs="12">
+                    <MudDatePicker @bind-Date="dateOfBirth" Label="Date of Birth"
+                                   Required="true" RequiredError="Date of birth is required!"
+                                   Editable="true"
+                                   Variant="Variant.Outlined" Margin="Margin.Dense"
+                                   MaxDate="@MaxAllowedDate"
+                                   MinDate="@MinAllowedDate"
+                                   HelperText="Must be between 4 and 120 years old" />
+                </MudItem>
+
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="username" T="string" Label="Username"
+                                  Required="true" RequiredError="User name is required!"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="email" T="string" Label="Email"
+                                  Required="true" RequiredError="Email is required!"
+                                  Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="password" T="string" Label="Password"
+                                  HelperText="Choose a strong password" InputType="InputType.Password"
+                                  Required="true" RequiredError="Password is required!"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField T="string" Label="Repeat Password"
+                                  HelperText="Repeat the password" InputType="InputType.Password"
+                                  Validation="@(new Func<string, string>(PasswordMatch))"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+
+                <MudItem xs="12" Class="d-flex align-center justify-space-between mt-2">
+                    <MudCheckBox Color="Color.Primary" T="bool" Required="true" RequiredError="You must agree" Label="I agree!" />
+                    <MudButton Disabled="@(!success)" Variant="Variant.Filled" Color="Color.Primary" OnClick="@SignUpAction" Class="ml-auto px-6">Sign up</MudButton>
+                </MudItem>
+
+            </MudGrid>
         </MudForm>
-        <div class="d-flex align-center justify-space-between">
-            <MudCheckBox Color="Color.Primary" T="bool" Required="true" RequiredError="You must agree" Label="I agree!" />
-            <button disabled="@(!success)" Class="btn btn-primary" onclick="@SignUpAction" style="padding-left: 25px; padding-right: 25px">  Sign up  </button>
-        </div>
     </MudPaper>
 </MudContainer>
 
 @code {
+    MudForm? form;
     bool success;
     string[] errors = { };
-    string username = "";
+
     string email = "";
+    string firstName = "";
+    string lastName = "";
+    DateTime? dateOfBirth;
     string password = "";
+    string username = "";
+
+    // Allowed date range for date of birth picker (from 4 years to 120 years ago)
+    DateTime MaxAllowedDate => timeProvider.GetUtcNow().AddYears(-4).UtcDateTime;
+    DateTime MinAllowedDate => timeProvider.GetUtcNow().AddYears(-120).UtcDateTime;
 
     private string PasswordMatch(string arg)
     {
@@ -49,11 +101,20 @@
 
     private async Task SignUpAction()
     {
-        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(email) ||
-            string.IsNullOrEmpty(password))
+        if (form is null) return;
+
+        await form.Validate();
+
+        if (!form.IsValid)
             return;
 
-        var succeeded = await authApiService.SignupAsync(new RegisterRequestDto(email, password, username));
+        if (dateOfBirth > MaxAllowedDate || dateOfBirth < MinAllowedDate)
+        {
+            return;
+        }
+
+        var succeeded = await authApiService.SignupAsync(new RegisterRequestDto(email, password,
+            firstName, lastName, dateOfBirth!.Value, username));
 
         if (succeeded)
         {
