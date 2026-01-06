@@ -1,10 +1,12 @@
-﻿@using Features.Chores
+﻿@using ChoreBuddies.Frontend.Features.Reminders
+@using Features.Chores
 @using Shared.Chores
 
 @inject IChoresService choresService
 @inject ISnackbar Snackbar
 @inject NavigationManager navigationManager
 @inject IDialogService DialogService
+@inject IRemindersService remindersService;
 
 <MudPaper Elevation="1" Class="pa-4 rounded-lg">
     <MudGrid>
@@ -60,7 +62,7 @@
         var options = new DialogOptions
         {
             CloseButton = true,
-            MaxWidth = MaxWidth.Small,
+            MaxWidth = MaxWidth.ExtraSmall,
             FullWidth = true
         };
 
@@ -71,10 +73,13 @@
 
         var result = await dialog.Result;
 
-        if (!result.Canceled)
+        if (_choreDto is not null && result is not null && !result.Canceled && result.Data is DateTime resultDateTime)
         {
-            var dateTime = (DateTime)result.Data;
-            Console.WriteLine(dateTime);
+            await remindersService.SetReminder(_choreDto.Id, resultDateTime.ToUniversalTime());
+        }
+        else
+        {
+            throw new InvalidDataException();
         }
     }
 
