@@ -35,10 +35,11 @@
     private TimeSpan? _selectedTime;
 
     [CascadingParameter]
-    private IMudDialogInstance MudDialog { get; set; }
+    private IMudDialogInstance MudDialog { get; set; } = default!;
 
     [Parameter]
-    public String Label { get; set; }
+    [EditorRequired]
+    public string Label { get; set; } = default!;
 
     private void Submit()
     {
