@@ -1,4 +1,5 @@
 ﻿using ChoreBuddies.Backend.Domain;
+using Microsoft.AspNetCore.Identity;
 using Shared.Users;
 
 namespace ChoreBuddies.Backend.Features.Users;
@@ -14,15 +15,20 @@ public interface IAppUserService
     public Task<bool> UpdateFcmTokenAsync(int userId, UpdateFcmTokenDto updateFcmTokenDto);
 
     public Task<ICollection<AppUser>> GetUsersHouseholdMembersAsync(int userId);
-    public Task<ICollection<AppUser>> GetUsersHouseholdParentsAsync(int userId);
+    public Task<ICollection<AppUser>> GetUsersHouseholdAdultsAsync(int userId);
+    public Task<ICollection<AppUser>> GetUsersHouseholdChildrensAsync(int userId);
+
     public Task<bool> AddPointsToUser(int userId, int pointsCount);
     public Task<bool> RemovePointsFromUser(int userId, int pointsCount);
+    public Task<bool> UpdateUserRoleAsync(int userId, string roleName);
 
 }
 
-public class AppUserService(IAppUserRepository userRepository) : IAppUserService
+public class AppUserService(IAppUserRepository userRepository, UserManager<AppUser> userManager, RoleManager<IdentityRole<int>> roleManager) : IAppUserService
 {
     private readonly IAppUserRepository _userRepository = userRepository;
+    private readonly UserManager<AppUser> _userManager = userManager;
+    private readonly RoleManager<IdentityRole<int>> _roleManager = roleManager;
 
     public async Task<AppUser?> GetUserByEmailAsync(string email)
     {
@@ -95,11 +101,54 @@ public class AppUserService(IAppUserRepository userRepository) : IAppUserService
         return user.Household.Users;
     }
 
-    public async Task<ICollection<AppUser>> GetUsersHouseholdParentsAsync(int userId)
+    public async Task<ICollection<AppUser>> GetUsersHouseholdAdultsAsync(int userId)
     {
-        var allMembers = await GetUsersHouseholdMembersAsync(userId); // TODO: fix when userTypes get defined
-        //return allMembers.Where(v => v.userType == UserType.Adult);
-        return allMembers;
+        var members = await GetUsersHouseholdMembersAsync(userId);
+
+        var adultIds = (await _userManager.GetUsersInRoleAsync("Adult"))
+            .Select(u => u.Id)
+            .ToHashSet();
+
+        return members
+            .Where(m => adultIds.Contains(m.Id))
+            .ToList();
+    }
+    public async Task<ICollection<AppUser>> GetUsersHouseholdChildrensAsync(int userId)
+    {
+        var members = await GetUsersHouseholdMembersAsync(userId);
+
+        var childrenIds = (await _userManager.GetUsersInRoleAsync("Child"))
+            .Select(u => u.Id)
+            .ToHashSet();
+
+        return members
+            .Where(m => childrenIds.Contains(m.Id))
+            .ToList();
+    }
+
+    public async Task<bool> UpdateUserRoleAsync(int userId, string roleName)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+            throw new InvalidOperationException($"User with id {userId} not found.");
+
+        if (!await _roleManager.RoleExistsAsync(roleName))
+            throw new InvalidOperationException($"Role '{roleName}' does not exist.");
+
+        var currentRole = (await _userManager.GetRolesAsync(user)).SingleOrDefault();
+
+        if (currentRole == roleName)
+            return true;
+
+        if (currentRole != null)
+        {
+            var removeResult = await _userManager.RemoveFromRoleAsync(user, currentRole);
+            if (!removeResult.Succeeded)
+                return false;
+        }
+
+        var addResult = await _userManager.AddToRoleAsync(user, roleName);
+        return addResult.Succeeded;
     }
 
     public async Task<IEnumerable<AppUser>> GetUntrackedUsersByIdAsync(IEnumerable<int> ids)
