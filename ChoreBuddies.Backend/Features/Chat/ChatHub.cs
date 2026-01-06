@@ -75,11 +75,11 @@ public class ChatHub(IChatService chatService,
 
         if (recipientIds.Any())
         {
-            _ = SendPushNotificationsInBackground(recipientIds, user.UserName ?? "Domownik", messageContent);
+            _ = SendNotificationsInBackground(recipientIds, user.UserName ?? "Domownik", messageContent);
         }
     }
 
-    private async Task SendPushNotificationsInBackground(List<int> recipientIds, string senderName, string messageContent)
+    private async Task SendNotificationsInBackground(List<int> recipientIds, string senderName, string messageContent)
     {
         await Task.Run(async () =>
         {
