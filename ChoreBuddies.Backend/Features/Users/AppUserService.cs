@@ -8,6 +8,7 @@ public interface IAppUserService
     public Task<AppUser?> GetUserByEmailAsync(string email);
 
     public Task<AppUser?> GetUserByIdAsync(int id);
+    public Task<IEnumerable<AppUser>> GetUntrackedUsersByIdAsync(IEnumerable<int> ids);
 
     public Task<bool> UpdateUserAsync(int userId, UpdateAppUserDto userDto);
     public Task<bool> UpdateFcmTokenAsync(int userId, UpdateFcmTokenDto updateFcmTokenDto);
@@ -99,6 +100,11 @@ public class AppUserService(IAppUserRepository userRepository) : IAppUserService
         var allMembers = await GetUsersHouseholdMembersAsync(userId); // TODO: fix when userTypes get defined
         //return allMembers.Where(v => v.userType == UserType.Adult);
         return allMembers;
+    }
+
+    public async Task<IEnumerable<AppUser>> GetUntrackedUsersByIdAsync(IEnumerable<int> ids)
+    {
+        return await _userRepository.GetUntrackedUsersByIdAsync(ids);
     }
 }
 

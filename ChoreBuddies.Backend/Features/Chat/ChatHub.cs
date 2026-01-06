@@ -83,17 +83,19 @@ public class ChatHub(IChatService chatService,
     {
         await Task.Run(async () =>
         {
+            // Creating new scope, as the method is working in the background, unrelated to HTTP request. 
+            // This ensures used services will not be disposed, with the end of the request, but with the end of block code (guaranteed by "using")
             using var scope = _scopeFactory.CreateScope();
 
             var scopedUserService = scope.ServiceProvider.GetRequiredService<IAppUserService>();
             var scopedNotificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
 
-            foreach (var recipientId in recipientIds)
+            var recipients = await scopedUserService.GetUntrackedUsersByIdAsync(recipientIds);
+
+            foreach (var recipient in recipients)
             {
                 try
                 {
-                    var recipient = await scopedUserService.GetUserByIdAsync(recipientId);
-
                     if (recipient != null)
                     {
                         await scopedNotificationService.SendNewMessageNotificationAsync(
@@ -105,7 +107,7 @@ public class ChatHub(IChatService chatService,
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Notification Sending Error for user {recipientId}: {ex.Message}");
+                    Console.WriteLine($"Notification Sending Error for user {recipient.Id}: {ex.Message}");
                 }
             }
         });
