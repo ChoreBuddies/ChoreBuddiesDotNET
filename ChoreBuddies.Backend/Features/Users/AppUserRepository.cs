@@ -9,6 +9,7 @@ public interface IAppUserRepository
     public Task<AppUser?> GetUserByEmailAsync(string email);
 
     public Task<AppUser?> GetUserByIdAsync(int id);
+    public Task<IEnumerable<AppUser>> GetUntrackedUsersByIdAsync(IEnumerable<int> ids);
     public Task<AppUser?> GetUserWithHouseholdByIdAsync(int id);
 
     public Task UpdateUserAsync(AppUser appUser);
@@ -44,5 +45,13 @@ public class AppUserRepository(ChoreBuddiesDbContext dbContext) : IAppUserReposi
     {
         return await _dbContext.ApplicationUsers.Include(u => u.Household.Users)
             .FirstOrDefaultAsync(x => x.Id == id);
+    }
+
+    public async Task<IEnumerable<AppUser>> GetUntrackedUsersByIdAsync(IEnumerable<int> ids)
+    {
+        return await _dbContext.ApplicationUsers
+                .AsNoTracking()
+                .Where(u => ids.Contains(u.Id))
+                .ToListAsync();
     }
 }
