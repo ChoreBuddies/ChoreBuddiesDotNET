@@ -59,7 +59,7 @@ public class RedeemedRewardsService(IRedeemedRewardsRepository redeemedRewardsRe
 
         if (!isFulfilled)
         {
-            var adults = await _appUserService.GetUsersHouseholdParentsAsync(userId);
+            var adults = await _appUserService.GetUsersHouseholdAdultsAsync(userId);
             foreach (var adult in adults)
             {
                 await _notificationService.SendNewRewardRequestNotificationAsync(adult.Id, result?.Name ?? "REWARD", user?.UserName ?? "USER");

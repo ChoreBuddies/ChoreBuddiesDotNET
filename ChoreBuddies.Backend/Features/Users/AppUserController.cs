@@ -82,4 +82,49 @@ public class AppUserController(
         return Ok(resultDto);
     }
 
+    [HttpGet("household/adults")]
+    public async Task<IActionResult> GetUsersHouseholdAdults()
+    {
+        var user = await GetCurrentUser();
+        if (user == null)
+            return BadRequest();
+        var adults = await _userService.GetUsersHouseholdAdultsAsync(user.Id);
+        var resultDto = adults.Select(v => _mapper.Map<AppUserDto>(v));
+        return Ok(resultDto);
+    }
+
+    [HttpGet("household/children")]
+    public async Task<IActionResult> GetUsersHouseholdChildren()
+    {
+        var user = await GetCurrentUser();
+        if (user == null)
+            return BadRequest();
+        var children = await _userService.GetUsersHouseholdChildrensAsync(user.Id);
+        var resultDto = children.Select(v => _mapper.Map<AppUserDto>(v));
+        return Ok(resultDto);
+    }
+
+    // TODO: Add check if user is the owner/Adult of the household
+    [HttpPut("{userId}/role")]
+    public async Task<IActionResult> UpdateUserRole(int userId, [FromBody] UpdateRoleDto dto)
+    {
+        var user = await GetCurrentUser();
+        if (user == null)
+            return BadRequest();
+
+        if (string.IsNullOrWhiteSpace(dto.RoleName))
+            return BadRequest("RoleName is required.");
+        try
+        {
+            var success = await _userService.UpdateUserRoleAsync(userId, dto.RoleName);
+            if (!success)
+                return StatusCode(500, "Failed to update role.");
+
+            return Ok();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
 }
