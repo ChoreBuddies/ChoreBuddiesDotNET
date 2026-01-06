@@ -1,9 +1,12 @@
-﻿@using Features.Chores
+﻿@using ChoreBuddies.Frontend.Features.Reminders
+@using Features.Chores
 @using Shared.Chores
 
 @inject IChoresService choresService
 @inject ISnackbar Snackbar
 @inject NavigationManager navigationManager
+@inject IDialogService DialogService
+@inject IRemindersService remindersService;
 
 <MudPaper Elevation="1" Class="pa-4 rounded-lg">
     <MudGrid>
@@ -19,7 +22,7 @@
 
         <MudItem xs="4" Class="d-flex justify-end align-center">
             <MudStack>
-                <MudButton Color="Color.Default" Variant="Variant.Outlined" Class="mt-1"> @*TODO: Add navigation to chores when they're done*@
+                <MudButton Color="Color.Default" Variant="Variant.Outlined" Class="mt-1" OnClick="OpenReminderDialog"> @*TODO: Add navigation to chores when they're done*@
                     Set a reminder
                 </MudButton>
                 <MudButton Color="Color.Default" Variant="Variant.Outlined" Class="mt-1" OnClick="MarkChoreAsDone">
@@ -49,4 +52,35 @@
             Snackbar.Add("An enexpected error occured while marking chore as done", Severity.Error);
         }
     }
+    private async Task OpenReminderDialog()
+    {
+        var parameters = new DialogParameters
+        {
+            ["Label"] = "Set reminder"
+        };
+
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.ExtraSmall,
+            FullWidth = true
+        };
+
+        var dialog = await DialogService.ShowAsync<DateTimePickerPopUp>(
+            title: "",
+            parameters: parameters,
+            options: options);
+
+        var result = await dialog.Result;
+
+        if (_choreDto is not null && result is not null && !result.Canceled && result.Data is DateTime resultDateTime)
+        {
+            await remindersService.SetReminder(_choreDto.Id, resultDateTime.ToUniversalTime());
+        }
+        else
+        {
+            throw new InvalidDataException();
+        }
+    }
+
 }

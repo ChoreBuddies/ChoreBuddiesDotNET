@@ -1,0 +1,58 @@
+﻿@using MudBlazor
+
+@inject ISnackbar Snackbar
+
+<MudDialog ContentClass="overflow-hidden">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Timer" Class="mr-3 mb-n1"/>
+            @Label
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudDatePicker Label="Date"
+                       @bind-Date="_selectedDate"
+                       DateFormat="yyyy-MM-dd" />
+
+        <MudTimePicker Label="Time"
+                       @bind-Time="_selectedTime" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled"
+                   OnClick="Cancel">
+            Cancel
+        </MudButton>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   OnClick="Submit">
+            Confirm
+        </MudButton>
+</DialogActions>
+</MudDialog>
+
+@code {
+    private DateTime? _selectedDate;
+    private TimeSpan? _selectedTime;
+
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter]
+    [EditorRequired]
+    public string Label { get; set; } = default!;
+
+    private void Submit()
+    {
+        if (_selectedDate is null || _selectedTime is null)
+        {
+            Cancel();
+            return;
+        }
+
+        var result = _selectedDate.Value.Date + _selectedTime.Value;
+        MudDialog.Close(DialogResult.Ok(result));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+}
