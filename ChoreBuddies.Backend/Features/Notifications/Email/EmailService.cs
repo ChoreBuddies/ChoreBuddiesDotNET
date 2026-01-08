@@ -11,6 +11,14 @@ public class EmailServiceOptions
     public string FromName { get; set; } = default!;
 }
 
+public interface IEmailService
+{
+    public Task<string> SendRegisterConfirmationNotificationAsync(
+        AppUser recipientEmail,
+        string recipientName,
+        CancellationToken cancellationToken = default);
+}
+
 public class EmailService : INotificationChannel, IEmailService
 {
     NotificationChannel INotificationChannel.ChannelType => NotificationChannel.Email;
