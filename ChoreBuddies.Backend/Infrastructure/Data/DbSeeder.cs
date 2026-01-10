@@ -308,26 +308,26 @@ public class DbSeeder
     {
         var households = new List<Household>();
 
-        // Scenariusz 1: "Kawalerka" (1 użytkownik)
-        // Używamy dbUsers[0] jako właściciela
+        // Scenario 1: "Bachelor Pad" (1 user)
+        // Using dbUsers[0] as the owner
         var owner1 = dbUsers[0];
-        var h1 = new Household(owner1.Id, "Mieszkanie Marka", "ABC001", "Moja prywatna jaskinia");
-        h1.Users.Add(owner1); // Dodajemy użytkownika do kolekcji, EF zaktualizuje FK
+        var h1 = new Household(owner1.Id, "Mark's Apartment", "ABC001", "My private cave");
+        h1.Users.Add(owner1);
         households.Add(h1);
 
-        // Scenariusz 2: "Rodzinka" (Mała grupa: Właściciel + 2 osoby)
-        // Używamy dbUsers[1] jako właściciela, dbUsers[2] i [3] jako członków
+        // Scenario 2: "Family" (Small group: Owner + 2 people)
+        // Using dbUsers[1] as the owner, dbUsers[2] and [3] as members
         var owner2 = dbUsers[1];
-        var h2 = new Household(owner2.Id, "Rodzina Nowaków", "FAM002", "Rodzice i syn");
+        var h2 = new Household(owner2.Id, "The Novak Family", "FAM002", "Parents and son");
         h2.Users.Add(owner2);
         h2.Users.Add(dbUsers[2]);
         h2.Users.Add(dbUsers[3]);
         households.Add(h2);
 
-        // Scenariusz 3: "Akademik" (Duża grupa: Właściciel + 6 osób)
-        // Używamy dbUsers[4] jako właściciela, dbUsers[5]...[10] jako członków
+        // Scenario 3: "Dormitory" (Large group: Owner + 6 people)
+        // Using dbUsers[4] as the owner, dbUsers[5]...[10] as members
         var owner3 = dbUsers[4];
-        var h3 = new Household(owner3.Id, "Akademik Pokój 101", "STU003", "Imprezownia i sprzątanie w piątki");
+        var h3 = new Household(owner3.Id, "Dormitory Room 101", "STU003", "Party house and cleaning on Fridays");
         h3.Users.Add(owner3);
         for (int i = 5; i <= 10; i++)
         {
@@ -347,7 +347,7 @@ public class DbSeeder
                 Email = $"user{i + 1}@test.com",
                 UserName = $"UserName{i + 1}",
                 FirstName = $"User{i + 1}",
-                LastName = "Testowy"
+                LastName = "Testowski"
             });
 
         return users;
@@ -497,33 +497,33 @@ public class DbSeeder
         if (usersFamily.Count >= 2)
         {
             list.Add(new Chore(
-                "Naprawić kran",
-                "Cieknie w kuchni",
+                "Fix the faucet",
+                "Leaking in the kitchen",
                 usersFamily[0].Id,
                 hFamily.Id,
                 DateTime.UtcNow.AddDays(2),
                 Status.Assigned,
-                "Kuchnia",
+                "Kitchen",
                 50));
 
             list.Add(new Chore(
-                "Wynieść śmieci",
-                "Segregowane zmieszane",
+                "Take out the trash",
+                "Mixed waste sorting",
                 usersFamily[1].Id,
                 hFamily.Id,
                 DateTime.UtcNow.AddHours(4),
                 Status.Assigned,
-                "Garaż",
+                "Garage",
                 10));
 
             list.Add(new Chore(
-                "Zakupy spożywcze",
-                "Lista na lodówce",
+                "Grocery shopping",
+                "List on the fridge",
                 usersFamily[0].Id,
                 hFamily.Id,
                 DateTime.UtcNow.AddDays(-1),
                 Status.Completed,
-                "Salon",
+                "Living Room",
                 20));
         }
 
@@ -532,7 +532,7 @@ public class DbSeeder
         var usersStudent = hStudent.Users.ToList();
 
         var random = new Random();
-        var choreNames = new[] { "Zmywanie", "Odkurzanie", "Śmieci", "Zakupy", "Łazienka" };
+        var choreNames = new[] { "Washing dishes", "Vacuuming", "Taking out trash", "Shopping", "Bathroom" };
 
         for (int i = 0; i < 50; i++)
         {
@@ -542,22 +542,22 @@ public class DbSeeder
 
             list.Add(new Chore(
                 name,
-                "Wykonane w przeszłości",
+                "Done in the past",
                 user.Id,
                 hStudent.Id,
                 date,
                 Status.Completed,
-                "Mieszkanie",
+                "Apartment",
                 random.Next(10, 50)
             ));
         }
 
-        list.Add(new Chore("Kupić papier toaletowy", "Pilne!", null, hStudent.Id, DateTime.UtcNow, Status.Unassigned, "Łazienka", 15));
-        list.Add(new Chore("Posprzątać po imprezie", "Butelki w salonie", null, hStudent.Id, DateTime.UtcNow.AddHours(10), Status.Unassigned, "Salon", 100));
+        list.Add(new Chore("Buy toilet paper", "Urgent!", null, hStudent.Id, DateTime.UtcNow, Status.Unassigned, "Bathroom", 15));
+        list.Add(new Chore("Clean up after party", "Bottles in the living room", null, hStudent.Id, DateTime.UtcNow.AddHours(10), Status.Unassigned, "Living Room", 100));
 
         if (usersStudent.Any())
         {
-            list.Add(new Chore("Zmyć naczynia", "Twoja kolej", usersStudent[0].Id, hStudent.Id, DateTime.UtcNow.AddHours(1), Status.Assigned, "Kuchnia", 25));
+            list.Add(new Chore("Wash the dishes", "Your turn", usersStudent[0].Id, hStudent.Id, DateTime.UtcNow.AddHours(1), Status.Assigned, "Kitchen", 25));
         }
 
         return list;
@@ -573,10 +573,10 @@ public class DbSeeder
         var hFamily = households[1];
 
         list.Add(new ScheduledChore(
-            "Mycie łazienki",
-            "Szorowanie wanny i toalety",
+            "Cleaning the bathroom",
+            "Scrubbing the bathtub and toilet",
             null,
-            "Łazienka",
+            "Bathroom",
             1,
             Frequency.Weekly,
             100,
@@ -587,10 +587,10 @@ public class DbSeeder
         var hStudent = households[2];
 
         list.Add(new ScheduledChore(
-            "Śmieci",
-            "Wyrzucić wór jak pełny",
+            "Trash",
+            "Throw out bag when full",
             null,
-            "Kuchnia",
+            "Kitchen",
             2,
             Frequency.Daily,
             10,
@@ -598,10 +598,10 @@ public class DbSeeder
         ));
 
         list.Add(new ScheduledChore(
-            "Zbiórka na internet",
-            "Przelew do gospodarza",
+            "Internet bill collection",
+            "Transfer to the host",
             hStudent.OwnerId,
-            "Salon",
+            "Living Room",
             1,
             Frequency.Monthly,
             0,
@@ -620,16 +620,16 @@ public class DbSeeder
 
         // households[1]
         var hFamily = households[1];
-        list.Add(new Reward("Kieszonkowe", "20 PLN gotówką", hFamily.Id, 200, 10));
-        list.Add(new Reward("Gra na konsoli", "1 godzina grania", hFamily.Id, 50, 999));
-        list.Add(new Reward("Wyjście do kina", "Wspólne lub z kolegami", hFamily.Id, 500, 2));
+        list.Add(new Reward("Allowance", "20 PLN in cash", hFamily.Id, 200, 10));
+        list.Add(new Reward("Console gaming", "1 hour of playing", hFamily.Id, 50, 999));
+        list.Add(new Reward("Cinema trip", "Together or with friends", hFamily.Id, 500, 2));
 
         // households[2]
         var hStudent = households[2];
-        list.Add(new Reward("Zwolnienie ze sprzątania", "Jednorazowy 'pass'", hStudent.Id, 300, 5));
-        list.Add(new Reward("Pizza", "Składka na pizzę z funduszu domowego", hStudent.Id, 150, 10));
-        list.Add(new Reward("Pierwszeństwo pod prysznicem", "Rano bez kolejki", hStudent.Id, 50, 20));
-        list.Add(new Reward("Wybór filmu", "Ty wybierasz co oglądamy w piątek", hStudent.Id, 100, 4));
+        list.Add(new Reward("Exemption from cleaning", "One-time pass", hStudent.Id, 300, 5));
+        list.Add(new Reward("Pizza", "Pizza contribution from household fund", hStudent.Id, 150, 10));
+        list.Add(new Reward("Shower priority", "Morning without queuing", hStudent.Id, 50, 20));
+        list.Add(new Reward("Movie choice", "You choose what we watch on Friday", hStudent.Id, 100, 4));
 
         return list;
     }
@@ -648,8 +648,8 @@ public class DbSeeder
             var kidId = usersFamily[1].Id;
             list.Add(new RedeemedReward
             {
-                Name = "Gra na konsoli",
-                Description = "1 godzina grania",
+                Name = "Console gaming",
+                Description = "1 hour of playing",
                 UserId = kidId,
                 HouseholdId = hFamily.Id,
                 RedeemedDate = DateTime.UtcNow.AddMinutes(-30),
@@ -659,8 +659,8 @@ public class DbSeeder
 
             list.Add(new RedeemedReward
             {
-                Name = "Kieszonkowe",
-                Description = "20 PLN gotówką",
+                Name = "Allowance",
+                Description = "20 PLN in cash",
                 UserId = kidId,
                 HouseholdId = hFamily.Id,
                 RedeemedDate = DateTime.UtcNow.AddDays(-7),
@@ -676,10 +676,10 @@ public class DbSeeder
 
         var rewardTemplates = new[]
         {
-            new { Name = "Zwolnienie ze sprzątania", Cost = 300 },
+            new { Name = "Exemption from cleaning", Cost = 300 },
             new { Name = "Pizza", Cost = 150 },
-            new { Name = "Pierwszeństwo pod prysznicem", Cost = 50 },
-            new { Name = "Wybór filmu", Cost = 100 }
+            new { Name = "Shower priority", Cost = 50 },
+            new { Name = "Movie choice", Cost = 100 }
         };
 
         for (int i = 0; i < 30; i++)
@@ -690,7 +690,7 @@ public class DbSeeder
             list.Add(new RedeemedReward
             {
                 Name = template.Name,
-                Description = "Nagroda odebrana w przeszłości",
+                Description = "Reward redeemed in the past",
                 UserId = user.Id,
                 HouseholdId = hStudent.Id,
                 RedeemedDate = DateTime.UtcNow.AddDays(-i).AddHours(random.Next(-5, 5)),
