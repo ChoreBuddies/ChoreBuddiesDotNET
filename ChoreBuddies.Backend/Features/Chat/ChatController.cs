@@ -1,4 +1,4 @@
-﻿using ChoreBuddies.Backend.Features.Households;
+﻿using Shared.Households;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;

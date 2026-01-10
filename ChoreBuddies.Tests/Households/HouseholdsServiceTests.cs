@@ -1,5 +1,5 @@
 ﻿using ChoreBuddies.Backend.Domain;
-using ChoreBuddies.Backend.Features.Households;
+using Shared.Households;
 using ChoreBuddies.Backend.Features.Users;
 using Moq;
 

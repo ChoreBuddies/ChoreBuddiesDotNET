@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Chores;
-using ChoreBuddies.Backend.Features.Households;
+using Shared.Households;
 using Shared.Chores;
 using Shared.DefalutChores;
 using Shared.Notifications;

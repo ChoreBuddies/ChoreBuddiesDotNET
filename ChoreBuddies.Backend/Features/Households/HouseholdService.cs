@@ -1,7 +1,7 @@
 ﻿using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Users;
 
-namespace ChoreBuddies.Backend.Features.Households;
+namespace Shared.Households;
 
 public interface IHouseholdService
 {

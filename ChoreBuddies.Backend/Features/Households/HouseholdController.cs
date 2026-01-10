@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Shared.Authentication;
 using System.Security.Claims;
 
-namespace ChoreBuddies.Backend.Features.Households;
+namespace Shared.Households;
 
 [ApiController]
 [Route("api/v1/household")]
@@ -18,7 +18,7 @@ public class HouseholdController(IHouseholdService service, IMapper mapper, IAut
     private readonly IMapper _mapper = mapper;
     private readonly ITokenService _tokenService = tokenService;
     // Create
-    [HttpPost("create")]
+    [HttpPost("add")]
     public async Task<IActionResult> CreateHousehold([FromBody] CreateHouseholdDto createHouseholdDto)
     {
         var userId = _tokenService.GetUserIdFromToken(User);

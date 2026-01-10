@@ -1,4 +1,4 @@
-﻿namespace ChoreBuddies.Backend.Features.Households;
+﻿namespace Shared.Households;
 
 public record HouseholdDto(
     int Id,

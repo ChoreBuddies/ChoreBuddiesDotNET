@@ -1,5 +1,5 @@
 ﻿using ChoreBuddies.Backend.Domain;
-using ChoreBuddies.Backend.Features.Households;
+using Shared.Households;
 using ChoreBuddies.Tests.Infrastructure;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;

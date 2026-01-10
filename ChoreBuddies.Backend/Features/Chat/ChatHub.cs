@@ -1,4 +1,4 @@
-﻿using ChoreBuddies.Backend.Features.Households;
+﻿using Shared.Households;
 using ChoreBuddies.Backend.Features.Notifications;
 using ChoreBuddies.Backend.Features.Users;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
