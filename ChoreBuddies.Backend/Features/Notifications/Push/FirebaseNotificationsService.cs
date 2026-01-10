@@ -7,7 +7,7 @@ namespace ChoreBuddies.Backend.Features.Notifications.Push;
 public class FirebaseNotificationsService : INotificationChannel
 {
     public NotificationChannel ChannelType => NotificationChannel.Push;
-    async Task<string> SendNotificationAsync(AppUser user, string title, string body)
+    async Task<string> SendNotificationAsync(AppUser user, string title, string body, Dictionary<string, string> data)
     {
         if (user.FcmToken is null) return "No token present";
 
@@ -20,6 +20,7 @@ public class FirebaseNotificationsService : INotificationChannel
                 Title = title,
                 Body = body
             },
+            Data = data,
         };
 
         try
@@ -43,24 +44,38 @@ public class FirebaseNotificationsService : INotificationChannel
 
         var dateString = dueDate.HasValue ? $"to {dueDate.Value:dd.MM}" : "no deadline";
         var body = $"{choreName} ({dateString}). {choreDescription}";
-
-        return await SendNotificationAsync(recipient, title, body);
+        var data = new Dictionary<string, string>()
+            {
+                { "click_action", "FLUTTER_NOTIFICATION_CLICK" },
+                { "screen", "/chore_details" },
+                { "id", choreId.ToString() }
+            };
+        return await SendNotificationAsync(recipient, title, body, data);
     }
 
     public async Task<string> SendNewRewardRequestNotificationAsync(AppUser recipient, int rewardId, string rewardName, string requester, CancellationToken cancellationToken = default)
     {
         var title = "New Reward Request 🎁";
         var body = $"{requester} would like to recive: {rewardName}. Approve or deny.";
-
-        return await SendNotificationAsync(recipient, title, body);
+        var data = new Dictionary<string, string>()
+            {
+                { "click_action", "FLUTTER_NOTIFICATION_CLICK" },
+                { "screen", "/reward_details" },
+                { "id", rewardId.ToString() }
+            };
+        return await SendNotificationAsync(recipient, title, body, data);
     }
 
     public async Task<string> SendNewMessageNotificationAsync(AppUser recipient, string sender, string content, CancellationToken cancellationToken = default)
     {
 
         var title = $"New message from {sender}";
-
-        return await SendNotificationAsync(recipient, title, content);
+        var data = new Dictionary<string, string>()
+            {
+                { "click_action", "FLUTTER_NOTIFICATION_CLICK" },
+                { "screen", "/chat" },
+            };
+        return await SendNotificationAsync(recipient, title, content, []);
     }
 
     public async Task<string> SendReminderNotificationAsync(AppUser recipient, int choreId, string choreName, CancellationToken cancellationToken = default)
@@ -68,8 +83,13 @@ public class FirebaseNotificationsService : INotificationChannel
 
         var title = "Time is up!";
         var content = $"Let's {choreName}!";
-
-        return await SendNotificationAsync(recipient, title, content);
+        var data = new Dictionary<string, string>()
+            {
+                { "click_action", "FLUTTER_NOTIFICATION_CLICK" },
+                { "screen", "/chore_details" },
+                { "id", choreId.ToString() }
+            };
+        return await SendNotificationAsync(recipient, title, content, data);
     }
 
 }
