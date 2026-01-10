@@ -65,12 +65,13 @@ public class EmailService : INotificationChannel, IEmailService
         return referenceId;
     }
 
-    public async Task<string> SendNewChoreNotificationAsync(AppUser recipient, string choreName, string choreDescription, DateTime? dueDate, CancellationToken cancellationToken = default)
+    public async Task<string> SendNewChoreNotificationAsync(AppUser recipient, int choreId, string choreName, string choreDescription, DateTime? dueDate, CancellationToken cancellationToken = default)
     {
         var recipientName = GetRecipientName(recipient);
 
         var parameters = new Dictionary<string, object>
         {
+            { "choreId", choreId },
             { "choreName", choreName },
             { "choreDescription", choreDescription},
             { "dueDate", dueDate?.ToString("f") ?? "No due date" },
@@ -101,12 +102,13 @@ public class EmailService : INotificationChannel, IEmailService
             cancellationToken);
     }
 
-    public async Task<string> SendNewRewardRequestNotificationAsync(AppUser recipient, string rewardName, string requester, CancellationToken cancellationToken = default)
+    public async Task<string> SendNewRewardRequestNotificationAsync(AppUser recipient, int rewardId, string rewardName, string requester, CancellationToken cancellationToken = default)
     {
         var recipientName = GetRecipientName(recipient);
 
         var parameters = new Dictionary<string, object>
         {
+            { "rewardId", rewardId },
             { "recipientName",recipientName},
             { "rewardName", rewardName },
             { "requester", requester }
@@ -139,12 +141,13 @@ public class EmailService : INotificationChannel, IEmailService
             cancellationToken);
     }
 
-    public async Task<string> SendReminderNotificationAsync(AppUser recipient, string choreName, CancellationToken cancellationToken = default)
+    public async Task<string> SendReminderNotificationAsync(AppUser recipient, int choreId, string choreName, CancellationToken cancellationToken = default)
     {
         var recipientName = GetRecipientName(recipient);
 
         var parameters = new Dictionary<string, object>
         {
+            { "choreId", choreId },
             { "recipientName",recipientName},
             { "choreName", choreName }
         };

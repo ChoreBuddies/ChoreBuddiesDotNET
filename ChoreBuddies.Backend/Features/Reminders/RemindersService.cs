@@ -22,7 +22,7 @@ public class RemindersService(IBackgroundJobClient backgroundJobClient, IChoresS
             throw new ArgumentNullException(nameof(chore));
         }
         _backgroundJobClient.Schedule<INotificationService>(
-                service => service.SendReminderAsync(userId, chore.Name, default),
+                service => service.SendReminderAsync(userId, chore.Id, chore.Name, default),
                 reminderDto.remindAt
             );
     }

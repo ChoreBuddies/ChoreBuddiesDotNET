@@ -49,7 +49,7 @@ public class NotificationServiceTests
 
         var act = async () =>
             await _service.SendNewChoreNotificationAsync(
-                999, "Chore", "Description", DateTime.UtcNow);
+                999, -1, "Chore", "Description", DateTime.UtcNow);
 
         await act.Should().ThrowAsync<ArgumentException>()
             .WithMessage("Invalid recipient");
@@ -67,6 +67,7 @@ public class NotificationServiceTests
         _emailChannelMock
             .Setup(x => x.SendNewChoreNotificationAsync(
                 _recipient,
+                It.IsAny<int>(),
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<DateTime?>(),
@@ -75,6 +76,7 @@ public class NotificationServiceTests
 
         var result = await _service.SendNewChoreNotificationAsync(
             _recipient.Id,
+            1,
             "Wash dishes",
             "Kitchen sink",
             DateTime.UtcNow);
@@ -84,6 +86,7 @@ public class NotificationServiceTests
         _emailChannelMock.Verify(x =>
             x.SendNewChoreNotificationAsync(
                 _recipient,
+                1,
                 "Wash dishes",
                 "Kitchen sink",
                 It.IsAny<DateTime?>(),
@@ -93,6 +96,7 @@ public class NotificationServiceTests
         _pushChannelMock.Verify(x =>
             x.SendNewChoreNotificationAsync(
                 It.IsAny<AppUser>(),
+                It.IsAny<int>(),
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<DateTime?>(),
@@ -164,12 +168,14 @@ public class NotificationServiceTests
         _pushChannelMock
             .Setup(x => x.SendReminderNotificationAsync(
                 _recipient,
+                It.IsAny<int>(),
                 "Take out trash",
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync("id");
 
         var result = await _service.SendReminderAsync(
             _recipient.Id,
+            -1,
             "Take out trash");
 
         result.Should().BeTrue();
@@ -177,6 +183,7 @@ public class NotificationServiceTests
         _pushChannelMock.Verify(x =>
             x.SendReminderNotificationAsync(
                 _recipient,
+                -1,
                 "Take out trash",
                 It.IsAny<CancellationToken>()),
             Times.Once);
