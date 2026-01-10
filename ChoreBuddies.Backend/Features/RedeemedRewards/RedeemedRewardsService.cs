@@ -67,12 +67,12 @@ public class RedeemedRewardsService(IRedeemedRewardsRepository redeemedRewardsRe
         };
         var result = await _redeemedRewardsRepository.RedeemRewardAsync(redeemedReward);
 
-        if (!isFulfilled)
+        if (!isFulfilled && result is not null)
         {
             var adults = await _appUserService.GetUsersHouseholdAdultsAsync(userId);
             foreach (var adult in adults)
             {
-                await _notificationService.SendNewRewardRequestNotificationAsync(adult.Id, result?.Name ?? "REWARD", user?.UserName ?? "USER");
+                await _notificationService.SendNewRewardRequestNotificationAsync(adult.Id, result?.Id ?? -1, result?.Name ?? "REWARD", user?.UserName ?? "USER");
             }
         }
         return _mapper.Map<RedeemedRewardDto>(result);

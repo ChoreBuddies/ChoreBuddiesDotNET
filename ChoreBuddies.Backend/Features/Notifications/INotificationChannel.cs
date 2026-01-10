@@ -9,6 +9,7 @@ public interface INotificationChannel
 
     Task<string> SendNewChoreNotificationAsync(
         AppUser recipient,
+        int choreId,
         string choreName,
         string choreDescription,
         DateTime? dueDate,
@@ -16,6 +17,7 @@ public interface INotificationChannel
 
     Task<string> SendNewRewardRequestNotificationAsync(
         AppUser recipient,
+        int rewardId,
         string rewardName,
         string requester,
         CancellationToken cancellationToken = default);
@@ -25,7 +27,8 @@ public interface INotificationChannel
     string content,
     CancellationToken cancellationToken = default);
     Task<string> SendReminderNotificationAsync(
-AppUser recipient,
-string choreName,
-CancellationToken cancellationToken = default);
+        AppUser recipient,
+        int choreId,
+        string choreName,
+        CancellationToken cancellationToken = default);
 }

@@ -36,7 +36,7 @@ public class FirebaseNotificationsService : INotificationChannel
         }
     }
 
-    public async Task<string> SendNewChoreNotificationAsync(AppUser recipient, string choreName, string choreDescription, DateTime? dueDate, CancellationToken cancellationToken = default)
+    public async Task<string> SendNewChoreNotificationAsync(AppUser recipient, int choreId, string choreName, string choreDescription, DateTime? dueDate, CancellationToken cancellationToken = default)
     {
 
         var title = "New Chore Available!";
@@ -47,7 +47,7 @@ public class FirebaseNotificationsService : INotificationChannel
         return await SendNotificationAsync(recipient, title, body);
     }
 
-    public async Task<string> SendNewRewardRequestNotificationAsync(AppUser recipient, string rewardName, string requester, CancellationToken cancellationToken = default)
+    public async Task<string> SendNewRewardRequestNotificationAsync(AppUser recipient, int rewardId, string rewardName, string requester, CancellationToken cancellationToken = default)
     {
         var title = "New Reward Request 🎁";
         var body = $"{requester} would like to recive: {rewardName}. Approve or deny.";
@@ -63,7 +63,7 @@ public class FirebaseNotificationsService : INotificationChannel
         return await SendNotificationAsync(recipient, title, content);
     }
 
-    public async Task<string> SendReminderNotificationAsync(AppUser recipient, string choreName, CancellationToken cancellationToken = default)
+    public async Task<string> SendReminderNotificationAsync(AppUser recipient, int choreId, string choreName, CancellationToken cancellationToken = default)
     {
 
         var title = "Time is up!";

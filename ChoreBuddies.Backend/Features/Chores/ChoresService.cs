@@ -127,6 +127,6 @@ public class ChoresService : IChoresService
 
     private async Task SendNewChoreAssignedNotification(int userId, Chore chore)
     {
-        await _notificationsService.SendNewChoreNotificationAsync(userId, chore.Name, chore.Description, chore.DueDate);
+        await _notificationsService.SendNewChoreNotificationAsync(userId, chore.Id, chore.Name, chore.Description, chore.DueDate);
     }
 }

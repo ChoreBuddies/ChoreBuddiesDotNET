@@ -9,6 +9,7 @@ public interface INotificationService
 {
     Task<bool> SendNewChoreNotificationAsync(
         int recipientId,
+        int choreId,
         string choreName,
         string choreDescription,
         DateTime? dueDate,
@@ -16,6 +17,7 @@ public interface INotificationService
 
     Task<bool> SendNewRewardRequestNotificationAsync(
         int recipientId,
+        int rewardId,
         string rewardName,
         string requester,
         CancellationToken cancellationToken = default);
@@ -26,6 +28,7 @@ public interface INotificationService
         CancellationToken cancellationToken = default);
     Task<bool> SendReminderAsync(
         int recipientId,
+        int rewardId,
         string content,
         CancellationToken cancellationToken = default);
 }
@@ -74,14 +77,14 @@ public class NotificationService : INotificationService
         return true;
     }
 
-    public async Task<bool> SendNewChoreNotificationAsync(int recipientId, string choreName, string choreDescription, DateTime? dueDate, CancellationToken ct = default)
+    public async Task<bool> SendNewChoreNotificationAsync(int recipientId, int choreId, string choreName, string choreDescription, DateTime? dueDate, CancellationToken ct = default)
     {
-        return await SendNotificationAsync(recipientId, NotificationEvent.NewChore, (channel, recipient) => channel.SendNewChoreNotificationAsync(recipient, choreName, choreDescription, dueDate, ct));
+        return await SendNotificationAsync(recipientId, NotificationEvent.NewChore, (channel, recipient) => channel.SendNewChoreNotificationAsync(recipient, choreId, choreName, choreDescription, dueDate, ct));
     }
 
-    public async Task<bool> SendNewRewardRequestNotificationAsync(int recipientId, string rewardName, string requester, CancellationToken ct = default)
+    public async Task<bool> SendNewRewardRequestNotificationAsync(int recipientId, int rewardId, string rewardName, string requester, CancellationToken ct = default)
     {
-        return await SendNotificationAsync(recipientId, NotificationEvent.RewardRequest, (channel, recipient) => channel.SendNewRewardRequestNotificationAsync(recipient, rewardName, requester, ct));
+        return await SendNotificationAsync(recipientId, NotificationEvent.RewardRequest, (channel, recipient) => channel.SendNewRewardRequestNotificationAsync(recipient, rewardId, rewardName, requester, ct));
     }
 
     public async Task<bool> SendNewMessageNotificationAsync(int recipientId, string sender, string content, CancellationToken cancellationToken = default)
@@ -90,9 +93,9 @@ public class NotificationService : INotificationService
 
     }
 
-    public async Task<bool> SendReminderAsync(int recipientId, string choreName, CancellationToken cancellationToken = default)
+    public async Task<bool> SendReminderAsync(int recipientId, int choreId, string choreName, CancellationToken cancellationToken = default)
     {
-        return await SendNotificationAsync(recipientId, NotificationEvent.Reminder, (channel, recipient) => channel.SendReminderNotificationAsync(recipient, choreName, cancellationToken));
+        return await SendNotificationAsync(recipientId, NotificationEvent.Reminder, (channel, recipient) => channel.SendReminderNotificationAsync(recipient, choreId, choreName, cancellationToken));
 
     }
 }

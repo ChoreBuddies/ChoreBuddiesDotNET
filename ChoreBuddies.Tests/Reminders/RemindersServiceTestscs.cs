@@ -102,7 +102,8 @@ public class RemindersServiceTests
                     job.Type == typeof(INotificationService) &&
                     job.Method.Name == "SendReminderAsync" &&
                     job.Args[0].Equals(userId) &&
-                    job.Args[1].Equals(chore.Name)
+                    job.Args[1].Equals(choreId) &&
+                    job.Args[2].Equals(chore.Name)
                 ),
                 It.Is<IState>(state =>
                     state is ScheduledState &&
