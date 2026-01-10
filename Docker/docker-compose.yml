@@ -27,7 +27,7 @@ services:
       - sqlserver
     restart: on-failure
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
       - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=ChoreBuddiesDB;User=sa;Password=Password123!;TrustServerCertificate=True;MultipleActiveResultSets=true;
       - JwtSettings__Secret=936a4398b0219e3c70f61acea1f03cc9725b780caf4afa13567ac48f660c88d0562f02f2071275d8031e807b096c69afd9e85884f3edd4c2c49abe322139dfb9
       - JwtSettings__AccessTokenExpirationMinutes=15
@@ -46,7 +46,7 @@ services:
       - backend
     restart: on-failure
     environment: 
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
     networks:
       - app-network  
 networks:

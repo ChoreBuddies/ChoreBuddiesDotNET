@@ -29,7 +29,7 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
             services.AddDbContext<ChoreBuddiesDbContext>(options =>
             {
                 options.UseSqlServer(DbContainer.GetConnectionString());
-                new DbSeeder().SetUpDbSeeding(options);
+                new DbSeeder().SetUpDbSeeding(options, true);
             });
         });
     }
