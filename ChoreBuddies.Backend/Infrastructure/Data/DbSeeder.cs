@@ -24,32 +24,40 @@ public class DbSeeder
         _defaultRewards = readDefaultRewardsFromCsv("Infrastructure/Data/Csv/predefined_rewards.csv");
     }
 
-    public void SetUpDbSeeding(DbContextOptionsBuilder optionsBuilder)
+    public void SetUpDbSeeding(DbContextOptionsBuilder optionsBuilder, bool isDevelopment)
     {
         optionsBuilder
             .UseSeeding((context, _) =>
             {
                 SeedRoles(context);
-                SeedUsers(context);
-                SeedHouseholds(context);
                 SeedDefaultChores(context);
-                SeedChores(context);
-                SeedScheduledChores(context);
-                SeedRewards(context);
-                SeedRedeemedRewards(context);
                 SeedDefaultRewards(context);
+
+                if (isDevelopment)
+                {
+                    SeedUsers(context);
+                    SeedHouseholds(context);
+                    SeedChores(context);
+                    SeedScheduledChores(context);
+                    SeedRewards(context);
+                    SeedRedeemedRewards(context);
+                }
             })
             .UseAsyncSeeding(async (context, _, ct) =>
             {
                 await SeedRolesAsync(context, ct);
-                await SeedUsersAsync(context, ct);
-                await SeedHouseholdsAsync(context, ct);
                 await SeedDefaultChoresAsync(context, ct);
-                await SeedChoresAsync(context, ct);
-                await SeedScheduledChoresAsync(context, ct);
-                await SeedRewardsAsync(context, ct);
-                await SeedRedeemedRewardsAsync(context, ct);
                 await SeedDefaultRewardsAsync(context, ct);
+
+                if (isDevelopment)
+                {
+                    await SeedUsersAsync(context, ct);
+                    await SeedHouseholdsAsync(context, ct);
+                    await SeedChoresAsync(context, ct);
+                    await SeedScheduledChoresAsync(context, ct);
+                    await SeedRewardsAsync(context, ct);
+                    await SeedRedeemedRewardsAsync(context, ct);
+                }
             });
     }
 

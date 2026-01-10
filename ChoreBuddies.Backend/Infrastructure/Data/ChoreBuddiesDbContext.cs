@@ -26,6 +26,9 @@ public class ChoreBuddiesDbContext : IdentityDbContext<AppUser, IdentityRole<int
     {
         base.OnConfiguring(optionsBuilder);
 
-        new DbSeeder().SetUpDbSeeding(optionsBuilder);
+        var envName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+        var isDevelopment = string.Equals(envName, "Development", StringComparison.OrdinalIgnoreCase);
+
+        new DbSeeder().SetUpDbSeeding(optionsBuilder, isDevelopment);
     }
 }
