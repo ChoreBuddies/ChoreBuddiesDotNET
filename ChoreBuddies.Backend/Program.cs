@@ -40,7 +40,6 @@ public class Program
 
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-        builder.AddServiceDefaults();
         builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
         builder.Services.AddSignalR();
 
@@ -255,8 +254,6 @@ public class Program
                 await dbContext.Database.MigrateAsync();
             }
         }
-
-        app.MapDefaultEndpoints();
 
         app.MapControllers();
 
