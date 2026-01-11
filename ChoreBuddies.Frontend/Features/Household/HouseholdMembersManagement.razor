@@ -6,15 +6,34 @@
 @inject ISnackbar snackbar
 @inject IAuthService authService
 <MudPaper Elevation="0" Class="pa-6 mb-8" Style="background:#f5f6f8; border-radius:16px;">
-<MudText Typo="Typo.h6" Class="mb-4" Style="font-weight:700;">
+    <div>
+        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start" Class="mb-3">
+
+<MudText Typo="Typo.h5" Class="mb-4" Style="font-weight:700;">
     Household Members
 </MudText>
+ @if (!_isEditingRoles)
+                       {
+            <MudButton Variant="Variant.Outlined"
+                       StartIcon="@Icons.Material.Filled.Edit"
+                       Color="Color.Primary"
+                       Size="Size.Large"
+                       @onclick="() => _isEditingRoles = true"
+                       Style="text-transform:none; border-radius:20px;">
+                Edit
+            </MudButton>
+                       }
+    </MudStack>
     <div style="width: 60px; height: 4px; background-color: var(--mud-palette-primary); border-radius: 2px;" />
+        </div>
+
+
+
 
 <MudTable T="UserModel"
           Items="MembersModel"
           Elevation="0"
-          Class="mb-10"
+          Class="mb-3"
           Style="border-radius:12px; background:#f5f6f8;">
 
     <HeaderContent>
@@ -40,39 +59,41 @@
     </RowTemplate>
 
 </MudTable>
-<MudStack Row="true" Justify="Justify.FlexEnd">
-    @if (_isEditingRoles)
-    {
-        <MudButton Variant="Variant.Outlined"
-                   Color="Color.Error"
-                   Style="width:fit-content; text-transform:none;"
-                   @onclick="@CancelEditingRoles">
-            Cancel
-        </MudButton>
-        <MudButton Variant="Variant.Filled"
-                   Color="Color.Primary"
-                   Style="width:fit-content; text-transform:none;"
-                   @onclick="@SaveRoles">
-            Save Roles
-        </MudButton>
-    }
-    else
-    {
-        <MudButton Variant="Variant.Filled"
-                   Color="Color.Primary"
-                   Style="width:fit-content; text-transform:none;"
-                   @onclick="() => _isEditingRoles = true">
-            Edit Roles
-        </MudButton>
-    }
-</MudStack>
+
+
+    <MudStack Row="true" Justify="Justify.FlexEnd" Style="@($"visibility: {(_isEditingRoles ? "visible" : "hidden")};")">
+        @* @if (_isEditingRoles)
+        { *@
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Error"
+                       Style="width:fit-content; text-transform:none;"
+                       @onclick="@CancelEditingRoles">
+                Cancel
+            </MudButton>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Style="width:fit-content; text-transform:none;"
+                       @onclick="@SaveRoles">
+                Save Roles
+            </MudButton>
+        @* } *@
+        @* else
+        {
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Style="width:fit-content; text-transform:none;"
+                       @onclick="() => _isEditingRoles = true">
+                Edit Roles
+            </MudButton>
+        } *@
+    </MudStack>
 </MudPaper>
 @code {
 
     // ==== MODELS ====
     private List<UserModel> MembersModel = [];
     private List<AppUserRoleDto> Members = [];
-        private List<string> AvailableRoles = [];
+    private List<string> AvailableRoles = [];
 
     // ==== STATES ====
     private bool _isEditingRoles = false;
@@ -94,6 +115,7 @@
     }
     private void LoadModels()
     {
+        MembersModel.Clear();
         foreach (var member in Members)
         {
             MembersModel.Add(new(member.Id, member.UserName, member.RoleName));
@@ -103,6 +125,7 @@
     private void CancelEditingRoles()
     {
         _isEditingRoles = false;
+        LoadModels();
     }
 
     public bool IsChild(string? role)
