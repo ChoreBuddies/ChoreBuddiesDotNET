@@ -93,7 +93,7 @@
     // ==== MODELS ====
     private List<UserModel> MembersModel = [];
     private List<AppUserRoleDto> Members = [];
-        private List<string> AvailableRoles = [];
+    private List<string> AvailableRoles = [];
 
     // ==== STATES ====
     private bool _isEditingRoles = false;
@@ -115,6 +115,7 @@
     }
     private void LoadModels()
     {
+        MembersModel.Clear();
         foreach (var member in Members)
         {
             MembersModel.Add(new(member.Id, member.UserName, member.RoleName));
@@ -124,6 +125,7 @@
     private void CancelEditingRoles()
     {
         _isEditingRoles = false;
+        LoadModels();
     }
 
     public bool IsChild(string? role)
