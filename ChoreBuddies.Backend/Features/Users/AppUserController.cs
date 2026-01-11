@@ -3,9 +3,7 @@ using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using Shared.Users;
-using System.Security.Claims;
 
 namespace ChoreBuddies.Backend.Features.Users;
 
@@ -99,7 +97,7 @@ public class AppUserController(
     }
 
     [HttpGet("household/children")]
-    public async Task<IActionResult> GetUsersHouseholdChildren()
+    public async Task<IActionResult> GetUsersHouseholdChildrenAsync()
     {
         var user = await GetCurrentUser();
         if (user == null)
@@ -111,7 +109,7 @@ public class AppUserController(
 
     // TODO: Add check if user is the owner/Adult of the household
     [HttpPut("role")]
-    public async Task<IActionResult> UpdateUserRole([FromBody] UpdateRoleDto dto)
+    public async Task<IActionResult> UpdateUserRoleAsync([FromBody] UpdateRoleDto dto)
     {
         var user = await GetCurrentUser();
         if (user == null)
@@ -132,4 +130,14 @@ public class AppUserController(
             return BadRequest(ex.Message);
         }
     }
+    [HttpGet("role")]
+    public async Task<IActionResult> GetAvailableRolesAsync()
+    {
+        var user = await GetCurrentUser();
+        if (user == null)
+            return BadRequest();
+        var result = await _userService.GetAvailableRolesAsync();
+        return Ok(result);
+    }
+
 }

@@ -1,0 +1,142 @@
+﻿@using ChoreBuddies.Frontend.Features.User
+@using MudBlazor
+@using Shared.Users
+
+@inject IUserService userService
+@inject ISnackbar snackbar
+@inject IAuthService authService
+<MudText Typo="Typo.h6" Class="mb-4" Style="font-weight:700;">
+    Household Members
+</MudText>
+
+<MudTable T="UserModel"
+          Items="MembersModel"
+          Elevation="0"
+          Class="mb-10"
+          Style="border-radius:12px;">
+
+    <HeaderContent>
+        <MudTh>User</MudTh>
+        <MudTh>Role</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+
+    <RowTemplate Context="member">
+        <MudTd>@member.UserName</MudTd>
+
+        <MudTd>
+            <MudSelect T="string"
+                       @bind-Value="member.RoleName"
+                       Dense="true"
+                       Disabled="@(!_isEditingRoles || _currentUserIsChild || member.Id == _userId)">
+                @foreach (var role in AvailableRoles)
+                {
+                    <MudSelectItem T="string" Value="@role">@role</MudSelectItem>
+                }
+            </MudSelect>
+        </MudTd>
+    </RowTemplate>
+
+</MudTable>
+<MudStack Row="true" Justify="Justify.FlexEnd">
+    @if (_isEditingRoles)
+    {
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Style="width:fit-content; text-transform:none;"
+                   @onclick="@CancelEditingRoles">
+            Cancel
+        </MudButton>
+        <MudButton Variant="Variant.Outlined"
+                   Color="Color.Error"
+                   Style="width:fit-content; text-transform:none;"
+                   @onclick="@SaveRoles">
+            Save Roles
+        </MudButton>
+    }
+    else
+    {
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Style="width:fit-content; text-transform:none;"
+                   @onclick="() => _isEditingRoles = true">
+            Edit Roles
+        </MudButton>
+    }
+</MudStack>
+
+@code {
+
+    // ==== MODELS ====
+    private List<UserModel> MembersModel = [];
+    private List<AppUserRoleDto> Members = [];
+        private List<string> AvailableRoles = [];
+
+    // ==== STATES ====
+    private bool _isEditingRoles = false;
+    private int _userId = -1;
+    private bool _currentUserIsChild = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        AvailableRoles = (await userService.GetAvailableRolesAsync())?.ToList() ?? [];
+        Members = (await userService.GetMyHouseholdMembersAsync())?.ToList() ?? [];
+        _userId = await authService.GetUserIdAsync();
+
+        var currentUserDto = Members.FirstOrDefault(x => x.Id == _userId);
+        if (currentUserDto != null)
+        {
+            _currentUserIsChild = IsChild(currentUserDto.RoleName);
+        }
+        LoadModels();
+    }
+    private void LoadModels()
+    {
+        foreach (var member in Members)
+        {
+            MembersModel.Add(new(member.Id, member.UserName, member.RoleName));
+        }
+    }
+
+    private void CancelEditingRoles()
+    {
+        _isEditingRoles = false;
+    }
+
+    public bool IsChild(string? role)
+    {
+        if (string.IsNullOrEmpty(role)) return true; 
+        return String.Compare(role, "child", true) == 0;
+    }
+    private async Task SaveRoles()
+    {
+        try
+        {
+            foreach (var userModel in MembersModel)
+            {
+                var originalUser = Members.FirstOrDefault(m => m.Id == userModel.Id);
+
+                if (originalUser != null && originalUser.RoleName != userModel.RoleName)
+                {
+                    await userService.UpdateUserRoleAsync(userModel.Id, userModel.RoleName);
+                }
+            }
+
+            Members = (await userService.GetMyHouseholdMembersAsync())?.ToList() ?? [];
+            snackbar.Add("Roles updated successfully", Severity.Success);
+            _isEditingRoles = false;
+        }
+        catch (Exception ex)
+        {
+            snackbar.Add($"Error updating roles: {ex.Message}", Severity.Error);
+        }
+    }
+
+    // ===== MODELS CLASSES =====
+    public class UserModel(int id, string userName, string roleName)
+    {
+        public int Id { get; set; } = id;
+        public string UserName { get; set; } = userName;
+        public string RoleName { get; set; } = roleName;
+    }
+}
