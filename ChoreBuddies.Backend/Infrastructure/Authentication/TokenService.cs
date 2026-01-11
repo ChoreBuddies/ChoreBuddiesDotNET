@@ -23,6 +23,7 @@ public interface ITokenService
     public string? GetLastNameFromToken(ClaimsPrincipal claims);
     public string? GetUserNameFromToken(ClaimsPrincipal claims);
     public int GetHouseholdIdFromToken(ClaimsPrincipal claims);
+    public string? GetUserRoleFromToken(ClaimsPrincipal claims);
 }
 
 public class TokenService : ITokenService
@@ -51,7 +52,7 @@ public class TokenService : ITokenService
                     new Claim(ClaimTypes.GivenName, user.FirstName ?? ""),
                     new Claim(ClaimTypes.Surname, user.LastName ?? ""),
                     new Claim(ClaimTypes.Name, user.UserName ?? ""),
-                    new Claim(AuthConstants.JwtHouseholdId, user.HouseholdId?.ToString() ?? ""),
+                    new Claim(AuthConstants.JwtHouseholdId, user.HouseholdId?.ToString() ?? "")
                 };
 
         // Add user roles to the claims
@@ -189,4 +190,6 @@ public class TokenService : ITokenService
         }
         return householdId;
     }
+
+    public string? GetUserRoleFromToken(ClaimsPrincipal claims) => claims.FindFirstValue(ClaimTypes.Role);
 }

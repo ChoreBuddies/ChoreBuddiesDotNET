@@ -45,13 +45,9 @@ public class AuthController(IAuthService authService, ITokenService tokenService
     [Authorize] // User must be authenticated to revoke their own token
     public async Task<IActionResult> Revoke()
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (userId == null || !int.TryParse(userId, out var id))
-        {
-            return Unauthorized();
-        }
+        var userId = _tokenService.GetUserIdFromToken(User);
 
-        if (await _authService.RevokeRefreshTokenAsync(id))
+        if (await _authService.RevokeRefreshTokenAsync(userId))
         {
             return NoContent();
         }
