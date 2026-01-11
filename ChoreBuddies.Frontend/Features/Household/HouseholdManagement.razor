@@ -23,6 +23,7 @@
     <!-- ===== Household details ===== -->
     @if (household is not null)
     {
+        <HouseholdInvitationCodeDisplay Household="household" />
         <MudPaper Elevation="0" Class="pa-6 mb-8" Style="background:#f5f6f8; border-radius:16px;">
             <div>
                 <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start" Class="mb-4">
@@ -38,7 +39,7 @@
                         Edit
                     </MudButton>
                 </MudStack>
-                <div style="width: 60px; height: 4px; background-color: var(--mud-palette-primary); margin-top: 8px; border-radius: 2px;"/>
+                <div style="width: 60px; height: 4px; background-color: var(--mud-palette-primary);  border-radius: 2px;" />
             </div>
 
             <MudGrid Spacing="3">
@@ -129,7 +130,7 @@
             <MudTd Align="Align.Right">
                 <MudStack Direction="Row" Spacing="1">
                     <MudButton Variant="Variant.Filled"
-                               Color="Color.Success"
+                               Color="Color.Primary"
                                Size="Size.Small"
                                Style="text-transform:none;">
                         Approve
@@ -182,5 +183,4 @@
             Points = pts;
         }
     }
-
 }
