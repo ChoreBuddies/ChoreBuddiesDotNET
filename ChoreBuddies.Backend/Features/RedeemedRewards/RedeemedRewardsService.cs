@@ -4,6 +4,7 @@ using ChoreBuddies.Backend.Features.Notifications;
 using ChoreBuddies.Backend.Features.RedeemRewards;
 using ChoreBuddies.Backend.Features.Rewards;
 using ChoreBuddies.Backend.Features.Users;
+using Hangfire.Logging.LogProviders;
 using Shared.Rewards;
 
 namespace ChoreBuddies.Backend.Features.RedeemedRewards;
@@ -12,6 +13,8 @@ public interface IRedeemedRewardsService
 {
     // Redeem
     public Task<RedeemedRewardDto?> RedeemRewardAsync(int userId, int rewardId, bool isFulfilled);
+    // Fulfill Reward
+    public Task<bool> FulfillRewardAsync(int rewardId);
     // Get User's Redeemed
     public Task<ICollection<RedeemedRewardDto>> GetUsersRedeemedRewardsAsync(int userId);
     // Get Household's Redeemed
@@ -38,6 +41,17 @@ public class RedeemedRewardsService(IRedeemedRewardsRepository redeemedRewardsRe
     public async Task<ICollection<RedeemedRewardDto>> GetUsersRedeemedRewardsAsync(int userId)
     {
         return _mapper.Map<List<RedeemedRewardDto>>(await _redeemedRewardsRepository.GetUsersRedeemedRewardsAsync(userId));
+    }
+    public async Task<bool> FulfillRewardAsync(int rewardId)
+    {
+        var reward = await _redeemedRewardsRepository.GetRedeemedRewardAsync(rewardId);
+        if (reward is not null && !reward.IsFulfilled)
+        {
+            reward.IsFulfilled = true;
+            await _redeemedRewardsRepository.UpdateRedeemedRewardAsync(reward);
+            return true;
+        }
+        return false;
     }
 
     public async Task<RedeemedRewardDto?> RedeemRewardAsync(int userId, int rewardId, bool isFulfilled)

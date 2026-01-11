@@ -8,6 +8,10 @@ public interface IRedeemedRewardsRepository
 {
     // Redeem
     public Task<RedeemedReward?> RedeemRewardAsync(RedeemedReward redeemedReward);
+    // Get redeemed reward
+    public Task<RedeemedReward?> GetRedeemedRewardAsync(int rewardId);
+    // Update
+    public Task<RedeemedReward?> UpdateRedeemedRewardAsync(RedeemedReward redeemedReward);
     // Get User's Redeemed
     public Task<ICollection<RedeemedReward>> GetUsersRedeemedRewardsAsync(int userId);
     // Get Household's Redeemed
@@ -21,6 +25,16 @@ public class RedeemedRewardsRepository(ChoreBuddiesDbContext dbContext) : IRedee
         var newRedeemedReward = await _dbContext.RedeemedRewards.AddAsync(redeemedReward);
         await _dbContext.SaveChangesAsync();
         return newRedeemedReward.Entity;
+    }
+    public async Task<RedeemedReward?> GetRedeemedRewardAsync(int rewardId)
+    {
+        return await _dbContext.RedeemedRewards.FindAsync(rewardId);
+    }
+    public async Task<RedeemedReward?> UpdateRedeemedRewardAsync(RedeemedReward redeemedReward)
+    {
+        _dbContext.RedeemedRewards.Update(redeemedReward);
+        await _dbContext.SaveChangesAsync();
+        return redeemedReward;
     }
 
     public async Task<ICollection<RedeemedReward>> GetUsersRedeemedRewardsAsync(int userId)

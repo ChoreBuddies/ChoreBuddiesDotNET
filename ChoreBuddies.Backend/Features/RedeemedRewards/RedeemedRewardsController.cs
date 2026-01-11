@@ -19,6 +19,16 @@ public class RedeemedRewardsController(IRedeemedRewardsService redeemedRewardsSe
         var result = await _redeemedRewardsService.RedeemRewardAsync(userId, rewardId, isFulfilled);
         return Ok(result);
     }
+    [HttpPut("fulfill/{rewardId}")]
+    public async Task<ActionResult<bool>> FulfillReward(int rewardId)
+    {
+        var role = _tokenService.GetUserRoleFromToken(User);
+        if (role != "Adult")
+        {
+            return Forbid();
+        }
+        return Ok(await _redeemedRewardsService.FulfillRewardAsync(rewardId));
+    }
     [HttpGet]
     public async Task<ActionResult<ICollection<RedeemedRewardDto>>> GetUsersRedeemedRewards([FromQuery] int? userId)
     {
