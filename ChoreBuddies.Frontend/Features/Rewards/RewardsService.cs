@@ -6,7 +6,7 @@ namespace ChoreBuddies.Frontend.Features.Rewards;
 public interface IRewardsService
 {
     public Task<RewardDto?> GetRewardByIdAsync(int id);
-    public Task<RewardDto?> AddRewardAsync(CreateRewardDto createRewardDto);
+    public Task<RewardDto?> CreateRewardAsync(CreateRewardDto createRewardDto);
     public Task<RewardDto?> UpdateRewardAsync(RewardDto updateRewardDto);
     public Task<ICollection<RewardDto>> GetHouseholdRewardsAsync();
 }
@@ -23,7 +23,7 @@ public class RewardsService(HttpClientUtils httpUtils) : IRewardsService
         });
     }
 
-    public async Task<RewardDto?> AddRewardAsync(CreateRewardDto createRewardDto)
+    public async Task<RewardDto?> CreateRewardAsync(CreateRewardDto createRewardDto)
     {
         return await httpUtils.TryRequestAsync(async () =>
         {
