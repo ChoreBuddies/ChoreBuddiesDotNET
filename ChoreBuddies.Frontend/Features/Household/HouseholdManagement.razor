@@ -9,10 +9,11 @@
 @inject IHouseholdService householdService
 @inject IScheduledChoresService scheduledChoresService
 @inject IUserService userService
+@inject NavigationManager navigationManager
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
 
-    <!-- Header -->
+    <!-- ==== Header ==== -->
     <MudText Typo="Typo.h4" Style="font-weight:800;">
         Household Management
     </MudText>
@@ -23,27 +24,34 @@
     <!-- ===== Household details ===== -->
     @if (household is not null)
     {
-        <MudPaper Elevation="0" Class="p-6 mb-8" Style="background:#f5f6f8; border-radius:16px;">
-            <MudStack Spacing="2">
-                <MudText Typo="Typo.h6" Style="font-weight:700;">
-                    Household Details
-                </MudText>
+        <MudPaper Elevation="0" Class="pa-6 mb-8" Style="background:#f5f6f8; border-radius:16px;">
+            <div>
+                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start" Class="mb-4">
+                    <MudText Typo="Typo.h5" Style="font-weight:700;">
+                        Household Details
+                    </MudText>
 
-                <MudText Typo="Typo.body1">
-                    <b>Name:</b> @household.Name
-                </MudText>
+                    <MudButton Variant="Variant.Outlined"
+                               StartIcon="@Icons.Material.Filled.Edit"
+                               OnClick="@EditHousehold"
+                               Color="Color.Primary"
+                               Style="text-transform:none; border-radius:20px;">
+                        Edit
+                    </MudButton>
+                </MudStack>
+                <div style="width: 60px; height: 4px; background-color: var(--mud-palette-primary); margin-top: 8px; border-radius: 2px;"/>
+            </div>
 
-                <MudText Typo="Typo.body2" Color="Color.Secondary">
-                    @household.Description
-                </MudText>
-
-                <MudButton Variant="Variant.Filled"
-                Color="Color.Primary"
-                Size="Size.Small"
-                Style="width:fit-content; text-transform:none;">
-                    Edit household
-                </MudButton>
-            </MudStack>
+            <MudGrid Spacing="3">
+                <MudItem xs="12" sm="4">
+                    <MudText Color="Color.Secondary">Name:</MudText>
+                    <MudText Typo="Typo.h6">@household.Name</MudText>
+                </MudItem>
+                <MudItem xs="12" sm="8">
+                    <MudText Color="Color.Secondary">Description:</MudText>
+                    <MudText Typo="Typo.body1">@household.Description</MudText>
+                </MudItem>
+            </MudGrid>
         </MudPaper>
     }
     else
@@ -57,10 +65,10 @@
     </MudText>
 
     <MudTable T="UserModel"
-    Items="MembersModel"
-    Elevation="0"
-    Class="mb-10"
-    Style="border-radius:12px;">
+              Items="MembersModel"
+              Elevation="0"
+              Class="mb-10"
+              Style="border-radius:12px;">
 
         <HeaderContent>
             <MudTh>User</MudTh>
@@ -73,9 +81,9 @@
 
             <MudTd>
                 <MudSelect T="string"
-                @bind-Value="context.RoleName"
-                Dense="true"
-                Disabled=IsChild(context.RoleName)>
+                           @bind-Value="context.RoleName"
+                           Dense="true"
+                           Disabled=IsChild(context.RoleName)>
                     <MudSelectItem T="string">Adult</MudSelectItem>
                     <MudSelectItem T="string">Child</MudSelectItem>
                 </MudSelect>
@@ -83,6 +91,13 @@
         </RowTemplate>
 
     </MudTable>
+    <MudStack Row="true" Justify="Justify.FlexEnd">
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Style="width:fit-content; text-transform:none;">
+            Save Roles
+        </MudButton>
+    </MudStack>
 
 
     <!-- ===== Recurring chores ===== -->
@@ -113,8 +128,8 @@
                                 Edit
                             </MudButton>
                             <MudButton Variant="Variant.Text"
-                            Color="Color.Error"
-                            Size="Size.Small">
+                                       Color="Color.Error"
+                                       Size="Size.Small">
                                 Delete
                             </MudButton>
                         </MudStack>
@@ -125,8 +140,8 @@
 
         <MudItem xs="12">
             <MudButton Variant="Variant.Filled"
-            Color="Color.Primary"
-            Style="text-transform:none;">
+                       Color="Color.Primary"
+                       Style="text-transform:none;">
                 Add recurring chore
             </MudButton>
         </MudItem>
@@ -152,15 +167,15 @@
             <MudTd Align="Align.Right">
                 <MudStack Direction="Row" Spacing="1">
                     <MudButton Variant="Variant.Filled"
-                    Color="Color.Success"
-                    Size="Size.Small"
-                    Style="text-transform:none;">
+                               Color="Color.Success"
+                               Size="Size.Small"
+                               Style="text-transform:none;">
                         Approve
                     </MudButton>
                     <MudButton Variant="Variant.Outlined"
-                    Color="Color.Error"
-                    Size="Size.Small"
-                    Style="text-transform:none;">
+                               Color="Color.Error"
+                               Size="Size.Small"
+                               Style="text-transform:none;">
                         Reject
                     </MudButton>
                 </MudStack>
@@ -196,7 +211,7 @@
     }
     private void LoadModels()
     {
-        foreach(var member in Members)
+        foreach (var member in Members)
         {
             MembersModel.Add(new(member.Id, member.UserName, member.RoleName));
         }
@@ -205,6 +220,7 @@
     {
         return String.Compare(role, "child", true) == 0;
     }
+    public void EditHousehold() => navigationManager.NavigateTo($"/household-details/{household!.Id}");
 
     // ===== MODELS CLASSES =====
     public class UserModel(int id, string userName, string RoleName)

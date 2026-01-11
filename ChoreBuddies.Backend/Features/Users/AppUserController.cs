@@ -3,6 +3,7 @@ using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Shared.Users;
 using System.Security.Claims;
 
@@ -72,9 +73,13 @@ public class AppUserController(
     }
 
     [HttpGet("household")]
-    public async Task<IActionResult> GetMyHouseholdMembers()
+    public async Task<IActionResult> GetMyHouseholdMembers([FromQuery] bool? role = false)
     {
         var userId = _tokenService.GetUserIdFromToken(User);
+        if(role ?? false)
+        {
+            return Ok(await _userService.GetUsersHouseholdMembersWithRolesAsync(userId));
+        }
         var result = await _userService.GetUsersHouseholdMembersAsync(userId);
 
         var resultDto = result.Select(v => _mapper.Map<AppUserRoleDto>(v));

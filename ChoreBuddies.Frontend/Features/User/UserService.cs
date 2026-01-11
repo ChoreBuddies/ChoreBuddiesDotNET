@@ -29,7 +29,7 @@ public class UserService : IUserService
     public async Task<IEnumerable<AppUserRoleDto>?> GetMyHouseholdMembersAsync()
     {
         return await _httpClientUtils.TryRequestAsync(
-            () => _httpClientUtils.GetAsync<IEnumerable<AppUserRoleDto>>(UserConstants.ApiEndpointMyHouseholdMembers, true)
+            () => _httpClientUtils.GetAsync<IEnumerable<AppUserRoleDto>>($"{UserConstants.ApiEndpointMyHouseholdMembers}{true}", true)
             );
     }
 
