@@ -66,7 +66,7 @@ public class ScheduledChoresController : ControllerBase
         }
     }
     [HttpGet("HouseholdChores")]
-    public async Task<ActionResult<IEnumerable<ScheduledChoreDto>>> GetMyHouseholdChores()
+    public async Task<ActionResult<IEnumerable<ScheduledChoreTileViewDto>>> GetMyHouseholdChores()
     {
         var userId = _tokenService.GetUserIdFromToken(User);
 

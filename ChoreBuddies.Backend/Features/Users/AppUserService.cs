@@ -14,6 +14,7 @@ public interface IAppUserService
     public Task<bool> UpdateUserAsync(int userId, UpdateAppUserDto userDto);
     public Task<bool> UpdateFcmTokenAsync(int userId, UpdateFcmTokenDto updateFcmTokenDto);
 
+    public Task<ICollection<AppUserRoleDto>> GetUsersHouseholdMembersWithRolesAsync(int userId);
     public Task<ICollection<AppUser>> GetUsersHouseholdMembersAsync(int userId);
     public Task<ICollection<AppUser>> GetUsersHouseholdAdultsAsync(int userId);
     public Task<ICollection<AppUser>> GetUsersHouseholdChildrensAsync(int userId);
@@ -88,6 +89,22 @@ public class AppUserService(IAppUserRepository userRepository, UserManager<AppUs
         await _userRepository.SaveChangesAsync();
 
         return true;
+    }
+    public async Task<ICollection<AppUserRoleDto>> GetUsersHouseholdMembersWithRolesAsync(int userId)
+    {
+        var user = await _userRepository.GetUserWithHouseholdByIdAsync(userId);
+        if (user == null) return [];
+        if (user.Household is null)
+        {
+            throw new ArgumentException("User doesn't belong to any household");
+        }
+        var result = new List<AppUserRoleDto>();
+        foreach (var householdUser in user.Household.Users)
+        {
+            var role = (await _userManager.GetRolesAsync(householdUser)).SingleOrDefault();
+            result.Add(new(householdUser.Id, householdUser?.UserName ?? String.Empty, role!));
+        }
+        return result;
     }
 
     public async Task<ICollection<AppUser>> GetUsersHouseholdMembersAsync(int userId)

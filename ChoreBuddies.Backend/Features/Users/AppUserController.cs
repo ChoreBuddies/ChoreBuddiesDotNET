@@ -3,6 +3,7 @@ using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Shared.Users;
 using System.Security.Claims;
 
@@ -72,12 +73,16 @@ public class AppUserController(
     }
 
     [HttpGet("household")]
-    public async Task<IActionResult> GetMyHouseholdMembers()
+    public async Task<IActionResult> GetMyHouseholdMembers([FromQuery] bool? role = false)
     {
         var userId = _tokenService.GetUserIdFromToken(User);
+        if (role ?? false)
+        {
+            return Ok(await _userService.GetUsersHouseholdMembersWithRolesAsync(userId));
+        }
         var result = await _userService.GetUsersHouseholdMembersAsync(userId);
 
-        var resultDto = result.Select(v => _mapper.Map<AppUserDto>(v));
+        var resultDto = result.Select(v => _mapper.Map<AppUserRoleDto>(v));
 
         return Ok(resultDto);
     }
@@ -105,8 +110,8 @@ public class AppUserController(
     }
 
     // TODO: Add check if user is the owner/Adult of the household
-    [HttpPut("{userId}/role")]
-    public async Task<IActionResult> UpdateUserRole(int userId, [FromBody] UpdateRoleDto dto)
+    [HttpPut("role")]
+    public async Task<IActionResult> UpdateUserRole([FromBody] UpdateRoleDto dto)
     {
         var user = await GetCurrentUser();
         if (user == null)
@@ -116,7 +121,7 @@ public class AppUserController(
             return BadRequest("RoleName is required.");
         try
         {
-            var success = await _userService.UpdateUserRoleAsync(userId, dto.RoleName);
+            var success = await _userService.UpdateUserRoleAsync(dto.Id, dto.RoleName);
             if (!success)
                 return StatusCode(500, "Failed to update role.");
 

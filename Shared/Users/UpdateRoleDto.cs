@@ -1,2 +1,2 @@
 ﻿namespace Shared.Users;
-public record UpdateRoleDto(string RoleName);
+public record UpdateRoleDto(int Id, string RoleName);

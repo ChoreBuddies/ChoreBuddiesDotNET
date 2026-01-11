@@ -12,7 +12,7 @@ namespace ChoreBuddies.Frontend.Features.Household;
 public interface IHouseholdService
 {
     public Task<bool> JoinHouseholdAsync(string invitationCode);
-    public Task<HouseholdDto?> GetHouseholdByIdAsync(int id);
+    public Task<HouseholdDto?> GetHouseholdByIdAsync(int? id = null);
     public Task<HouseholdDto?> CreateHouseholdAsync(CreateHouseholdDto householdDto);
     public Task<HouseholdDto?> UpdateHouseholdAsync(int householdId, CreateHouseholdDto householdDto);
 }
@@ -28,12 +28,13 @@ public class HouseholdService : IHouseholdService
         _authService = authService;
     }
 
-    public async Task<HouseholdDto?> GetHouseholdByIdAsync(int id)
+    public async Task<HouseholdDto?> GetHouseholdByIdAsync(int? id = null)
     {
+        string url = id is not null ? $"{HouseholdConstants.ApiEndpointGetHousehold}?id={id}" : HouseholdConstants.ApiEndpointGetHousehold;
         var result = await _httpUtils.TryRequestAsync(async () =>
         {
             return await _httpUtils.GetAsync<HouseholdDto?>(
-                $"{HouseholdConstants.ApiEndpointGetHousehold}?id={id}",
+                url,
                 authorized: true
             );
         });
