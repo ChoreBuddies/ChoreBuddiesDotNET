@@ -8,7 +8,6 @@
 
 @inject IHouseholdService householdService
 @inject IScheduledChoresService scheduledChoresService
-@inject IUserService userService
 @inject NavigationManager navigationManager
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
@@ -60,44 +59,7 @@
     }
 
     <!-- ===== Members & roles ===== -->
-    <MudText Typo="Typo.h6" Class="mb-4" Style="font-weight:700;">
-        Household Members
-    </MudText>
-
-    <MudTable T="UserModel"
-              Items="MembersModel"
-              Elevation="0"
-              Class="mb-10"
-              Style="border-radius:12px;">
-
-        <HeaderContent>
-            <MudTh>User</MudTh>
-            <MudTh>Role</MudTh>
-            <MudTh></MudTh>
-        </HeaderContent>
-
-        <RowTemplate Context="context">
-            <MudTd>@context.UserName</MudTd>
-
-            <MudTd>
-                <MudSelect T="string"
-                           @bind-Value="context.RoleName"
-                           Dense="true"
-                           Disabled=IsChild(context.RoleName)>
-                    <MudSelectItem T="string">Adult</MudSelectItem>
-                    <MudSelectItem T="string">Child</MudSelectItem>
-                </MudSelect>
-            </MudTd>
-        </RowTemplate>
-
-    </MudTable>
-    <MudStack Row="true" Justify="Justify.FlexEnd">
-        <MudButton Variant="Variant.Filled"
-                   Color="Color.Primary"
-                   Style="width:fit-content; text-transform:none;">
-            Save Roles
-        </MudButton>
-    </MudStack>
+    <HouseholdMembersManagement/>
 
 
     <!-- ===== Recurring chores ===== -->
@@ -186,16 +148,14 @@
 </MudContainer>
 
 @code {
+
     // ==== DTOS ====
     private HouseholdDto? household;
 
-    private List<AppUserRoleDto> Members = [];
 
     private List<ScheduledChoreTileViewDto> RecurringChores = [];
 
     // ==== MODELS ====
-    private List<UserModel> MembersModel = [];
-
     private List<PendingReward> PendingRewards = new()
     {
         new PendingReward("Tom", "Movie Night", 500),
@@ -205,30 +165,10 @@
     protected override async Task OnInitializedAsync()
     {
         household = await householdService.GetHouseholdByIdAsync();
-        Members = (await userService.GetMyHouseholdMembersAsync())?.ToList() ?? [];
         RecurringChores = (await scheduledChoresService.GetMyHouseholdChoresAsync())?.ToList() ?? [];
-        LoadModels();
     }
-    private void LoadModels()
-    {
-        foreach (var member in Members)
-        {
-            MembersModel.Add(new(member.Id, member.UserName, member.RoleName));
-        }
-    }
-    public bool IsChild(string role)
-    {
-        return String.Compare(role, "child", true) == 0;
-    }
-    public void EditHousehold() => navigationManager.NavigateTo($"/household-details/{household!.Id}");
 
-    // ===== MODELS CLASSES =====
-    public class UserModel(int id, string userName, string RoleName)
-    {
-        public int Id { get; set; } = id;
-        public string UserName { get; set; } = userName;
-        public string RoleName { get; set; } = RoleName;
-    }
+    public void EditHousehold() => navigationManager.NavigateTo($"/household-details/{household!.Id}");
 
     public class PendingReward
     {

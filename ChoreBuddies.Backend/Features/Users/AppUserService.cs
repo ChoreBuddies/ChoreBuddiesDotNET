@@ -22,6 +22,7 @@ public interface IAppUserService
     public Task<bool> AddPointsToUser(int userId, int pointsCount);
     public Task<bool> RemovePointsFromUser(int userId, int pointsCount);
     public Task<bool> UpdateUserRoleAsync(int userId, string roleName);
+    public Task<IEnumerable<String>> GetAvailableRolesAsync();
 
 }
 
@@ -171,6 +172,13 @@ public class AppUserService(IAppUserRepository userRepository, UserManager<AppUs
     public async Task<IEnumerable<AppUser>> GetUntrackedUsersByIdAsync(IEnumerable<int> ids)
     {
         return await _userRepository.GetUntrackedUsersByIdAsync(ids);
+    }
+
+    public async Task<IEnumerable<string>> GetAvailableRolesAsync()
+    {
+        var roles = _roleManager.Roles;
+
+        return await Task.FromResult(roles.Select(r => r.Name!));
     }
 }
 
