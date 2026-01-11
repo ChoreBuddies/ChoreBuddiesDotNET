@@ -26,8 +26,8 @@ public class HouseholdService(IHouseholdRepository repository, IInvitationCodeSe
     public async Task<Household?> CreateHouseholdAsync(CreateHouseholdDto createHouseholdDto, int userId)
     {
         var invitationCode = await _invitationCodeService.GenerateUniqueInvitationCodeAsync();
-        var result = await _repository.CreateHouseholdAsync(new Household(Guid.NewGuid().GetHashCode(),
-            createHouseholdDto.Name, invitationCode, description: createHouseholdDto?.Description)); //TODO: add OwnerId
+        var result = await _repository.CreateHouseholdAsync(new Household(userId, createHouseholdDto.Name, 
+            invitationCode, description: createHouseholdDto?.Description));
         await JoinHouseholdAsync(invitationCode, userId);
         return result;
 

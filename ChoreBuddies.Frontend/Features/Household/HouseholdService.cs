@@ -5,6 +5,7 @@ using System.Net.Http.Json;
 using ChoreBuddies.Frontend.Utilities;
 using ChoreBuddies.Frontend.Features.Chores;
 using Shared.Chores;
+using Shared.Users;
 
 namespace ChoreBuddies.Frontend.Features.Household;
 
@@ -12,6 +13,8 @@ public interface IHouseholdService
 {
     public Task<bool> JoinHouseholdAsync(string invitationCode);
     public Task<HouseholdDto?> GetHouseholdByIdAsync(int id);
+    public Task<HouseholdDto?> CreateHouseholdAsync(CreateHouseholdDto householdDto);
+    public Task<HouseholdDto?> UpdateHouseholdAsync(int householdId, CreateHouseholdDto householdDto);
 }
 
 public class HouseholdService : IHouseholdService
@@ -30,7 +33,7 @@ public class HouseholdService : IHouseholdService
         var result = await _httpUtils.TryRequestAsync(async () =>
         {
             return await _httpUtils.GetAsync<HouseholdDto?>(
-                $"{HouseholdConstants.ApiEndpointGetHousehold}{id}",
+                $"{HouseholdConstants.ApiEndpointGetHousehold}?id={id}",
                 authorized: true
             );
         });
@@ -49,12 +52,12 @@ public class HouseholdService : IHouseholdService
         });
         return result ?? null;
     }
-    public async Task<HouseholdDto?> UpdateHouseholdAsync(HouseholdDto householdDto)
+    public async Task<HouseholdDto?> UpdateHouseholdAsync(int householdId, CreateHouseholdDto householdDto)
     {
         var result = await _httpUtils.TryRequestAsync(async () =>
         {
-            return await _httpUtils.PostAsync<HouseholdDto, HouseholdDto?>(
-                HouseholdConstants.ApiEndpointUpdateHousehold + householdDto.Id,
+            return await _httpUtils.PutAsync<CreateHouseholdDto, HouseholdDto?>(
+                HouseholdConstants.ApiEndpointUpdateHousehold + householdId,
                 householdDto,
                 authorized: true
             );
