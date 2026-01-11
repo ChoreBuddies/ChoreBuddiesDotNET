@@ -1,0 +1,244 @@
+﻿@page "/rewards/new"
+@page "/reward-details/{RewardId:int}"
+@using Shared.Rewards
+@using Shared.Users
+@using System.ComponentModel.DataAnnotations
+@using Utilities
+
+@inject IAuthService authService
+@inject NavigationManager navigationManager
+@inject ISnackbar Snackbar
+@inject IRewardsService rewardsService
+@inject IAuthService authService
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+
+    <MudText Typo="Typo.h5" Style="font-weight: 800;" Class="mb-6">
+        @GetPageTitle()
+    </MudText>
+
+    <MudForm @ref="form" @bind-IsValid="@success">
+        @if (model is not null)
+        {
+            <MudStack Spacing="3">
+
+
+                <div>
+                    <MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Reward Name</MudText>
+                    <MudTextField @bind-Value="model.RewardName"
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Dense"
+                                  ReadOnly="@IsReadOnly"
+                                  Class="@GetInputClass()"
+                                  Required="true"
+                                  RequiredError="Reward name is required!" />
+                </div>
+
+                <div>
+                    <MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Description</MudText>
+                    <MudTextField @bind-Value="model.Description"
+                                  Variant="Variant.Outlined"
+                                  Lines="6"
+                                  Margin="Margin.Dense"
+                                  ReadOnly="@IsReadOnly"
+                                  Class="@GetInputClass()" />
+                </div>
+                <div>
+                    <MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Cost</MudText>
+                    <MudNumericField @bind-Value="model.Cost"
+                                     Variant="Variant.Outlined"
+                                     Margin="Margin.Dense"
+                                     HideSpinButtons="true"
+                                     ReadOnly="@IsReadOnly"
+                                     Class="@GetInputClass()" 
+                                     Required="true"
+                                     RequiredError="Cost is required!" />
+                </div>
+
+                <div>
+                    <MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Quantity Available</MudText>
+                    <MudNumericField @bind-Value="model.QuantityAvailable"
+                                     Variant="Variant.Outlined"
+                                     Margin="Margin.Dense"
+                                     HideSpinButtons="true"
+                                     ReadOnly="@IsReadOnly"
+                                     Class="@GetInputClass()"
+                                     Required="true"
+                                     RequiredError="Quantity available is required!" />
+                </div>
+
+            </MudStack>
+
+
+
+            <div class="d-flex justify-end gap-3 mt-8">
+
+                @if (CurrentMode == PageMode.View)
+                {
+                    <MudButton Variant="Variant.Filled"
+                               DisableElevation="true"
+                               Style="background-color: #f0f0f0; color: #333; text-transform: none; font-weight: 600; padding: 6px 24px;"
+                               OnClick="SwitchToEditMode">
+                        Edit
+                    </MudButton>
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               DisableElevation="true"
+                               Style="background-color: #597ef7; text-transform: none; font-weight: 600; padding: 6px 24px;"
+                               OnClick="Redeem">
+                        Redeem
+                    </MudButton>
+                }
+                else
+                {
+                    @if (CurrentMode == PageMode.Edit)
+                    {
+                        <MudButton Variant="Variant.Text"
+                                   OnClick="CancelEdit"
+                                   Style="text-transform: none; color: #666;">
+                            Cancel
+                        </MudButton>
+                    }
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               DisableElevation="true"
+                               Style="background-color: #597ef7; text-transform: none; font-weight: 600; padding: 6px 40px;"
+                               OnClick="SaveReward">
+                        Save
+                    </MudButton>
+                }
+            </div>
+
+        }
+    </MudForm>
+</MudContainer>
+
+@code {
+    [Parameter] public int? RewardId { get; set; }
+
+    private MudForm? form;
+    private bool success;
+    private int? householdId { get; set; }
+    private RewardDto? reward { get; set; }
+    private RewardModel? model { get; set; }
+
+    private enum PageMode { Create, View, Edit }
+    private PageMode CurrentMode = PageMode.Create;
+
+    private bool IsReadOnly => CurrentMode == PageMode.View;
+
+    protected override async Task OnInitializedAsync()
+    {
+        householdId = await authService.GetHouseholdIdAsync();
+        if (householdId is null || householdId <= 0)
+        {
+            Snackbar.Add("You need to be a part of a household to create rewards.", Severity.Error);
+            navigationManager.NavigateTo("/");
+        }
+        if (RewardId.HasValue)
+        {
+            CurrentMode = PageMode.View;
+            reward = await rewardsService.GetRewardByIdAsync((int)RewardId);
+            if (reward is null) return;
+        }
+        else
+        {
+            CurrentMode = PageMode.Create;
+        }
+        LoadModel();
+    }
+
+    private string GetPageTitle() => CurrentMode switch
+    {
+        PageMode.Create => "Add New Reward",
+        PageMode.Edit => "Edit Reward",
+        _ => "Reward Details"
+    };
+
+    private string GetInputClass() => IsReadOnly
+        ? "rounded-lg bg-gray-100"
+        : "rounded-lg bg-white";
+
+    private void SwitchToEditMode()
+    {
+        CurrentMode = PageMode.Edit;
+    }
+
+    private void CancelEdit()
+    {
+        CurrentMode = PageMode.View;
+        LoadModel();
+    }
+
+    private async Task SaveReward()
+    {
+        if (form is null) return;
+        await form.Validate();
+        if (success && model is not null)
+        {
+            RewardDto? result = null;
+            if (CurrentMode == PageMode.Edit)
+            {
+                result = await rewardsService.UpdateRewardAsync(
+                new RewardDto(reward!.Id, model.RewardName!, model?.Description ?? String.Empty,
+                    reward.HouseholdId, model!.Cost, model!.QuantityAvailable));
+            }
+            else if (CurrentMode == PageMode.Create)
+            {
+                result = await rewardsService.CreateRewardAsync(
+                    new CreateRewardDto(model.RewardName!, model?.Description ?? String.Empty,
+                    (int)householdId!, model!.Cost, model!.QuantityAvailable));
+            }
+            if (result is not null)
+            {
+                CurrentMode = PageMode.View;
+                Snackbar.Add("Saved successfully", Severity.Success);
+                navigationManager.NavigateTo($"/reward-details/{result.Id}");
+            }
+            else
+            {
+                Snackbar.Add("Unknown error occured", Severity.Error);
+            }
+        }
+    }
+
+    private async Task Redeem()
+    {
+        //TODO: change to actually redeem
+        if ((await rewardsService.UpdateRewardAsync(reward! with { QuantityAvailable = reward.QuantityAvailable - 1 })) is not null)
+        {
+            Snackbar.Add("Redeemed successfully", Severity.Success);
+            navigationManager.NavigateTo("/dashboard");
+        }
+        else
+        {
+            Snackbar.Add("An enexpected error occured while redeeming reward", Severity.Error);
+        }
+    }
+
+    private void LoadModel()
+    {
+        if (reward is null)
+        {
+            model = new();
+            return;
+        }
+        model = new(reward.Name, reward.Description, reward.Cost, reward.QuantityAvailable);
+    }
+    public class RewardModel()
+    {
+        public string? RewardName { get; set; }
+        public string? Description { get; set; }
+        public int Cost { get; set; }
+        public int QuantityAvailable { get; set; }
+        public RewardModel(string name, string description, int cost, int quantity): this()
+        {
+            RewardName = name;
+            Description = description;
+            Cost = cost;
+            QuantityAvailable = quantity;
+        }
+    }
+}
