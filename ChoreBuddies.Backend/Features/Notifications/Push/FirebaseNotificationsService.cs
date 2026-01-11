@@ -75,7 +75,7 @@ public class FirebaseNotificationsService : INotificationChannel
                 { "click_action", "FLUTTER_NOTIFICATION_CLICK" },
                 { "screen", "/chat" },
             };
-        return await SendNotificationAsync(recipient, title, content, []);
+        return await SendNotificationAsync(recipient, title, content, data);
     }
 
     public async Task<string> SendReminderNotificationAsync(AppUser recipient, int choreId, string choreName, CancellationToken cancellationToken = default)
