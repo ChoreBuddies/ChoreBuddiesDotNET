@@ -77,7 +77,7 @@ public class AppUserController(
         var userId = _tokenService.GetUserIdFromToken(User);
         var result = await _userService.GetUsersHouseholdMembersAsync(userId);
 
-        var resultDto = result.Select(v => _mapper.Map<AppUserDto>(v));
+        var resultDto = result.Select(v => _mapper.Map<AppUserRoleDto>(v));
 
         return Ok(resultDto);
     }
@@ -105,8 +105,8 @@ public class AppUserController(
     }
 
     // TODO: Add check if user is the owner/Adult of the household
-    [HttpPut("{userId}/role")]
-    public async Task<IActionResult> UpdateUserRole(int userId, [FromBody] UpdateRoleDto dto)
+    [HttpPut("role")]
+    public async Task<IActionResult> UpdateUserRole([FromBody] UpdateRoleDto dto)
     {
         var user = await GetCurrentUser();
         if (user == null)
@@ -116,7 +116,7 @@ public class AppUserController(
             return BadRequest("RoleName is required.");
         try
         {
-            var success = await _userService.UpdateUserRoleAsync(userId, dto.RoleName);
+            var success = await _userService.UpdateUserRoleAsync(dto.Id, dto.RoleName);
             if (!success)
                 return StatusCode(500, "Failed to update role.");
 
