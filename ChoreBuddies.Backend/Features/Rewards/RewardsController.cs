@@ -45,7 +45,7 @@ public class RewardsController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("HouseholdRewards")]
+    [HttpGet("householdRewards")]
     public async Task<ActionResult<ICollection<RewardDto>>> GetMyHouseholdRewards([FromQuery] int? householdId)
     {
         if (householdId == null)
