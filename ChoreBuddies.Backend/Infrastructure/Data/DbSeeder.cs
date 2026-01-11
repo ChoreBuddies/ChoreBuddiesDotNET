@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Shared.Authentication;
 using Shared.Chores;
 using Shared.Notifications;
 using Shared.ScheduledChores;
@@ -10,7 +11,7 @@ namespace ChoreBuddies.Backend.Infrastructure.Data;
 
 public class DbSeeder
 {
-    private readonly string[] roleNames = { "Adult", "Child" };
+    private readonly string[] roleNames = { AuthConstants.RoleAdult, AuthConstants.RoleChild };
     private readonly string[] children = { "UserName3", "UserName4" };
 
     private readonly List<AppUser> _users;

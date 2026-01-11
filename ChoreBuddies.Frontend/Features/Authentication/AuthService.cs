@@ -25,6 +25,7 @@ public interface IAuthService
     public Task<string> GetFirstNameAsync();
     public Task<string> GetLastNameAsync();
     public Task<int> GetHouseholdIdAsync();
+    public Task<string> GetUserRoleAsync();
 }
 
 public class AuthService(
@@ -128,6 +129,8 @@ public class AuthService(
     public async Task<string> GetUserNameAsync() => await GetClaimValueAsync(JwtRegisteredClaimNames.Name);
 
     public async Task<int> GetHouseholdIdAsync() => Int32.TryParse(await GetClaimValueAsync(AuthConstants.JwtHouseholdId), out var x) ? x : -1;
+
+    public async Task<string> GetUserRoleAsync() => await GetClaimValueAsync(AuthConstants.JwtRole);
 
     public async Task<IEnumerable<Claim>> GetClaimsAsync()
     {
