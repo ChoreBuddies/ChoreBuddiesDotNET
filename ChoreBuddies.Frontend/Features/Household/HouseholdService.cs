@@ -1,11 +1,11 @@
-﻿using Shared.Households;
-using ChoreBuddies.Frontend.Features.Authentication;
-using Shared.Authentication;
-using System.Net.Http.Json;
-using ChoreBuddies.Frontend.Utilities;
+﻿using ChoreBuddies.Frontend.Features.Authentication;
 using ChoreBuddies.Frontend.Features.Chores;
+using ChoreBuddies.Frontend.Utilities;
+using Shared.Authentication;
 using Shared.Chores;
+using Shared.Households;
 using Shared.Users;
+using System.Net.Http.Json;
 
 namespace ChoreBuddies.Frontend.Features.Household;
 

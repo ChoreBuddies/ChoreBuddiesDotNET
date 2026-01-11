@@ -1,8 +1,8 @@
 ﻿using ChoreBuddies.Backend.Domain;
-using Shared.Households;
 using ChoreBuddies.Tests.Infrastructure;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Shared.Households;
 
 namespace ChoreBuddies.Tests.Database;
 
