@@ -1,10 +1,10 @@
-﻿using ChoreBuddies.Backend.Features.Households;
-using ChoreBuddies.Backend.Infrastructure.Authentication;
+﻿using ChoreBuddies.Backend.Infrastructure.Authentication;
 using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Shared.Chat;
+using Shared.Households;
 
 namespace ChoreBuddies.Backend.Features.Chat;
 

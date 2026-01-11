@@ -1,7 +1,7 @@
 ﻿using ChoreBuddies.Backend.Domain;
-using ChoreBuddies.Backend.Features.Households;
 using ChoreBuddies.Backend.Features.Users;
 using Moq;
+using Shared.Households;
 
 namespace ChoreBuddies.Tests.Households;
 

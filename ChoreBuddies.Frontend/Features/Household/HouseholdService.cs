@@ -1,6 +1,10 @@
-﻿using ChoreBuddies.Backend.Features.Households;
-using ChoreBuddies.Frontend.Features.Authentication;
+﻿using ChoreBuddies.Frontend.Features.Authentication;
+using ChoreBuddies.Frontend.Features.Chores;
+using ChoreBuddies.Frontend.Utilities;
 using Shared.Authentication;
+using Shared.Chores;
+using Shared.Households;
+using Shared.Users;
 using System.Net.Http.Json;
 
 namespace ChoreBuddies.Frontend.Features.Household;
@@ -8,30 +12,63 @@ namespace ChoreBuddies.Frontend.Features.Household;
 public interface IHouseholdService
 {
     public Task<bool> JoinHouseholdAsync(string invitationCode);
+    public Task<HouseholdDto?> GetHouseholdByIdAsync(int id);
+    public Task<HouseholdDto?> CreateHouseholdAsync(CreateHouseholdDto householdDto);
+    public Task<HouseholdDto?> UpdateHouseholdAsync(int householdId, CreateHouseholdDto householdDto);
 }
 
 public class HouseholdService : IHouseholdService
 {
-    private readonly HttpClient _httpClient;
+    private readonly HttpClientUtils _httpUtils;
     private readonly IAuthService _authService;
 
-    public HouseholdService(IHttpClientFactory httpClientFactory, IAuthService authService)
+    public HouseholdService(HttpClientUtils httpClient, IAuthService authService)
     {
-        _httpClient = httpClientFactory.CreateClient(AuthFrontendConstants.AuthorizedClient);
+        _httpUtils = httpClient;
         _authService = authService;
+    }
+
+    public async Task<HouseholdDto?> GetHouseholdByIdAsync(int id)
+    {
+        var result = await _httpUtils.TryRequestAsync(async () =>
+        {
+            return await _httpUtils.GetAsync<HouseholdDto?>(
+                $"{HouseholdConstants.ApiEndpointGetHousehold}?id={id}",
+                authorized: true
+            );
+        });
+
+        return result ?? null;
+    }
+    public async Task<HouseholdDto?> CreateHouseholdAsync(CreateHouseholdDto householdDto)
+    {
+        var result = await _httpUtils.TryRequestAsync(async () =>
+        {
+            return await _httpUtils.PostAsync<CreateHouseholdDto, HouseholdDto?>(
+                HouseholdConstants.ApiEndpointCreateHousehold,
+                householdDto,
+                authorized: true
+            );
+        });
+        return result ?? null;
+    }
+    public async Task<HouseholdDto?> UpdateHouseholdAsync(int householdId, CreateHouseholdDto householdDto)
+    {
+        var result = await _httpUtils.TryRequestAsync(async () =>
+        {
+            return await _httpUtils.PutAsync<CreateHouseholdDto, HouseholdDto?>(
+                HouseholdConstants.ApiEndpointUpdateHousehold + householdId,
+                householdDto,
+                authorized: true
+            );
+        });
+        return result ?? null;
     }
 
     public async Task<bool> JoinHouseholdAsync(string invitationCode)
     {
         var payload = new JoinHouseholdDto(invitationCode);
-        var response = await _httpClient.PutAsJsonAsync(HouseholdConstants.ApiEndpointJoinHousehold, payload);
-        if (!response.IsSuccessStatusCode)
-        {
-            Console.WriteLine($"Failed to join household. Status: {response.StatusCode}");
-            return false;
-        }
-
-        var tokens = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
+        var tokens = await _httpUtils.PutAsync<JoinHouseholdDto, AuthResponseDto>(HouseholdConstants.ApiEndpointJoinHousehold, payload);
 
         if (tokens != null)
         {
@@ -41,5 +78,6 @@ public class HouseholdService : IHouseholdService
 
         return false;
     }
+
 }
 
