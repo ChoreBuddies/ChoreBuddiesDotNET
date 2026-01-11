@@ -1,0 +1,153 @@
+﻿@page "/household/new"
+@page "/household-details/{HouseholdId:int}"
+@using Shared.Households
+@using System.ComponentModel.DataAnnotations
+@using MudBlazor
+
+@inject IHouseholdService householdService
+@inject NavigationManager navigationManager
+
+<MudContainer @bind-IsVisible="IsDialogOpen" MaxWidth="MaxWidth.Small">
+    <MudText Typo="Typo.h5" Class="mb-4" Style="font-weight: 800;">
+        @GetPageTitle()
+    </MudText>
+
+    <MudForm @ref="form" @bind-IsValid="@success">
+        <MudStack Spacing="3">
+
+            <div>
+                <MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Household Name</MudText>
+                <MudTextField @bind-Value="model.Name"
+                Variant="Variant.Outlined"
+                ReadOnly="@IsReadOnly"
+                Required="true"
+                RequiredError="Name is required!"
+                Class="@GetInputClass()" />
+            </div>
+
+            <div>
+                <MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Description</MudText>
+                <MudTextField @bind-Value="model.Description"
+                Variant="Variant.Outlined"
+                Lines="4"
+                ReadOnly="@IsReadOnly"
+                Class="@GetInputClass()" />
+            </div>
+
+        </MudStack>
+
+        <div class="d-flex justify-end gap-3 mt-6">
+            @if (CurrentMode == PageMode.View)
+            {
+                <MudButton Variant="Variant.Filled" OnClick="SwitchToEditMode" Style="text-transform:none; font-weight:600;">
+                    Edit
+                </MudButton>
+            }
+            else
+            {
+                @if (CurrentMode == PageMode.Edit)
+                {
+                    <MudButton Variant="Variant.Text" OnClick="CancelEdit" Style="text-transform:none; color:#666;">
+                        Cancel
+                    </MudButton>
+                }
+
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveHouseholdAsync" Style="text-transform:none; font-weight:600;">
+                    Save
+                </MudButton>
+            }
+        </div>
+    </MudForm>
+</MudContainer>
+
+@code {
+    [Parameter] public int? HouseholdId { get; set; }
+
+    private MudForm? form;
+    private bool success;
+    private HouseholdDto? household { get; set; }
+    private HouseholdModel model { get; set; } = new();
+
+    private bool IsDialogOpen { get; set; } = true;
+
+    private enum PageMode { Create, View, Edit }
+    private PageMode CurrentMode = PageMode.Create;
+
+    private bool IsReadOnly => CurrentMode == PageMode.View;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (HouseholdId.HasValue)
+        {
+            CurrentMode = PageMode.View;
+            household = await householdService.GetHouseholdByIdAsync(HouseholdId.Value);
+            LoadModelFromDto();
+        }
+        else
+        {
+            CurrentMode = PageMode.Create;
+        }
+    }
+
+    private string GetPageTitle() => CurrentMode switch
+    {
+        PageMode.Create => "Add New Household",
+        PageMode.Edit => "Edit Household",
+        _ => "Household Details"
+    };
+
+    private string GetInputClass() => IsReadOnly
+        ? "rounded-lg bg-gray-100"
+        : "rounded-lg bg-white";
+
+    private void SwitchToEditMode()
+    {
+        CurrentMode = PageMode.Edit;
+    }
+
+    private void CancelEdit()
+    {
+        if (household is not null)
+            LoadModelFromDto();
+        CurrentMode = PageMode.View;
+    }
+
+    private async Task SaveHouseholdAsync()
+    {
+        form?.Validate();
+        if (!success) return;
+
+        if (CurrentMode == PageMode.Create)
+        {
+            household = await householdService.CreateHouseholdAsync(new CreateHouseholdDto(model.Name!, model.Description));
+            if(household is not null)
+            {
+                navigationManager.NavigateTo($"/household/{household.Id}");
+            }
+        }
+        else if (CurrentMode == PageMode.Edit)
+        {
+            household = await householdService.UpdateHouseholdAsync(HouseholdId!.Value, new CreateHouseholdDto(model.Name!, model.Description));
+        }
+
+        CurrentMode = PageMode.View;
+    }
+
+    private void LoadModelFromDto()
+    {
+        if (household is null) return;
+        model = new HouseholdModel()
+            {
+                Name = household.Name,
+                Description = household.Description
+            };
+    }
+
+    public class HouseholdModel
+    {
+        [Required]
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+    }
+}
+
