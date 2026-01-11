@@ -76,7 +76,7 @@ public class AppUserController(
     public async Task<IActionResult> GetMyHouseholdMembers([FromQuery] bool? role = false)
     {
         var userId = _tokenService.GetUserIdFromToken(User);
-        if(role ?? false)
+        if (role ?? false)
         {
             return Ok(await _userService.GetUsersHouseholdMembersWithRolesAsync(userId));
         }
