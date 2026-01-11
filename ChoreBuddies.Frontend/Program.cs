@@ -6,6 +6,7 @@ using ChoreBuddies.Frontend.Features.ExceptionHandler;
 using ChoreBuddies.Frontend.Features.Household;
 using ChoreBuddies.Frontend.Features.Notifications;
 using ChoreBuddies.Frontend.Features.Reminders;
+using ChoreBuddies.Frontend.Features.Rewards;
 using ChoreBuddies.Frontend.Features.ScheduledChores;
 using ChoreBuddies.Frontend.Features.User;
 using ChoreBuddies.Frontend.UI;
@@ -55,6 +56,7 @@ public class Program
         builder.Services.AddScoped<IChoresService, ChoresService>();
         builder.Services.AddScoped<IScheduledChoresService, ScheduledChoresService>();
         builder.Services.AddScoped<IRemindersService, RemindersService>();
+        builder.Services.AddScoped<IRewardsService, RewardsService>();
 
         // Register the custom HttpMessageHandler and configure the HttpClient
         builder.Services.AddTransient<AuthorizedHttpClient>();

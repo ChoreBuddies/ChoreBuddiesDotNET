@@ -1,0 +1,143 @@
+﻿@page "/rewards"
+@using MudBlazor
+@using Shared.Rewards
+
+@inject IRewardsService rewardsService
+@inject NavigationManager navigationManager
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
+
+    <!-- Header -->
+    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start" Class="mb-4">
+        <MudPaper Elevation="0">
+            <MudText Typo="Typo.h4" Style="font-weight:800;">
+                Rewards Center
+            </MudText>
+            <MudText Typo="Typo.subtitle1" Color="Color.Secondary" Class="mb-6">
+                Redeem your hard-earned points for exciting rewards!
+            </MudText>
+        </MudPaper>
+        <MudButton Variant="Variant.Filled"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   OnClick="@AddReward"
+                   Size="Size.Large"
+                   Color="Color.Primary"
+                   Style="text-transform:none; border-radius:20px;">
+            Add new reward
+        </MudButton>
+    </MudStack>
+
+    <!-- Points balance -->
+    <MudText Typo="Typo.h6" Class="mb-2" Style="font-weight:700;">
+        Your Points Balance
+    </MudText>
+
+    <MudPaper Elevation="0" Class="p-6 mb-8" Style="background:#f5f6f8; border-radius:12px;">
+        <MudText Typo="Typo.subtitle2" Color="Color.Secondary">
+            Total Points
+        </MudText>
+        <MudText Typo="Typo.h4" Style="font-weight:800;">
+            @TotalPoints
+        </MudText>
+    </MudPaper>
+
+    <!-- Available rewards -->
+    <MudText Typo="Typo.h6" Class="mb-4" Style="font-weight:700;">
+        Available Rewards
+    </MudText>
+
+    <MudGrid Class="mb-10">
+        @foreach (var reward in AvailableRewards)
+        {
+            <MudItem xs="12" sm="6" md="3">
+                <MudPaper Elevation="1" Class="p-4" Style="border-radius:12px;">
+                    <MudText Typo="Typo.subtitle1" Style="font-weight:700;">
+                        @reward.Name
+                    </MudText>
+
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-3">
+                        @reward.Description
+                    </MudText>
+
+                    <MudStack Direction="Row" AlignItems=AlignItems.Center Justify=Justify.SpaceBetween>
+                        <MudText Typo="Typo.subtitle2" Style="font-weight:600;">
+                            @reward.Cost points
+                        </MudText>
+
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Size="Size.Small"
+                                   Disabled="@(!CanRedeem(reward))"
+                                   Style="text-transform:none;">
+                            Redeem
+                        </MudButton>
+                    </MudStack>
+                </MudPaper>
+            </MudItem>
+        }
+    </MudGrid>
+
+    <!-- Redemption history -->
+    <MudText Typo="Typo.h6" Class="mb-4" Style="font-weight:700;">
+        Redemption History
+    </MudText>
+
+    <MudTable Items="RedeemedRewards" Elevation="0" Style="border-radius:12px;">
+        <HeaderContent>
+            <MudTh>Reward</MudTh>
+            <MudTh>Points Used</MudTh>
+            <MudTh>Status</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd DataLabel="Reward">@context.Name</MudTd>
+            <MudTd DataLabel="Points">@context.PointsSpent</MudTd>
+            <MudTd DataLabel="Status">
+                <MudChip T="string" Color="@(context.IsFulfilled ? Color.Success : Color.Warning)"
+                         Variant="Variant.Filled"
+                         Size="Size.Small">
+                    @(context.IsFulfilled ? "Fulfilled" : "Pending")
+                </MudChip>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+
+</MudContainer>
+
+@code {
+
+    // ===== OBJECTS =====
+
+    private int TotalPoints = 1250;
+
+    private List<RewardDto> AvailableRewards = [];
+
+    private List<RedeemedRewardDto> RedeemedRewards = new()
+    {
+        new RedeemedRewardDto(1, 1, "Movie Night", "Family movie night", 500, true),
+        new RedeemedRewardDto(2, 1, "Ice Cream Sundae Bar", "Ice cream fun", 250, true),
+        new RedeemedRewardDto(3, 1, "Pizza Party", "Pizza evening", 400, false)
+    };
+
+    // ==== LOGIC ====
+    protected override async Task OnInitializedAsync()
+    {
+        AvailableRewards = (await rewardsService.GetHouseholdRewardsAsync()).ToList();
+    }
+
+    private bool CanRedeem(RewardDto reward) => TotalPoints >= reward.Cost && reward.QuantityAvailable > 0;
+    
+    private void AddReward() => navigationManager.NavigateTo("rewards/new");
+
+    // ===== DTOs =====
+
+    public record RedeemedRewardDto(
+        int Id,
+        int UserId,
+        string Name,
+        string Description,
+        int PointsSpent,
+        bool IsFulfilled
+    );
+}
+
