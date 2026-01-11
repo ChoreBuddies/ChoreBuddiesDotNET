@@ -8,7 +8,7 @@ public class ChatMessage(int senderId, int householdId, string content, DateTime
     public int Id { get; set; }
 
     [Required]
-    [MaxLength(1000, ErrorMessage = "Wiadomość nie może przekraczać 1000 znaków.")]
+    [MaxLength(1000, ErrorMessage = "Message length cannot exceed 1000 characters.")]
     public string Content { get; set; } = content;
 
     public DateTimeOffset SentAt { get; set; } = sentAt;
