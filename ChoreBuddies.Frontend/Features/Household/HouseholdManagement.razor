@@ -1,0 +1,230 @@
+﻿@page "/household/manage"
+@using ChoreBuddies.Frontend.Features.ScheduledChores
+@using ChoreBuddies.Frontend.Features.User
+@using MudBlazor
+@using Shared.Households
+@using Shared.ScheduledChores
+@using Shared.Users
+
+@inject IHouseholdService householdService
+@inject IScheduledChoresService scheduledChoresService
+@inject IUserService userService
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
+
+    <!-- Header -->
+    <MudText Typo="Typo.h4" Style="font-weight:800;">
+        Household Management
+    </MudText>
+    <MudText Typo="Typo.subtitle1" Color="Color.Secondary" Class="mb-8">
+        Manage household settings, members, chores and rewards
+    </MudText>
+
+    <!-- ===== Household details ===== -->
+    @if (household is not null)
+    {
+        <MudPaper Elevation="0" Class="p-6 mb-8" Style="background:#f5f6f8; border-radius:16px;">
+            <MudStack Spacing="2">
+                <MudText Typo="Typo.h6" Style="font-weight:700;">
+                    Household Details
+                </MudText>
+
+                <MudText Typo="Typo.body1">
+                    <b>Name:</b> @household.Name
+                </MudText>
+
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    @household.Description
+                </MudText>
+
+                <MudButton Variant="Variant.Filled"
+                Color="Color.Primary"
+                Size="Size.Small"
+                Style="width:fit-content; text-transform:none;">
+                    Edit household
+                </MudButton>
+            </MudStack>
+        </MudPaper>
+    }
+    else
+    {
+        <MudProgressCircular Indeterminate="true" />
+    }
+
+    <!-- ===== Members & roles ===== -->
+    <MudText Typo="Typo.h6" Class="mb-4" Style="font-weight:700;">
+        Household Members
+    </MudText>
+
+    <MudTable T="UserModel"
+    Items="MembersModel"
+    Elevation="0"
+    Class="mb-10"
+    Style="border-radius:12px;">
+
+        <HeaderContent>
+            <MudTh>User</MudTh>
+            <MudTh>Role</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+
+        <RowTemplate Context="context">
+            <MudTd>@context.UserName</MudTd>
+
+            <MudTd>
+                <MudSelect T="string"
+                @bind-Value="context.RoleName"
+                Dense="true"
+                Disabled=IsChild(context.RoleName)>
+                    <MudSelectItem T="string">Adult</MudSelectItem>
+                    <MudSelectItem T="string">Child</MudSelectItem>
+                </MudSelect>
+            </MudTd>
+        </RowTemplate>
+
+    </MudTable>
+
+
+    <!-- ===== Recurring chores ===== -->
+    <MudText Typo="Typo.h6" Class="mb-4" Style="font-weight:700;">
+        Recurring Chores
+    </MudText>
+
+    <MudGrid Class="mb-10">
+        @foreach (var chore in RecurringChores)
+        {
+            <MudItem xs="12" md="6">
+                <MudPaper Elevation="1" Class="p-4" Style="border-radius:12px;">
+                    <MudStack Spacing="1">
+                        <MudText Typo="Typo.subtitle1" Style="font-weight:700;">
+                            @chore.Name
+                        </MudText>
+
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">
+                            @chore.Description
+                        </MudText>
+
+                        <MudText Typo="Typo.caption">
+                            Frequency: @chore.Frequency
+                        </MudText>
+
+                        <MudStack Spacing="2" Class="mt-2">
+                            <MudButton Variant="Variant.Text" Size="Size.Small">
+                                Edit
+                            </MudButton>
+                            <MudButton Variant="Variant.Text"
+                            Color="Color.Error"
+                            Size="Size.Small">
+                                Delete
+                            </MudButton>
+                        </MudStack>
+                    </MudStack>
+                </MudPaper>
+            </MudItem>
+        }
+
+        <MudItem xs="12">
+            <MudButton Variant="Variant.Filled"
+            Color="Color.Primary"
+            Style="text-transform:none;">
+                Add recurring chore
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+
+    <!-- ===== Reward approvals ===== -->
+    <MudText Typo="Typo.h6" Class="mb-4" Style="font-weight:700;">
+        Reward Approvals
+    </MudText>
+
+    <MudTable Items="PendingRewards" Elevation="0" Style="border-radius:12px;">
+        <HeaderContent>
+            <MudTh>User</MudTh>
+            <MudTh>Reward</MudTh>
+            <MudTh>Points</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd>@context.UserName</MudTd>
+            <MudTd>@context.RewardName</MudTd>
+            <MudTd>@context.Points</MudTd>
+            <MudTd Align="Align.Right">
+                <MudStack Direction="Row" Spacing="1">
+                    <MudButton Variant="Variant.Filled"
+                    Color="Color.Success"
+                    Size="Size.Small"
+                    Style="text-transform:none;">
+                        Approve
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined"
+                    Color="Color.Error"
+                    Size="Size.Small"
+                    Style="text-transform:none;">
+                        Reject
+                    </MudButton>
+                </MudStack>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+
+</MudContainer>
+
+@code {
+    // ==== DTOS ====
+    private HouseholdDto? household;
+
+    private List<AppUserRoleDto> Members = [];
+
+    private List<ScheduledChoreTileViewDto> RecurringChores = [];
+
+    // ==== MODELS ====
+    private List<UserModel> MembersModel = [];
+
+    private List<PendingReward> PendingRewards = new()
+    {
+        new PendingReward("Tom", "Movie Night", 500),
+        new PendingReward("Tom", "Ice Cream Sundae Bar", 250)
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        household = await householdService.GetHouseholdByIdAsync();
+        Members = (await userService.GetMyHouseholdMembersAsync())?.ToList() ?? [];
+        RecurringChores = (await scheduledChoresService.GetMyHouseholdChoresAsync())?.ToList() ?? [];
+        LoadModels();
+    }
+    private void LoadModels()
+    {
+        foreach(var member in Members)
+        {
+            MembersModel.Add(new(member.Id, member.UserName, member.RoleName));
+        }
+    }
+    public bool IsChild(string role)
+    {
+        return String.Compare(role, "child", true) == 0;
+    }
+
+    // ===== MODELS CLASSES =====
+    public class UserModel(int id, string userName, string RoleName)
+    {
+        public int Id { get; set; } = id;
+        public string UserName { get; set; } = userName;
+        public string RoleName { get; set; } = RoleName;
+    }
+
+    public class PendingReward
+    {
+        public string UserName { get; set; } = "";
+        public string RewardName { get; set; } = "";
+        public int Points { get; set; }
+        public PendingReward(string userName, string rewardName, int pts)
+        {
+            UserName = userName;
+            RewardName = rewardName;
+            Points = pts;
+        }
+    }
+
+}

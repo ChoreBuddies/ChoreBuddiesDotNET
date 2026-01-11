@@ -23,7 +23,6 @@ public class MappingProfile : Profile
         CreateMap<Household, HouseholdDto>().ReverseMap();
         CreateMap<Household, CreateHouseholdDto>().ReverseMap();
         CreateMap<AppUser, AppUserDto>().ReverseMap();
-        CreateMap<AppUser, AppUserRoleDto>().ReverseMap();
         CreateMap<NotificationPreference, NotificationPreferenceDto>().ReverseMap();
         CreateMap<Reward, RewardDto>().ReverseMap();
         CreateMap<Reward, CreateRewardDto>().ReverseMap();
@@ -32,5 +31,6 @@ public class MappingProfile : Profile
         CreateMap<ScheduledChore, CreateScheduledChoreDto>().ReverseMap();
         CreateMap<ScheduledChore, ScheduledChoreDto>().ReverseMap();
         CreateMap<ScheduledChore, ScheduledChoreOverviewDto>().ReverseMap();
+        CreateMap<ScheduledChore, ScheduledChoreTileViewDto>().ReverseMap();
     }
 }
