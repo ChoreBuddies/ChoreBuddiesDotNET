@@ -8,10 +8,16 @@ public interface IRedeemedRewardsRepository
 {
     // Redeem
     public Task<RedeemedReward?> RedeemRewardAsync(RedeemedReward redeemedReward);
+    // Get redeemed reward
+    public Task<RedeemedReward?> GetRedeemedRewardAsync(int redeemedRewardId);
+    // Update
+    public Task<RedeemedReward?> UpdateRedeemedRewardAsync(RedeemedReward redeemedReward);
     // Get User's Redeemed
     public Task<ICollection<RedeemedReward>> GetUsersRedeemedRewardsAsync(int userId);
     // Get Household's Redeemed
-    public Task<ICollection<RedeemedReward>> GetHouseholdRedeemedRewardsAsync(int householdId);
+    public Task<ICollection<RedeemedReward>> GetHouseholdsRedeemedRewardsAsync(int householdId);
+    // Get Household's Redeemed Unfulfilled AS A QUERY
+    public IQueryable<RedeemedReward> GetHouseholdsRedeemedRewardsQueryAsync(int householdId);
 }
 public class RedeemedRewardsRepository(ChoreBuddiesDbContext dbContext) : IRedeemedRewardsRepository
 {
@@ -22,6 +28,16 @@ public class RedeemedRewardsRepository(ChoreBuddiesDbContext dbContext) : IRedee
         await _dbContext.SaveChangesAsync();
         return newRedeemedReward.Entity;
     }
+    public async Task<RedeemedReward?> GetRedeemedRewardAsync(int redeemedRewardId)
+    {
+        return await _dbContext.RedeemedRewards.FindAsync(redeemedRewardId);
+    }
+    public async Task<RedeemedReward?> UpdateRedeemedRewardAsync(RedeemedReward redeemedReward)
+    {
+        _dbContext.RedeemedRewards.Update(redeemedReward);
+        await _dbContext.SaveChangesAsync();
+        return redeemedReward;
+    }
 
     public async Task<ICollection<RedeemedReward>> GetUsersRedeemedRewardsAsync(int userId)
     {
@@ -29,9 +45,14 @@ public class RedeemedRewardsRepository(ChoreBuddiesDbContext dbContext) : IRedee
         return user?.RedeemedRewards ?? [];
     }
 
-    public async Task<ICollection<RedeemedReward>> GetHouseholdRedeemedRewardsAsync(int householdId)
+    public async Task<ICollection<RedeemedReward>> GetHouseholdsRedeemedRewardsAsync(int householdId)
     {
         var household = await _dbContext.Households.Include(u => u.RedeemedRewards).FirstAsync(u => u.Id == householdId);
         return household?.RedeemedRewards ?? [];
+    }
+
+    public IQueryable<RedeemedReward> GetHouseholdsRedeemedRewardsQueryAsync(int householdId)
+    {
+        return _dbContext.RedeemedRewards.Where(r => r.HouseholdId == householdId && !r.IsFulfilled).AsNoTracking();
     }
 }
