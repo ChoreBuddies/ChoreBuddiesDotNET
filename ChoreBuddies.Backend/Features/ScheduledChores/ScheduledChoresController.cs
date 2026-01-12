@@ -32,6 +32,12 @@ public class ScheduledChoresController : ControllerBase
         var result = await _ScheduledChoresService.UpdateChoreAsync(ScheduledChoreDto);
         return Ok(result);
     }
+    [HttpPut("frequency")]
+    public async Task<ActionResult<ScheduledChoreTileViewDto>> UpdateChoreFrequency([FromBody] ScheduledChoreFrequencyUpdateDto scheduledChoreDto)
+    {
+        var result = await _ScheduledChoresService.UpdateChoreFrequencyAsync(scheduledChoreDto.Id, scheduledChoreDto.Frequency);
+        return Ok(result);
+    }
     [HttpPost("add")]
     public async Task<ActionResult<ScheduledChoreDto>> AddChore([FromBody] CreateScheduledChoreDto createScheduledChoreDto)
     {
@@ -40,7 +46,7 @@ public class ScheduledChoresController : ControllerBase
         var result = await _ScheduledChoresService.CreateChoreAsync(createScheduledChoreDto, householdId);
         return Ok(result);
     }
-    [HttpDelete("delete/{id}")]
+    [HttpDelete("{id}")]
     public async Task<ActionResult<ScheduledChoreDto>> DeleteChore(int id)
     {
         var result = await _ScheduledChoresService.DeleteChoreAsync(id);
