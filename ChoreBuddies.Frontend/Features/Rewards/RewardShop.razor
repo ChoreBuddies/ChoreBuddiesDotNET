@@ -133,7 +133,7 @@
     protected override async Task OnInitializedAsync()
     {
         AvailableRewards = (await rewardsService.GetHouseholdRewardsAsync()).ToList();
-        RedeemedRewards = (await redeemedRewardsService.GetUsersRedeemedRewardsAsync()).ToList();
+        RedeemedRewards = (await redeemedRewardsService.GetUsersRedeemedRewardsAsync()).OrderByDescending(r => r.Id).ToList();
     }
 
     private bool CanRedeem(RewardDto reward) => TotalPoints >= reward.Cost && reward.QuantityAvailable > 0;

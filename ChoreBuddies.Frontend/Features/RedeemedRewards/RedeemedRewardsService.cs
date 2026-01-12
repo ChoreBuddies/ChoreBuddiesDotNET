@@ -8,6 +8,7 @@ public interface IRedeemedRewardsService
     public Task<RedeemedRewardDto?> RedeemRewardAsync(int rewardId, bool isfulfilled = false);
     public Task<bool> FulfillRewardAsync(int rewardId);
     public Task<ICollection<RedeemedRewardDto>> GetUsersRedeemedRewardsAsync();
+    public Task<ICollection<RedeemedRewardWithUserNameDto>> GetHouseholdsUnfulfilledRedeemedRewardsAsync();
 }
 public class RedeemedRewardsService(HttpClientUtils httpUtils) : IRedeemedRewardsService
 {
@@ -16,7 +17,7 @@ public class RedeemedRewardsService(HttpClientUtils httpUtils) : IRedeemedReward
         return await httpUtils.TryRequestAsync(async () =>
         {
             return await httpUtils.PutAsync<int, bool>(
-                RedeemedRewardsConstants.ApiEndpointFulfillReward,
+                RedeemedRewardsConstants.ApiEndpointFulfillReward + redeemedRewardId,
                 redeemedRewardId,
                 authorized: true
             );
@@ -41,6 +42,17 @@ public class RedeemedRewardsService(HttpClientUtils httpUtils) : IRedeemedReward
         {
             return await httpUtils.GetAsync<ICollection<RedeemedRewardDto>>(
                 RedeemedRewardsConstants.ApiEndpointGetUsersRedeemedRewards,
+                authorized: true
+            );
+        }) ?? [];
+    }
+
+    public async Task<ICollection<RedeemedRewardWithUserNameDto>> GetHouseholdsUnfulfilledRedeemedRewardsAsync()
+    {
+        return await httpUtils.TryRequestAsync(async () =>
+        {
+            return await httpUtils.GetAsync<ICollection<RedeemedRewardWithUserNameDto>>(
+                RedeemedRewardsConstants.ApiEndpointGetHouseholdsUnfulfilledRedeemedRewards,
                 authorized: true
             );
         }) ?? [];

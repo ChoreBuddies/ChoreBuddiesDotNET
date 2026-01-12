@@ -1,13 +1,15 @@
 ﻿@page "/household/manage"
+@using ChoreBuddies.Frontend.Features.RedeemedRewards
 @using ChoreBuddies.Frontend.Features.ScheduledChores
 @using ChoreBuddies.Frontend.Features.User
 @using MudBlazor
 @using Shared.Households
+@using Shared.RedeemedRewards
 @using Shared.Rewards
 @using Shared.ScheduledChores
 @using Shared.Users
-
 @inject IHouseholdService householdService
+@inject IRedeemedRewardsService redeemedRewardsService
 @inject IScheduledChoresService scheduledChoresService
 @inject NavigationManager navigationManager
 
@@ -126,7 +128,7 @@
         </HeaderContent>
 
         <RowTemplate>
-            <MudTd>@context.</MudTd>
+            <MudTd>@context.UserName</MudTd>
             <MudTd>@context.Name</MudTd>
             <MudTd>@context.PointsSpent</MudTd>
             <MudTd Align="Align.Right">
@@ -134,14 +136,9 @@
                     <MudButton Variant="Variant.Filled"
                     Color="Color.Primary"
                     Size="Size.Small"
-                    Style="text-transform:none;">
-                        Approve
-                    </MudButton>
-                    <MudButton Variant="Variant.Outlined"
-                    Color="Color.Error"
-                    Size="Size.Small"
-                    Style="text-transform:none;">
-                        Reject
+                    Style="text-transform:none;"
+                    OnClick="@(() => FulfillReward(context.Id))">
+                        Mark as fulfilled
                     </MudButton>
                 </MudStack>
             </MudTd>
@@ -155,29 +152,17 @@
     // ==== DTOS ====
     private HouseholdDto? household;
 
-
     private List<ScheduledChoreTileViewDto> RecurringChores = [];
 
-    private List<RedeemedRewardDto> PendingRewards = [];
+    private List<RedeemedRewardWithUserNameDto> PendingRewards = [];
 
     protected override async Task OnInitializedAsync()
     {
         household = await householdService.GetHouseholdByIdAsync();
         RecurringChores = (await scheduledChoresService.GetMyHouseholdChoresAsync())?.ToList() ?? [];
+        PendingRewards = (await redeemedRewardsService.GetHouseholdsUnfulfilledRedeemedRewardsAsync()).ToList();
     }
 
     public void EditHousehold() => navigationManager.NavigateTo($"/household-details/{household!.Id}");
-
-    public class RewardWithUser
-    {
-        public string UserName { get; set; } = "";
-        public string RewardName { get; set; } = "";
-        public int Points { get; set; }
-        public PendingReward(string userName, string rewardName, int pts)
-        {
-            UserName = userName;
-            RewardName = rewardName;
-            Points = pts;
-        }
-    }
+    public async Task FulfillReward(int Id) => await redeemedRewardsService.FulfillRewardAsync(Id);
 }
