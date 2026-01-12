@@ -1,5 +1,6 @@
 ﻿@page "/rewards/new"
 @page "/reward-details/{RewardId:int}"
+@using ChoreBuddies.Frontend.Features.RedeemedRewards
 @using Shared.Rewards
 @using Shared.Users
 @using System.ComponentModel.DataAnnotations
@@ -8,6 +9,7 @@
 @inject IAuthService authService
 @inject NavigationManager navigationManager
 @inject ISnackbar Snackbar
+@inject IRedeemedRewardsService redeemedRewardsService
 @inject IRewardsService rewardsService
 @inject IAuthService authService
 
@@ -206,8 +208,7 @@
 
     private async Task Redeem()
     {
-        //TODO: change to actually redeem
-        if ((await rewardsService.UpdateRewardAsync(reward! with { QuantityAvailable = reward.QuantityAvailable - 1 })) is not null)
+        if ((await redeemedRewardsService.RedeemRewardAsync(RewardId!.Value)) is not null)
         {
             Snackbar.Add("Redeemed successfully", Severity.Success);
             navigationManager.NavigateTo("/dashboard");

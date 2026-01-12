@@ -1,8 +1,11 @@
 ﻿@page "/rewards"
+@using ChoreBuddies.Frontend.Features.RedeemedRewards
 @using MudBlazor
 @using Shared.Rewards
 
+@inject IRedeemedRewardsService redeemedRewardsService
 @inject IRewardsService rewardsService
+@inject ISnackbar Snackbar
 @inject NavigationManager navigationManager
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
@@ -77,6 +80,7 @@
                                        Color="Color.Primary"
                                        Size="Size.Small"
                                        Disabled="@(!CanRedeem(reward))"
+                                       OnClick="@(() => RedeemReward(reward.Id))"
                                        Style="text-transform:none;">
                                 Redeem
                             </MudButton>
@@ -139,6 +143,17 @@
 
     private void AddReward() => navigationManager.NavigateTo("rewards/new");
     private void GoToRewardDetails(int id) => navigationManager.NavigateTo($"reward-details/{id}");
+    private async Task RedeemReward(int rewardId)
+    {
+        if ((await redeemedRewardsService.RedeemRewardAsync(rewardId)) is not null)
+        {
+            Snackbar.Add("Redeemed successfully", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add("An enexpected error occured while redeeming reward", Severity.Error);
+        }
+    }
 
     // ===== DTOs =====
 
