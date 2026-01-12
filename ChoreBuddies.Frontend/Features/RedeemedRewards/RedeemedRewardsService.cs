@@ -1,5 +1,5 @@
 ﻿using ChoreBuddies.Frontend.Utilities;
-using Shared.Rewards;
+using Shared.RedeemedRewards;
 
 namespace ChoreBuddies.Frontend.Features.RedeemedRewards;
 

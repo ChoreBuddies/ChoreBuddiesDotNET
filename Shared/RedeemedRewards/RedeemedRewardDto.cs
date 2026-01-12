@@ -1,4 +1,4 @@
-﻿namespace Shared.Rewards;
+﻿namespace Shared.RedeemedRewards;
 
 public record RedeemedRewardDto(int Id,
     int UserId,

@@ -7,6 +7,7 @@ using ChoreBuddies.Backend.Features.Rewards;
 using ChoreBuddies.Backend.Features.Users;
 using FluentAssertions;
 using Moq;
+using Shared.RedeemedRewards;
 using Shared.Rewards;
 
 namespace ChoreBuddies.Tests.Rewards;

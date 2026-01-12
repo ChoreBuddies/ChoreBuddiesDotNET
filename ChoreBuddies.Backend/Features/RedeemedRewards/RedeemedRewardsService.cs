@@ -5,7 +5,7 @@ using ChoreBuddies.Backend.Features.RedeemRewards;
 using ChoreBuddies.Backend.Features.Rewards;
 using ChoreBuddies.Backend.Features.Users;
 using Hangfire.Logging.LogProviders;
-using Shared.Rewards;
+using Shared.RedeemedRewards;
 
 namespace ChoreBuddies.Backend.Features.RedeemedRewards;
 

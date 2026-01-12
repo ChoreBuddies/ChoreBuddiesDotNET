@@ -1,7 +1,7 @@
 ﻿using ChoreBuddies.Backend.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Shared.Rewards;
+using Shared.RedeemedRewards;
 
 namespace ChoreBuddies.Backend.Features.RedeemedRewards;
 
