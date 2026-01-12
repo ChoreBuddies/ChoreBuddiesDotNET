@@ -14,7 +14,7 @@ public interface IRedeemedRewardsService
     // Redeem
     public Task<RedeemedRewardDto?> RedeemRewardAsync(int userId, int rewardId, bool isFulfilled);
     // Fulfill Reward
-    public Task<bool> FulfillRewardAsync(int rewardId);
+    public Task<bool> FulfillRewardAsync(int redeemedRewardId);
     // Get User's Redeemed
     public Task<ICollection<RedeemedRewardDto>> GetUsersRedeemedRewardsAsync(int userId);
     // Get Household's Redeemed
@@ -42,9 +42,9 @@ public class RedeemedRewardsService(IRedeemedRewardsRepository redeemedRewardsRe
     {
         return _mapper.Map<List<RedeemedRewardDto>>(await _redeemedRewardsRepository.GetUsersRedeemedRewardsAsync(userId));
     }
-    public async Task<bool> FulfillRewardAsync(int rewardId)
+    public async Task<bool> FulfillRewardAsync(int redeemedRewardId)
     {
-        var reward = await _redeemedRewardsRepository.GetRedeemedRewardAsync(rewardId);
+        var reward = await _redeemedRewardsRepository.GetRedeemedRewardAsync(redeemedRewardId);
         if (reward is not null && !reward.IsFulfilled)
         {
             reward.IsFulfilled = true;
