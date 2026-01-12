@@ -29,6 +29,11 @@ public class MappingProfile : Profile
         CreateMap<Reward, CreateRewardDto>().ReverseMap();
         CreateMap<PredefinedReward, PredefinedRewardDto>().ReverseMap();
         CreateMap<RedeemedReward, RedeemedRewardDto>().ReverseMap();
+        CreateMap<RedeemedReward, RedeemedRewardWithUserNameDto>()
+        .ForMember(
+            dest => dest.UserName,
+            opt => opt.MapFrom(src => src.User!.UserName)
+        );
         CreateMap<ScheduledChore, CreateScheduledChoreDto>().ReverseMap();
         CreateMap<ScheduledChore, ScheduledChoreDto>().ReverseMap();
         CreateMap<ScheduledChore, ScheduledChoreOverviewDto>().ReverseMap();

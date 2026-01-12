@@ -49,4 +49,14 @@ public class RedeemedRewardsController(IRedeemedRewardsService redeemedRewardsSe
         var result = await _redeemedRewardsService.GetHouseholdsRedeemedRewardsAsync((int)householdId);
         return Ok(result);
     }
+    [HttpGet("household/unfulfilled")]
+    public async Task<ActionResult<ICollection<RedeemedRewardWithUserNameDto>>> GetHouseholdsUnfulfilledRedeemedRewards([FromQuery] int? householdId)
+    {
+        if (householdId is null)
+        {
+            householdId = _tokenService.GetHouseholdIdFromToken(User);
+        }
+        var result = await _redeemedRewardsService.GetHouseholdsUnfulfilledRedeemedRewardsAsync((int)householdId);
+        return Ok(result);
+    }
 }
