@@ -43,10 +43,10 @@ public class RedeemedRewardsServiceTests
         var redeemed = new List<RedeemedReward> { new RedeemedReward { Id = 1, Name = "Test", Description = "test" } };
         var redeemedDto = new List<RedeemedRewardDto> { new RedeemedRewardDto(1, 99, "Test", "test", 10, true) };
 
-        _redeemedRepo.Setup(r => r.GetUsersRedeemedRewardsAsync(99)).ReturnsAsync(redeemed);
+        _redeemedRepo.Setup(r => r.GetHouseholdsRedeemedRewardsAsync(5)).ReturnsAsync(redeemed);
         _mapper.Setup(m => m.Map<List<RedeemedRewardDto>>(redeemed)).Returns(redeemedDto);
 
-        var result = await _service.GetHouseholdsRedeemedRewardsAsync(99);
+        var result = await _service.GetHouseholdsRedeemedRewardsAsync(5);
 
         result.Should().NotBeNull();
         result.Should().ContainSingle();
@@ -60,8 +60,8 @@ public class RedeemedRewardsServiceTests
     [Fact]
     public async Task GetUsersRedeemedRewardsAsync_ShouldReturnMappedList()
     {
-        var redeemed = new List<RedeemedReward> { new RedeemedReward { Id = 10, Name = "Test", Description = "test" } };
-        var redeemedDto = new List<RedeemedRewardDto> { new RedeemedRewardDto(10, 99, "Test", "test", 10, true) };
+        var redeemed = new List<RedeemedReward> { new RedeemedReward { Id = 10, UserId = 5, Name = "Test", Description = "test" } };
+        var redeemedDto = new List<RedeemedRewardDto> { new RedeemedRewardDto(10, 5, "Test", "test", 10, true) };
 
         _redeemedRepo.Setup(r => r.GetUsersRedeemedRewardsAsync(5)).ReturnsAsync(redeemed);
         _mapper.Setup(m => m.Map<List<RedeemedRewardDto>>(redeemed)).Returns(redeemedDto);
