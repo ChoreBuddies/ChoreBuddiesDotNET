@@ -21,11 +21,11 @@
             </MudText>
         </MudPaper>
         <MudButton Variant="Variant.Filled"
-                   StartIcon="@Icons.Material.Filled.Add"
-                   OnClick="@AddReward"
-                   Size="Size.Large"
-                   Color="Color.Primary"
-                   Style="text-transform:none; border-radius:20px;">
+        StartIcon="@Icons.Material.Filled.Add"
+        OnClick="@AddReward"
+        Size="Size.Large"
+        Color="Color.Primary"
+        Style="text-transform:none; border-radius:20px;">
             Add new reward
         </MudButton>
     </MudStack>
@@ -69,19 +69,19 @@
 
                         <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
                             <MudButton Variant="Variant.Outlined"
-                                       Color="Color.Primary"
-                                       Size="Size.Small"
-                                       OnClick="@(() => GoToRewardDetails(reward.Id))"
-                                       Style="text-transform:none;">
+                            Color="Color.Primary"
+                            Size="Size.Small"
+                            OnClick="@(() => GoToRewardDetails(reward.Id))"
+                            Style="text-transform:none;">
                                 View Reward
                             </MudButton>
 
                             <MudButton Variant="Variant.Filled"
-                                       Color="Color.Primary"
-                                       Size="Size.Small"
-                                       Disabled="@(!CanRedeem(reward))"
-                                       OnClick="@(() => RedeemReward(reward.Id))"
-                                       Style="text-transform:none;">
+                            Color="Color.Primary"
+                            Size="Size.Small"
+                            Disabled="@(!CanRedeem(reward))"
+                            OnClick="@(() => RedeemReward(reward.Id))"
+                            Style="text-transform:none;">
                                 Redeem
                             </MudButton>
                         </MudStack>
@@ -108,8 +108,8 @@
             <MudTd DataLabel="Points">@context.PointsSpent</MudTd>
             <MudTd DataLabel="Status">
                 <MudChip T="string" Color="@(context.IsFulfilled ? Color.Success : Color.Warning)"
-                         Variant="Variant.Filled"
-                         Size="Size.Small">
+                Variant="Variant.Filled"
+                Size="Size.Small">
                     @(context.IsFulfilled ? "Fulfilled" : "Pending")
                 </MudChip>
             </MudTd>
@@ -126,17 +126,13 @@
 
     private List<RewardDto> AvailableRewards = [];
 
-    private List<RedeemedRewardDto> RedeemedRewards = new()
-    {
-        new RedeemedRewardDto(1, 1, "Movie Night", "Family movie night", 500, true),
-        new RedeemedRewardDto(2, 1, "Ice Cream Sundae Bar", "Ice cream fun", 250, true),
-        new RedeemedRewardDto(3, 1, "Pizza Party", "Pizza evening", 400, false)
-    };
+    private List<RedeemedRewardDto> RedeemedRewards = [];
 
     // ==== LOGIC ====
     protected override async Task OnInitializedAsync()
     {
         AvailableRewards = (await rewardsService.GetHouseholdRewardsAsync()).ToList();
+        RedeemedRewards = (await redeemedRewardsService.GetUsersRedeemedRewardsAsync()).ToList();
     }
 
     private bool CanRedeem(RewardDto reward) => TotalPoints >= reward.Cost && reward.QuantityAvailable > 0;
@@ -154,16 +150,5 @@
             Snackbar.Add("An enexpected error occured while redeeming reward", Severity.Error);
         }
     }
-
-    // ===== DTOs =====
-
-    public record RedeemedRewardDto(
-        int Id,
-        int UserId,
-        string Name,
-        string Description,
-        int PointsSpent,
-        bool IsFulfilled
-    );
 }
 
