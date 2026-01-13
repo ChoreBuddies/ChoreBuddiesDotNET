@@ -6,6 +6,7 @@ using ChoreBuddies.Frontend.Features.Chores.ScheduledChores;
 using ChoreBuddies.Frontend.Features.ExceptionHandler;
 using ChoreBuddies.Frontend.Features.Household;
 using ChoreBuddies.Frontend.Features.Notifications;
+using ChoreBuddies.Frontend.Features.RedeemedRewards;
 using ChoreBuddies.Frontend.Features.Reminders;
 using ChoreBuddies.Frontend.Features.Rewards;
 using ChoreBuddies.Frontend.Features.User;
@@ -57,6 +58,7 @@ public class Program
         builder.Services.AddScoped<IScheduledChoresService, ScheduledChoresService>();
         builder.Services.AddScoped<IRemindersService, RemindersService>();
         builder.Services.AddScoped<IRewardsService, RewardsService>();
+        builder.Services.AddScoped<IRedeemedRewardsService, RedeemedRewardsService>();
 
         builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 

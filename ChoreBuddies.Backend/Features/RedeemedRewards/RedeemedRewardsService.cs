@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Notifications;
 using ChoreBuddies.Backend.Features.RedeemRewards;
 using ChoreBuddies.Backend.Features.Rewards;
 using ChoreBuddies.Backend.Features.Users;
-using Shared.Rewards;
+using Hangfire.Logging.LogProviders;
+using Microsoft.EntityFrameworkCore;
+using Shared.RedeemedRewards;
 
 namespace ChoreBuddies.Backend.Features.RedeemedRewards;
 
@@ -12,10 +15,14 @@ public interface IRedeemedRewardsService
 {
     // Redeem
     public Task<RedeemedRewardDto?> RedeemRewardAsync(int userId, int rewardId, bool isFulfilled);
+    // Fulfill Reward
+    public Task<bool> FulfillRewardAsync(int redeemedRewardId);
     // Get User's Redeemed
     public Task<ICollection<RedeemedRewardDto>> GetUsersRedeemedRewardsAsync(int userId);
     // Get Household's Redeemed
     public Task<ICollection<RedeemedRewardDto>> GetHouseholdsRedeemedRewardsAsync(int householdId);
+    // Get Household's Redeemed but Unfulfilled
+    public Task<ICollection<RedeemedRewardWithUserNameDto>> GetHouseholdsUnfulfilledRedeemedRewardsAsync(int householdId);
 }
 
 public class RedeemedRewardsService(IRedeemedRewardsRepository redeemedRewardsRepository,
@@ -32,12 +39,29 @@ public class RedeemedRewardsService(IRedeemedRewardsRepository redeemedRewardsRe
 
     public async Task<ICollection<RedeemedRewardDto>> GetHouseholdsRedeemedRewardsAsync(int householdId)
     {
-        return _mapper.Map<List<RedeemedRewardDto>>(await _redeemedRewardsRepository.GetUsersRedeemedRewardsAsync(householdId));
+        return _mapper.Map<List<RedeemedRewardDto>>(await _redeemedRewardsRepository.GetHouseholdsRedeemedRewardsAsync(householdId));
+    }
+    public async Task<ICollection<RedeemedRewardWithUserNameDto>> GetHouseholdsUnfulfilledRedeemedRewardsAsync(int householdId)
+    {
+        return await _redeemedRewardsRepository.GetHouseholdsRedeemedRewardsQueryAsync(householdId)
+            .ProjectTo<RedeemedRewardWithUserNameDto>(_mapper.ConfigurationProvider)
+            .ToListAsync();
     }
 
     public async Task<ICollection<RedeemedRewardDto>> GetUsersRedeemedRewardsAsync(int userId)
     {
         return _mapper.Map<List<RedeemedRewardDto>>(await _redeemedRewardsRepository.GetUsersRedeemedRewardsAsync(userId));
+    }
+    public async Task<bool> FulfillRewardAsync(int redeemedRewardId)
+    {
+        var reward = await _redeemedRewardsRepository.GetRedeemedRewardAsync(redeemedRewardId);
+        if (reward is not null && !reward.IsFulfilled)
+        {
+            reward.IsFulfilled = true;
+            await _redeemedRewardsRepository.UpdateRedeemedRewardAsync(reward);
+            return true;
+        }
+        return false;
     }
 
     public async Task<RedeemedRewardDto?> RedeemRewardAsync(int userId, int rewardId, bool isFulfilled)
