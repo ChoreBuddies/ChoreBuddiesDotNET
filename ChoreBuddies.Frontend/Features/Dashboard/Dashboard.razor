@@ -1,5 +1,6 @@
 ﻿@page "/dashboard"
 
+@using ChoreBuddies.Frontend.Features.User
 @using ChoreBuddies.Frontend.UI.Components.Chores
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Web
@@ -7,6 +8,7 @@
 @using Shared.Chores
 
 @inject IAuthService authService
+@inject IUserService userService
 @inject Chores.IChoresService choresService
 @inject NavigationManager _navigationManager
 
@@ -71,7 +73,7 @@
                     {
                         @foreach (var chore in _householdChores)
                         {
-                            <Activity _choreDto="@chore" />
+                            <Activity _choreDto="@chore" _userName="@(await GetChoreUserName(chore))"/>
                         }
                     }
                 </MudStack>
@@ -122,6 +124,14 @@
             }
         }
         return householdChores;
+    }
+    private async Task<string?> GetChoreUserName(ChoreDto usersChore)
+    {
+        if(usersChore.UserId is not null && usersChore.UserId > 0)
+        {
+            return (await userService.GetUserByIdAsync((int)(usersChore.UserId)))?.UserName ?? String.Empty;
+        }
+        return String.Empty;
     }
     private void GoToLogin()
     {
