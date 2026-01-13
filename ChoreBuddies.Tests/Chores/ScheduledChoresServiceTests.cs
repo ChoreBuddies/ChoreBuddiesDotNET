@@ -77,7 +77,7 @@ public class ScheduledChoresServiceTests
     public async Task CreateChoreAsync_CreatesChore()
     {
         // Arrange
-        var dto = new CreateScheduledChoreDto(Name: "Test", Description: "Some description", UserId: null, Room: "Kitchen", RewardPointsCount: 10, frequency: Frequency.Daily, minAge: 5, choreDuration: 1, everyX: 1);
+        var dto = new CreateScheduledChoreDto(Name: "Test", Description: "Some description", UserId: null, Room: "Kitchen", RewardPointsCount: 10, Frequency: Frequency.Daily, MinAge: 5, ChoreDuration: 1, EveryX: 1);
 
         var createdChore = new ScheduledChore(name: "Test", description: "Some description", userId: null, room: "Kitchen", everyX: 1, frequency: Frequency.Daily, rewardPointsCount: 10, householdId: 5, minAge: 5, choreDuration: 1)
         {

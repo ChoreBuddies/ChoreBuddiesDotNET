@@ -1,10 +1,12 @@
-﻿@using ChoreBuddies.Frontend.Features.User
+﻿@using ChoreBuddies.Frontend.Features.ScheduledChores
+@using ChoreBuddies.Frontend.Features.User
 @using MudBlazor
 @using Shared.ScheduledChores
 @using Shared.Users
 
 @inject IScheduledChoresService scheduledChoresService
 @inject ISnackbar snackbar
+@inject NavigationManager navigationManager
 @inject IAuthService authService
 <MudPaper Elevation="0" Class="pa-6 mb-8" Style="background:#f5f6f8; border-radius:16px;">
     <div>
@@ -119,7 +121,7 @@
 
     private void ViewChoreDetails(int choreId)
     {
-        //navigationManager.NavigateTo($"/scheduledchore-details/{choreId}");
+        navigationManager.NavigateTo($"/scheduled-chore-details/{choreId}");
     }
 
 }
