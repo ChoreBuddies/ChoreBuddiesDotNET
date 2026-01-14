@@ -42,6 +42,7 @@ public class DbSeeder
                     SeedScheduledChores(context);
                     SeedRewards(context);
                     SeedRedeemedRewards(context);
+                    SeedChatMessages(context);
                 }
             })
             .UseAsyncSeeding(async (context, _, ct) =>
@@ -58,6 +59,7 @@ public class DbSeeder
                     await SeedScheduledChoresAsync(context, ct);
                     await SeedRewardsAsync(context, ct);
                     await SeedRedeemedRewardsAsync(context, ct);
+                    await SeedChatMessagesAsync(context, ct);
                 }
             });
     }
@@ -308,6 +310,32 @@ public class DbSeeder
             await context.Set<PredefinedReward>().AddRangeAsync(_defaultRewards, ct);
             await context.SaveChangesAsync(ct);
         }
+    }
+
+    private void SeedChatMessages(DbContext context)
+    {
+        if (context.Set<ChatMessage>().Any()) return;
+
+        var households = context.Set<Household>().Include(h => h.Users).OrderBy(h => h.Id).ToList();
+        if (households.Count < 3) return;
+
+        var messages = GenerateChatScenarios(households);
+
+        context.Set<ChatMessage>().AddRange(messages);
+        context.SaveChanges();
+    }
+
+    private async Task SeedChatMessagesAsync(DbContext context, CancellationToken ct)
+    {
+        if (await context.Set<ChatMessage>().AnyAsync(ct)) return;
+
+        var households = await context.Set<Household>().Include(h => h.Users).OrderBy(h => h.Id).ToListAsync(ct);
+        if (households.Count < 3) return;
+
+        var messages = GenerateChatScenarios(households);
+
+        await context.Set<ChatMessage>().AddRangeAsync(messages, ct);
+        await context.SaveChangesAsync(ct);
     }
 
     #endregion
@@ -706,6 +734,69 @@ public class DbSeeder
                 PointsSpent = template.Cost,
                 IsFulfilled = random.NextDouble() > 0.2
             });
+        }
+
+        return list;
+    }
+
+    private List<ChatMessage> GenerateChatScenarios(List<Household> households)
+    {
+        var list = new List<ChatMessage>();
+        var timeProvider = TimeProvider.System;
+
+        // --- Scenario 1: Bachelor Pad (Empty) ---
+
+        // --- Scenario 2: Family (Realistic English conversation) ---
+        var hFamily = households[1];
+        var usersFamily = hFamily.Users.ToList();
+        if (usersFamily.Count >= 2)
+        {
+            var dad = usersFamily[0];
+            var mom = usersFamily[1];
+            var baseTime = DateTimeOffset.UtcNow.AddDays(-1);
+
+            list.AddRange(new[]
+            {
+            new ChatMessage(mom.Id, hFamily.Id, "Honey, did you take out the trash today?", baseTime.AddMinutes(0)),
+            new ChatMessage(dad.Id, hFamily.Id, "Not yet, I was planning to do it after work.", baseTime.AddMinutes(2)),
+            new ChatMessage(mom.Id, hFamily.Id, "Ah, got them. Thanks!", baseTime.AddMinutes(3)),
+            new ChatMessage(dad.Id, hFamily.Id, "Okay, no problem. Could you also load the dishwasher?", baseTime.AddMinutes(5)),
+            new ChatMessage(mom.Id, hFamily.Id, "Sure, I’ll do both in about 30 minutes.", baseTime.AddMinutes(6)),
+            new ChatMessage(dad.Id, hFamily.Id, "Great, thanks! I’ll clean the bathroom in the meantime.", baseTime.AddMinutes(7)),
+            new ChatMessage(mom.Id, hFamily.Id, "Perfect. Let’s check everything off in the app once we’re done <3", baseTime.AddMinutes(8))
+        });
+        }
+
+        // --- Scenario 3: Dormitory (High volume > 100 messages) ---
+        var hDorm = households[2];
+        var usersDorm = hDorm.Users.ToList();
+        if (usersDorm.Any())
+        {
+            var random = new Random();
+            var loremIpsum = new[]
+            {
+            "Hey guys, who drank my milk?",
+            "Party tonight?",
+            "Can someone maintain quiet hours please?",
+            "Does anyone have notes for Math 101?",
+            "I'm ordering pizza, who's in?",
+            "The internet is down again...",
+            "It wasn't me!",
+            "Clean the kitchen guys, it's a mess.",
+            "LOL",
+            "Be right back."
+        };
+
+            for (int i = 0; i < 150; i++)
+            {
+                var user = usersDorm[random.Next(usersDorm.Count)];
+
+                var sentAt = DateTimeOffset.UtcNow.AddDays(-5).AddMinutes(i * 30 + random.Next(10));
+
+                var content = loremIpsum[random.Next(loremIpsum.Length)] + $" (msg #{i})";
+
+                list.Add(new ChatMessage(user.Id, hDorm.Id, content, sentAt));
+            }
         }
 
         return list;
