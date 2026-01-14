@@ -1,0 +1,33 @@
+﻿@using ChoreBuddies.Frontend.Utilities
+@using Shared.ScheduledChores
+@if (Model.IsScheduled)
+{
+	<div>
+		<MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Chore Duration (Days)</MudText>
+		<MudNumericField Variant="Variant.Outlined"
+						 Margin="Margin.Dense"
+						 class="rounded-lg bg-white" @bind-Value="Model.ChoreDuration" Min="1" ReadOnly="PageMode == PageMode.View" />
+	</div>
+	<div>
+		<MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Frequency</MudText>
+		<MudSelect Variant="Variant.Outlined"
+				   Margin="Margin.Dense"
+				   class="rounded-lg bg-white" @bind-Value="Model.Frequency" ReadOnly="PageMode == PageMode.View">
+			@foreach (Frequency frequency in Enum.GetValues(typeof(Frequency)))
+			{
+				<MudSelectItem Value="frequency">@frequency</MudSelectItem>
+			}
+		</MudSelect>
+	</div>
+	<div>
+		<MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Every X</MudText>
+		<MudNumericField Variant="Variant.Outlined"
+						 Margin="Margin.Dense"
+						 class="rounded-lg bg-white" @bind-Value="Model.EveryX" Min="1" ReadOnly="PageMode == PageMode.View" />
+	</div>
+}
+
+@code {
+	[Parameter] public ChoreViewModel Model { get; set; } = null!;
+	[Parameter] public PageMode PageMode { get; set; }
+}

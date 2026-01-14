@@ -1,6 +1,7 @@
 ﻿using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Shared.ScheduledChores;
 
 namespace ChoreBuddies.Backend.Features.ScheduledChores;
 
@@ -14,6 +15,8 @@ public interface IScheduledChoresRepository
     public Task<ScheduledChore?> DeleteChoreAsync(ScheduledChore chore);
     Task<IEnumerable<ScheduledChore>?> GetUsersChoresAsync(int userId);
     Task<IEnumerable<ScheduledChore>?> GetHouseholdChoresAsync(int userId);
+    Task<ScheduledChore?> UpdateChoreFrequencyAsync(int choreId, Frequency frequency);
+
 }
 
 public class ScheduledChoresRepository(ChoreBuddiesDbContext dbContext) : IScheduledChoresRepository
@@ -130,6 +133,19 @@ public class ScheduledChoresRepository(ChoreBuddiesDbContext dbContext) : ISched
         existingChore.MinAge = chore.MinAge;
         existingChore.ChoreDuration = chore.ChoreDuration;
 
+        await _dbContext.SaveChangesAsync();
+
+        return existingChore;
+    }
+    public async Task<ScheduledChore?> UpdateChoreFrequencyAsync(int choreId, Frequency frequency)
+    {
+        var existingChore = await _dbContext.Set<ScheduledChore>()
+            .FirstOrDefaultAsync(c => c.Id == choreId);
+
+        if (existingChore == null)
+            return null;
+
+        existingChore.Frequency = frequency;
         await _dbContext.SaveChangesAsync();
 
         return existingChore;

@@ -1,4 +1,5 @@
-﻿@using ChoreBuddies.Frontend.Features.User
+﻿@using ChoreBuddies.Frontend.Features.ScheduledChores
+@using ChoreBuddies.Frontend.Features.User
 @using MudBlazor
 @using Shared.Users
 
@@ -12,13 +13,13 @@
 <MudText Typo="Typo.h5" Class="mb-4" Style="font-weight:700;">
     Household Members
 </MudText>
- @if (!_isEditingRoles)
+ @if (!_isEditingChores)
                        {
             <MudButton Variant="Variant.Outlined"
                        StartIcon="@Icons.Material.Filled.Edit"
                        Color="Color.Primary"
                        Size="Size.Large"
-                       @onclick="() => _isEditingRoles = true"
+                       @onclick="() => _isEditingChores = true"
                        Style="text-transform:none; border-radius:20px;">
                 Edit
             </MudButton>
@@ -49,7 +50,7 @@
             <MudSelect T="string"
                        @bind-Value="member.RoleName"
                        Dense="true"
-                       Disabled="@(!_isEditingRoles || _currentUserIsChild || member.Id == _userId)">
+                       Disabled="@(!_isEditingChores || _currentUserIsChild || member.Id == _userId)">
                 @foreach (var role in AvailableRoles)
                 {
                     <MudSelectItem T="string" Value="@role">@role</MudSelectItem>
@@ -61,8 +62,8 @@
 </MudTable>
 
 
-    <MudStack Row="true" Justify="Justify.FlexEnd" Style="@($"visibility: {(_isEditingRoles ? "visible" : "hidden")};")">
-        @* @if (_isEditingRoles)
+    <MudStack Row="true" Justify="Justify.FlexEnd" Style="@($"visibility: {(_isEditingChores ? "visible" : "hidden")};")">
+        @* @if (_isEditingChores)
         { *@
             <MudButton Variant="Variant.Outlined"
                        Color="Color.Error"
@@ -82,11 +83,12 @@
             <MudButton Variant="Variant.Filled"
                        Color="Color.Primary"
                        Style="width:fit-content; text-transform:none;"
-                       @onclick="() => _isEditingRoles = true">
+                       @onclick="() => _isEditingChores = true">
                 Edit Roles
             </MudButton>
         } *@
     </MudStack>
+
 </MudPaper>
 @code {
 
@@ -96,14 +98,14 @@
     private List<string> AvailableRoles = [];
 
     // ==== STATES ====
-    private bool _isEditingRoles = false;
+    private bool _isEditingChores = false;
     private int _userId = -1;
     private bool _currentUserIsChild = false;
 
     protected override async Task OnInitializedAsync()
     {
         AvailableRoles = (await userService.GetAvailableRolesAsync())?.ToList() ?? [];
-        Members = (await userService.GetMyHouseholdMembersAsync())?.ToList() ?? [];
+        Members = (await userService.GetMyHouseholdMembersRolesAsync())?.ToList() ?? [];
         _userId = await authService.GetUserIdAsync();
 
         var currentUserDto = Members.FirstOrDefault(x => x.Id == _userId);
@@ -124,7 +126,7 @@
 
     private void CancelEditingRoles()
     {
-        _isEditingRoles = false;
+        _isEditingChores = false;
         LoadModels();
     }
 
@@ -147,9 +149,9 @@
                 }
             }
 
-            Members = (await userService.GetMyHouseholdMembersAsync())?.ToList() ?? [];
+            Members = (await userService.GetMyHouseholdMembersRolesAsync())?.ToList() ?? [];
             snackbar.Add("Roles updated successfully", Severity.Success);
-            _isEditingRoles = false;
+            _isEditingChores = false;
         }
         catch (Exception ex)
         {

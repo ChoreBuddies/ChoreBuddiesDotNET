@@ -1,0 +1,101 @@
+﻿@page "/chores/new"
+@page "/chore-details/{ChoreId:int}"
+@page "/scheduled-chore-details/{ChoreId:int}"
+
+@using System.ComponentModel.DataAnnotations
+@using AutoMapper
+@using ChoreBuddies.Frontend.Features.Chores.ScheduledChores
+@using ChoreBuddies.Frontend.Features.ScheduledChores
+@using Shared.Chores
+@using Shared.ScheduledChores
+@using Shared.Users
+@using Utilities
+
+@inject IMapper Mapper
+@inject IAuthService authService
+@inject NavigationManager navigationManager
+@inject ISnackbar Snackbar
+@inject IChoresService choresService
+@inject IScheduledChoresService scheduledChoreService
+@inject User.IUserService userService
+
+<ChoreForm Model="Model"
+		   Users="AvailableUsers"
+		    @bind-PageMode="CurrentMode"
+		   OnValidSubmit="HandleSave" />
+
+@code {
+	[Parameter] public int? ChoreId { get; set; }
+	private ChoreViewModel Model = new();
+	private PageMode CurrentMode = PageMode.Create;
+
+	private List<AppUserRoleDto> AvailableUsers = new();
+	private bool _isTypeLocked;
+	protected override async Task OnInitializedAsync()
+	{
+		bool isScheduledPath = navigationManager.Uri.ToLower().Contains("scheduled");
+
+		await LoadData(isScheduledPath);
+	}
+	private async Task LoadData(bool isScheduledPath)
+	{
+		AvailableUsers = (await userService.GetMyHouseholdMembersRolesAsync())?.ToList() ?? [];
+
+
+		if (ChoreId.HasValue)
+		{
+			CurrentMode = PageMode.View;
+			_isTypeLocked = true;
+
+			if (isScheduledPath)
+			{
+				var dto = await scheduledChoreService.GetChoreByIdAsync(ChoreId.Value);
+				Model = Mapper.Map<ChoreViewModel>(dto);
+				Model.IsScheduled = true;
+			}
+			else
+			{
+				var dto = await choresService.GetChoreByIdAsync(ChoreId.Value);
+				Model = Mapper.Map<ChoreViewModel>(dto);
+			}
+		}
+		else
+		{
+			Model = new ChoreViewModel { IsScheduled = false };
+			CurrentMode = PageMode.Create;
+		}
+	}
+
+	private async Task HandleSave(ChoreViewModel updatedModel)
+	{
+		if (CurrentMode == PageMode.Edit)
+		{
+			if (updatedModel.IsScheduled)
+			{
+				var dto = Mapper.Map<ScheduledChoreDto>(updatedModel);
+				await scheduledChoreService.UpdateChoreAsync(dto);
+			}
+			else
+			{
+				var dto = Mapper.Map<ChoreDto>(updatedModel);
+				await choresService.UpdateChoreAsync(dto);
+			}
+		}
+		else
+		{
+			if (updatedModel.IsScheduled)
+			{
+				var dto = Mapper.Map<CreateScheduledChoreDto>(updatedModel);
+				await scheduledChoreService.CreateChoreAsync(dto);
+			}
+			else
+			{
+				var dto = Mapper.Map<CreateChoreDto>(updatedModel);
+				await choresService.CreateChoreAsync(dto);
+			}
+		}
+		Snackbar.Add("Saved successfully!", Severity.Success);
+		CurrentMode = PageMode.View;
+		_isTypeLocked = true;
+	}
+}
