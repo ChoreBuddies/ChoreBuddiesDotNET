@@ -103,7 +103,7 @@
     protected override async Task OnInitializedAsync()
     {
         AvailableRoles = (await userService.GetAvailableRolesAsync())?.ToList() ?? [];
-        Members = (await userService.GetMyHouseholdMembersAsync())?.ToList() ?? [];
+        Members = (await userService.GetMyHouseholdMembersWithRoleAsync())?.ToList() ?? [];
         _userId = await authService.GetUserIdAsync();
 
         var currentUserDto = Members.FirstOrDefault(x => x.Id == _userId);
@@ -147,7 +147,7 @@
                 }
             }
 
-            Members = (await userService.GetMyHouseholdMembersAsync())?.ToList() ?? [];
+            Members = (await userService.GetMyHouseholdMembersWithRoleAsync())?.ToList() ?? [];
             snackbar.Add("Roles updated successfully", Severity.Success);
             _isEditingRoles = false;
         }

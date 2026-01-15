@@ -9,7 +9,8 @@ public interface IUserService
     public Task<AppUserDto?> GetUserByIdAsync(int userId);
     public Task<bool> UpdateUserAsync(AppUserDto user);
     public Task<bool> UpdateUserRoleAsync(int userId, string roleName);
-    public Task<IEnumerable<AppUserRoleDto>?> GetMyHouseholdMembersAsync();
+    public Task<IEnumerable<AppUserRoleDto>?> GetMyHouseholdMembersWithRoleAsync();
+    public Task<IEnumerable<AppUserDto>?> GetMyHouseholdMembersAsync();
     public Task<IEnumerable<String>> GetAvailableRolesAsync();
 }
 
@@ -43,10 +44,16 @@ public class UserService : IUserService
         );
     }
 
-    public async Task<IEnumerable<AppUserRoleDto>?> GetMyHouseholdMembersAsync()
+    public async Task<IEnumerable<AppUserRoleDto>?> GetMyHouseholdMembersWithRoleAsync()
     {
         return await _httpClientUtils.TryRequestAsync(
             () => _httpClientUtils.GetAsync<IEnumerable<AppUserRoleDto>>($"{UserConstants.ApiEndpointMyHouseholdMembers}{true}", true)
+            );
+    }
+    public async Task<IEnumerable<AppUserDto>?> GetMyHouseholdMembersAsync()
+    {
+        return await _httpClientUtils.TryRequestAsync(
+            () => _httpClientUtils.GetAsync<IEnumerable<AppUserDto>>(UserConstants.ApiEndpointMyHouseholdMembers, true)
             );
     }
 

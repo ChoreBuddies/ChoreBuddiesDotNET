@@ -179,9 +179,9 @@
     private async Task SwitchToEditMode()
     {
         CurrentMode = PageMode.Edit;
-        var result = await userService.GetCurrentUserAsync(); // TODO: Get all users from household
+        var result = await userService.GetMyHouseholdMembersAsync();
         if(result is not null)
-            AvailableUsers.Add(result);
+            AvailableUsers.AddRange(result.ToList());
     }
 
     private async Task CancelEdit()
@@ -240,11 +240,11 @@
 
     private async Task LoadModel()
     {
-        var result = await userService.GetCurrentUserAsync();
-        if (result is null) return;
+        var members = await userService.GetMyHouseholdMembersAsync();
+        if (members is null) return;
         if(CurrentMode != PageMode.View)
         {
-            AvailableUsers.Add(result); // TODO: Get all users from household when available
+            AvailableUsers.AddRange(members.ToList());
         }
         if (chore is null) 
         {
@@ -255,7 +255,7 @@
             {
                 ChoreName = chore.Name,
                 Description = chore.Description,
-                AssignedTo = result,
+                AssignedTo = chore.Status != Status.Unassigned ? members.SingleOrDefault(u => u.Id == chore.UserId) : null,
                 DueDate = chore.DueDate,
                 RewardPoints = chore.RewardPointsCount
             };
