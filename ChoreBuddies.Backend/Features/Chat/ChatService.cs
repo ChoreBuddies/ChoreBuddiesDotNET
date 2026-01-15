@@ -8,7 +8,7 @@ public interface IChatService
     Task<ChatMessageDto?> CreateChatMessageAsync(AppUser user, string messageContent, Guid clientUniqueId);
     Task<ChatMessageDto?> CreateChatMessageAsync(int userId, int householdId, string userName, string messageContent, Guid clientUniqueId);
 
-    Task<List<ChatMessageDto>> GetNewestMessagesAsync(int userId, int householdId, int numberOfMessages = 50);
+    Task<List<ChatMessageDto>> GetMessagesAsync(int userId, int householdId, int numberOfMessages = 50, DateTimeOffset? beforeDate = null);
 
     string GetGroupName(int householdId);
 }
@@ -47,9 +47,9 @@ public class ChatService(IChatRepository chatRepository, TimeProvider timeProvid
         );
     }
 
-    public async Task<List<ChatMessageDto>> GetNewestMessagesAsync(int userId, int householdId, int numberOfMessages = 50)
+    public async Task<List<ChatMessageDto>> GetMessagesAsync(int userId, int householdId, int numberOfMessages = 50, DateTimeOffset? beforeDate = null)
     {
-        var messages = await _chatRepository.GetNewestMessagesAsync(householdId, numberOfMessages);
+        var messages = await _chatRepository.GetMessagesAsync(householdId, numberOfMessages, beforeDate);
 
         return messages.Select(m => new ChatMessageDto(
                 m.Id,

@@ -8,7 +8,7 @@ namespace ChoreBuddies.Backend.Features.Chat;
 public interface IChatRepository
 {
     Task<ChatMessage?> CreateChatMessageAsync(ChatMessage newMessage);
-    Task<List<ChatMessage>> GetNewestMessagesAsync(int householdId, int numberOfMessages);
+    Task<List<ChatMessage>> GetMessagesAsync(int householdId, int numberOfMessages, DateTimeOffset? beforeDate);
 }
 
 public class ChatRepository(ChoreBuddiesDbContext dbContext) : IChatRepository
@@ -22,14 +22,23 @@ public class ChatRepository(ChoreBuddiesDbContext dbContext) : IChatRepository
         return message.Entity;
     }
 
-    public async Task<List<ChatMessage>> GetNewestMessagesAsync(int householdId, int numberOfMessages)
+    public async Task<List<ChatMessage>> GetMessagesAsync(int householdId, int numberOfMessages, DateTimeOffset? beforeDate)
     {
-        var messages = _dbContext.ChatMessages
-            .Where(m => m.HouseholdId == householdId)
-            .OrderByDescending(m => m.SentAt)
-            .Take(numberOfMessages)
-            .Include(m => m.Sender);
+        var query = _dbContext.ChatMessages
+            .Where(m => m.HouseholdId == householdId);
 
-        return await messages.ToListAsync();
+        if (beforeDate.HasValue)
+        {
+            // Pobierz wiadomości starsze niż podana data
+            query = query.Where(m => m.SentAt < beforeDate.Value);
+        }
+
+        var messages = await query
+            .OrderByDescending(m => m.SentAt) // Najpierw najnowsze (od daty odcięcia w dół)
+            .Take(numberOfMessages)
+            .Include(m => m.Sender)
+            .ToListAsync();
+
+        return messages;
     }
 }

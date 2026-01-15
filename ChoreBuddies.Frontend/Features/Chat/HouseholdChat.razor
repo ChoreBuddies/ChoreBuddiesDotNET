@@ -7,12 +7,19 @@
 @implements IAsyncDisposable
 
 <div class="d-flex flex-column"
-     style="@(IsSidebar ? "height: 100%;" : "height: calc(100vh - var(--mud-appbar-height) - 48px);")
-        max-width: 600px; overflow: hidden; margin: auto;">
-    <MudPaper Class="flex-grow-1 pa-4"
-              Elevation="0"
-              ID="chat-scroll-container"
-              Style="overflow-y: auto; background: transparent; min-height: 0;">
+     style="@(IsSidebar ? "height: 100%;" : "height: 80vh; max-height: calc(100vh - var(--mud-appbar-height) - 20px);")
+        width: 100%; max-width: 600px; overflow: hidden; margin: auto;">
+    <div id="@_scrollContainerId"
+         class="mud-paper mud-elevation-0 flex-grow-1 pa-4 d-flex flex-column"
+         style="overflow-y: auto; background: transparent; min-height: 0;">
+
+        @if (_isLoadingHistory)
+        {
+            <MudStack AlignItems="AlignItems.Center" Class="py-2">
+                <MudProgressCircular Indeterminate="true" Size="Size.Small" />
+            </MudStack>
+        }
+
         <MudStack Spacing="2">
             @if (_isLoading)
             {
@@ -68,13 +75,13 @@
                 }
             }
         </MudStack>
-    </MudPaper>
+    </div>
 
     <div style="min-height: 20px;" class="px-4">
         @if (!string.IsNullOrEmpty(_typingInfo))
         {
             <MudText Typo="Typo.caption" Class="mud-text-secondary">
-                @_typingInfo pisze...
+                @_typingInfo writes...
             </MudText>
         }
     </div>
@@ -100,12 +107,16 @@
 @code {
     [Parameter] public bool IsSidebar { get; set; } = false;
 
+    private string _scrollContainerId = $"chat-scroll-{Guid.NewGuid()}";
+
     private int _householdId { get; set; } = -1;
     private string _username { get; set; } = "Me";
     private List<ChatMessageVm> _messages = new();
     private string _newMessageInput = string.Empty;
     private string _typingInfo = string.Empty;
-    private bool _isLoading = true;
+    private bool _isLoading = true; 
+    private bool _isLoadingHistory = false; 
+    private DotNetObjectReference<HouseholdChat>? _objRef;
 
     private System.Timers.Timer? _typingTimer;
 
@@ -115,9 +126,7 @@
         _username = await authService.GetUserNameAsync();
 
         // Load History
-        var historyDtos = await chatService.GetHistoryAsync(_householdId);
-        _messages = historyDtos.Select(ChatMessageVm.FromDto).ToList();
-        _isLoading = false;
+        await LoadMessagesAsync();
 
         // Subscribe events
         chatService.MessageReceived += HandleMessageReceived;
@@ -125,8 +134,71 @@
 
         // Connect
         await chatService.ConnectAsync(_householdId);
+    }
 
-        await ScrollToBottom();
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _objRef = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("chatHelpers.addScrollListener", _scrollContainerId, _objRef);
+            await ScrollToBottom();
+        }
+    }
+
+    private async Task LoadMessagesAsync(DateTimeOffset? before = null)
+    {
+        var newBatch = await chatService.GetHistoryAsync(_householdId, before);
+        var viewModels = newBatch.Select(ChatMessageVm.FromDto).ToList();
+
+        if (before == null)
+        {
+            // Initial load
+            _messages = viewModels; 
+            _isLoading = false;
+            StateHasChanged();
+            await Task.Delay(50);
+            await ScrollToBottom();
+        }
+        else
+        {
+            // History load (prepend)
+            if (viewModels.Any())
+            {
+                var oldScrollHeight = await JSRuntime.InvokeAsync<double>(
+                    "eval",
+                    $"document.getElementById('{_scrollContainerId}').scrollHeight");
+
+                _messages.InsertRange(0, viewModels);
+                StateHasChanged();
+
+                await Task.Delay(50);
+
+                // Restore scroll position
+                await JSRuntime.InvokeVoidAsync("chatHelpers.maintainScrollPosition",
+                    _scrollContainerId,
+                    oldScrollHeight);
+            }
+        }
+    }
+
+    [JSInvokable]
+    public async Task LoadMoreMessages()
+    {
+        if (_isLoadingHistory || !_messages.Any()) return;
+
+        _isLoadingHistory = true;
+        StateHasChanged();
+
+        var oldestMessageDate = _messages.First().SentAt;
+
+        // For spinner visibility
+        await Task.Delay(500);
+
+        await LoadMessagesAsync(oldestMessageDate);
+
+        _isLoadingHistory = false;
+        StateHasChanged();
     }
 
     private async Task SendMessage()
@@ -234,13 +306,14 @@
     {
         // Time to generate DOM
         await Task.Delay(100); 
-        await JSRuntime.InvokeVoidAsync("scrollToBottom", "chat-scroll-container");
+        await JSRuntime.InvokeVoidAsync("chatHelpers.scrollToBottom", _scrollContainerId);
     }
 
     public async ValueTask DisposeAsync()
     {
         _typingTimer?.Dispose();
         chatService.MessageReceived -= HandleMessageReceived;
-        chatService.UserTyping -= HandleUserTyping;
+        chatService.UserTyping -= HandleUserTyping; 
+        _objRef?.Dispose();
     }
 }

@@ -73,7 +73,7 @@ public class ChatRepositoryTests : BaseIntegrationTest
         await DbContext.SaveChangesAsync();
 
         // Act
-        var result = await _repository.GetNewestMessagesAsync(householdTarget.Id, 10);
+        var result = await _repository.GetMessagesAsync(householdTarget.Id, 10, null);
 
         // Assert
         result.Should().HaveCount(1);
@@ -114,7 +114,7 @@ public class ChatRepositoryTests : BaseIntegrationTest
         await DbContext.SaveChangesAsync();
 
         // Act
-        var result = await _repository.GetNewestMessagesAsync(household.Id, 10);
+        var result = await _repository.GetMessagesAsync(household.Id, 10, null);
 
         // Assert
         result.Should().HaveCount(3);
@@ -148,7 +148,7 @@ public class ChatRepositoryTests : BaseIntegrationTest
 
         // Act
         var limit = 3;
-        var result = await _repository.GetNewestMessagesAsync(household.Id, limit);
+        var result = await _repository.GetMessagesAsync(household.Id, limit, null);
 
         // Assert
         result.Should().HaveCount(limit);
@@ -175,7 +175,7 @@ public class ChatRepositoryTests : BaseIntegrationTest
         await DbContext.SaveChangesAsync();
 
         // Act
-        var result = await _repository.GetNewestMessagesAsync(household.Id, 10);
+        var result = await _repository.GetMessagesAsync(household.Id, 10, null);
 
         // Assert
         var message = result.First();

@@ -21,18 +21,16 @@ public class ChatController(IChatService chatService,
     private readonly IHouseholdService _householdService = householdService;
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ChatMessageDto>>> GetMessages()
+    public async Task<ActionResult<IEnumerable<ChatMessageDto>>> GetMessages([FromQuery] DateTimeOffset? before = null)
     {
         var userId = _tokenService.GetUserIdFromToken(User);
         var householdId = _tokenService.GetHouseholdIdFromToken(User);
 
         // Check if user belongs to the household
         bool hasAccess = await _householdService.CheckIfUserBelongsAsync(householdId, userId);
+        if (!hasAccess) return Forbid();
 
-        if (!hasAccess)
-            return Forbid();
-
-        var messages = await _chatService.GetNewestMessagesAsync(userId, householdId);
+        var messages = await _chatService.GetMessagesAsync(userId, householdId, beforeDate: before);
 
         // Reverse order to send from oldest to newest
         return Ok(messages.OrderBy(m => m.SentAt));

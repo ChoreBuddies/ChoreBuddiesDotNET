@@ -38,10 +38,36 @@
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
 
     <script>
-        window.scrollToBottom = (elementId) => {
-            var element = document.getElementById(elementId);
-            if (element) {
-                element.scrollTop = element.scrollHeight;
+        window.chatHelpers = {
+            scrollToBottom: (elementId) => {
+                var element = document.getElementById(elementId);
+                if (element) {
+                    element.scrollTop = element.scrollHeight;
+                }
+            },
+
+            getScrollPosition: (elementId) => {
+                var el = document.getElementById(elementId);
+                return el ? el.scrollTop : 0;
+            },
+
+            maintainScrollPosition: (elementId, previousScrollHeight) => {
+                var el = document.getElementById(elementId);
+                if (el) {
+                    var newScrollHeight = el.scrollHeight;
+                    el.scrollTop = newScrollHeight - previousScrollHeight;
+                }
+            },
+
+            addScrollListener: (elementId, dotNetRef) => {
+                var el = document.getElementById(elementId);
+                if (el) {
+                    el.addEventListener('scroll', function () {
+                        if (el.scrollTop < 5) {
+                            dotNetRef.invokeMethodAsync('LoadMoreMessages');
+                        }
+                    });
+                }
             }
         };
     </script>

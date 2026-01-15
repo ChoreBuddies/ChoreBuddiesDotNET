@@ -15,7 +15,7 @@ public interface IChatService : IAsyncDisposable
 
     Task ConnectAsync(int householdId);
     Task DisconnectAsync();
-    Task<List<ChatMessageDto>> GetHistoryAsync(int householdId);
+    Task<List<ChatMessageDto>> GetHistoryAsync(int householdId, DateTimeOffset? before = null);
     Task SendMessageAsync(int householdId, string content, Guid clientUniqueId);
     Task SendTypingAsync(int householdId);
 }
@@ -109,12 +109,19 @@ public class ChatService(
         }
     }
 
-    public async Task<List<ChatMessageDto>> GetHistoryAsync(int householdId)
+    public async Task<List<ChatMessageDto>> GetHistoryAsync(int householdId, DateTimeOffset? before = null)
     {
+        var url = ChatFrontendConstants.ApiEndpointChatHistory;
+
+        if (before.HasValue)
+        {
+            url += $"?{ChatFrontendConstants.ApiChatHistoryQueryBefore}={Uri.EscapeDataString(before.Value.ToString("o"))}";
+        }
+
         var result = await httpUtils.TryRequestAsync(async () =>
         {
             return await httpUtils.GetAsync<List<ChatMessageDto>>(
-                $"api/v1/chat",
+                url,
                 authorized: true
             );
         });
