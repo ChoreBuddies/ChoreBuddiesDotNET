@@ -1,5 +1,4 @@
 ﻿using ChoreBuddies.Frontend.Features.Authentication;
-using System.Net;
 using System.Net.Http.Json;
 
 namespace ChoreBuddies.Frontend.Utilities;
@@ -40,10 +39,11 @@ public class HttpClientUtils(IHttpClientFactory httpClientFactory)
         return await ProcessResponseAsync<TResponse>(response);
     }
 
-    public async Task DeleteAsync(string requestUri, bool authorized = false)
+    public async Task<HttpResponseMessage> DeleteAsync(string requestUri, bool authorized = false)
     {
         var client = CreateClient(authorized);
         var response = await client.DeleteAsync(requestUri);
+        return response;
     }
 
     private HttpClient CreateClient(bool authorized)

@@ -1,0 +1,139 @@
+﻿@using ChoreBuddies.Frontend.Features.ScheduledChores
+@using ChoreBuddies.Frontend.Features.User
+@using MudBlazor
+@using Shared.ScheduledChores
+@using Shared.Users
+
+@inject IScheduledChoresService scheduledChoresService
+@inject ISnackbar snackbar
+@inject NavigationManager navigationManager
+@inject IAuthService authService
+<MudPaper Elevation="0" Class="pa-6 mb-8" Style="background:#f5f6f8; border-radius:16px;">
+    <div>
+        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start" Class="mb-3">
+
+            <MudText Typo="Typo.h5" Class="mb-4" Style="font-weight:700;">
+                Household Scheduled Chores
+            </MudText>
+        </MudStack>
+        <div style="width: 60px; height: 4px; background-color: var(--mud-palette-primary); border-radius: 2px;" />
+    </div>
+
+
+    <MudTable T="ScheduledChoreTileViewDto"
+              Items="Chores"
+              Elevation="0"
+              Class="mb-3"
+              Style="border-radius:12px; background:#f5f6f8;">
+
+        <HeaderContent>
+            <MudTh>Chore</MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh>Assigned</MudTh>
+            <MudTh>Frequency</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+
+        <RowTemplate Context="chore">
+
+            <MudTd>@chore.Name</MudTd>
+            <MudTd>@chore.Description</MudTd>
+            <MudTd>Assigned</MudTd>
+
+            <MudTd>
+                <MudSelect T="Frequency"
+                           Value="chore.Frequency"
+                           ValueChanged="freq => ChangeFrequency(chore.Id, freq)"
+                           Dense="true"
+                           Disabled="@_isChild">
+                    @foreach (var freq in AvailableFrequencies)
+                    {
+                        <MudSelectItem Value="freq">@freq</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudTd>
+
+            <MudTd Class="actions-cell">
+                @if (!_isChild)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error"
+                                   Size="Size.Medium"
+                                   Class="row-actions"
+                                   OnClick="@(() => RemoveChore(chore.Id))" />
+                }
+
+                <MudIconButton Icon="@Icons.Material.Outlined.ArrowCircleRight"
+                               Color="Color.Primary"
+                               Size="Size.Medium"
+                               Class="row-actions"
+                               OnClick="@(() => ViewChoreDetails(chore.Id))" />
+            </MudTd>
+
+        </RowTemplate>
+
+    </MudTable>
+
+
+</MudPaper>
+@code {
+    private List<ScheduledChoreTileViewDto> Chores = [];
+    private List<Frequency> AvailableFrequencies = [];
+    private bool _isChild = true;
+    private int? hoveredChoreId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        AvailableFrequencies = Enum.GetValues<Frequency>().ToList();
+        _isChild = await authService.GetUserRoleAsync() == "Child";
+
+        Chores = (await scheduledChoresService.GetMyHouseholdChoresAsync())
+                 ?.ToList() ?? [];
+    }
+    private async Task ChangeFrequency(int choreId, Frequency newFrequency)
+    {
+        try
+        {
+            var newChore = await scheduledChoresService.UpdateChoreFrequencyAsync(choreId, newFrequency);
+
+            var index = Chores.FindIndex(c => c.Id == choreId);
+            if (index >= 0 && newChore is not null)
+            {
+                Chores[index] = newChore;
+            }
+
+            snackbar.Add("Frequency updated", Severity.Success);
+            StateHasChanged(); 
+        }
+        catch (Exception ex)
+        {
+            snackbar.Add($"Error updating frequency: {ex.Message}", Severity.Error);
+        }
+    }
+    private async Task RemoveChore(int choreId)
+    {
+        if (await scheduledChoresService.DeleteChoreAsync(choreId))
+        {
+            Chores.RemoveAll(c => c.Id == choreId);
+            snackbar.Add("Chore removed", Severity.Success);
+        }
+    }
+
+    private void ViewChoreDetails(int choreId)
+    {
+        navigationManager.NavigateTo($"/scheduled-chore-details/{choreId}");
+    }
+
+}
+<style>
+    .mud-table-row .row-actions {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.15s ease-in-out;
+    }
+
+    .mud-table-row:hover .row-actions {
+        opacity: 1;
+        pointer-events: auto;
+    }
+</style>
