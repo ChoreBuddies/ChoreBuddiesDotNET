@@ -152,11 +152,11 @@ public class ChatServiceTests
             }
         };
 
-        _repoMock.Setup(x => x.GetNewestMessagesAsync(householdId, limit))
+        _repoMock.Setup(x => x.GetMessagesAsync(householdId, limit, null))
             .ReturnsAsync(messages);
 
         // Act
-        var result = await _service.GetNewestMessagesAsync(currentUserId, householdId, limit);
+        var result = await _service.GetMessagesAsync(currentUserId, householdId, limit);
 
         // Assert
         result.Should().HaveCount(2);
@@ -188,11 +188,11 @@ public class ChatServiceTests
             }
         };
 
-        _repoMock.Setup(x => x.GetNewestMessagesAsync(householdId, 50))
+        _repoMock.Setup(x => x.GetMessagesAsync(householdId, 50, null))
             .ReturnsAsync(messages);
 
         // Act
-        var result = await _service.GetNewestMessagesAsync(1, householdId);
+        var result = await _service.GetMessagesAsync(1, householdId);
 
         // Assert
         result.Should().HaveCount(1);
@@ -214,11 +214,11 @@ public class ChatServiceTests
             }
         };
 
-        _repoMock.Setup(x => x.GetNewestMessagesAsync(householdId, 50))
+        _repoMock.Setup(x => x.GetMessagesAsync(householdId, 50, null))
             .ReturnsAsync(messages);
 
         // Act
-        var result = await _service.GetNewestMessagesAsync(1, householdId);
+        var result = await _service.GetMessagesAsync(1, householdId);
 
         // Assert
         result[0].SenderName.Should().Be("Unknown");
