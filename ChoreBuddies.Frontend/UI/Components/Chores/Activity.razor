@@ -1,4 +1,7 @@
-﻿@using Shared.Chores
+﻿@using ChoreBuddies.Frontend.Features.User
+@using Shared.Chores
+
+@inject IUserService userService
 
 <MudPaper Elevation="0" Class="pa-2">
     <MudGrid>
@@ -21,7 +24,7 @@
 
 @code {
     [Parameter] public ChoreDto? _choreDto { get; set; }
-    [Parameter] public string? _userName { get; set; }
+    public string? _userName { get; set; }
     public string? GetTitle() => _choreDto?.Name;
     public async Task<string?> GetStatus()
     {
@@ -32,6 +35,18 @@
         return _choreDto?.Status.ToString();
     }
     public string? GetIcon() => MudBlazor.FontIcons.MaterialSymbols.Outlined.CheckCircle;
+    private async Task<string?> GetChoreUserName()
+    {
+        if (_choreDto?.UserId is not null && _choreDto.UserId > 0)
+        {
+            return (await userService.GetUserByIdAsync((int)(_choreDto.UserId)))?.UserName ?? String.Empty;
+        }
+        return String.Empty;
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        _userName = (await GetChoreUserName()) ?? "someone";
+    }
 }
 
 <style>
