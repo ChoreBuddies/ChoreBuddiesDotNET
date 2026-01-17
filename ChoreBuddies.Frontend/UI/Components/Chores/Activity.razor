@@ -1,10 +1,13 @@
-﻿@using Shared.Chores
+﻿@using ChoreBuddies.Frontend.Features.User
+@using Shared.Chores
+
+@inject IUserService userService
 
 <MudPaper Elevation="0" Class="pa-2">
     <MudGrid>
         <MudItem xs="1">
             <MudPaper Elevation="0" Class="icon-box">
-                <MudIcon Icon="@GetIcon()" Size = "Size.Medium"/>
+                <MudIcon Icon="@GetIcon()" Size="Size.Medium" />
             </MudPaper>
         </MudItem>
         <MudItem xs="7" Class="align-center">
@@ -21,16 +24,29 @@
 
 @code {
     [Parameter] public ChoreDto? _choreDto { get; set; }
+    public string? _userName { get; set; }
     public string? GetTitle() => _choreDto?.Name;
-    public string? GetStatus()
+    public async Task<string?> GetStatus()
     {
-        if(_choreDto?.Status == Status.Assigned)
+        if (_choreDto?.Status == Status.Assigned)
         {
-            return $"Assigned to {_choreDto.Name}"; //TODO: change to get user by Id when available
+            return $"Assigned to {_userName}";
         }
         return _choreDto?.Status.ToString();
     }
     public string? GetIcon() => MudBlazor.FontIcons.MaterialSymbols.Outlined.CheckCircle;
+    private async Task<string?> GetChoreUserName()
+    {
+        if (_choreDto?.UserId is not null && _choreDto.UserId > 0)
+        {
+            return (await userService.GetUserByIdAsync((int)(_choreDto.UserId)))?.UserName ?? String.Empty;
+        }
+        return String.Empty;
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        _userName = (await GetChoreUserName()) ?? "someone";
+    }
 }
 
 <style>
