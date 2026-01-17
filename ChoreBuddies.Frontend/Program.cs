@@ -5,6 +5,7 @@ using ChoreBuddies.Frontend.Features.Chores;
 using ChoreBuddies.Frontend.Features.ExceptionHandler;
 using ChoreBuddies.Frontend.Features.Household;
 using ChoreBuddies.Frontend.Features.Notifications;
+using ChoreBuddies.Frontend.Features.PredefinedChores;
 using ChoreBuddies.Frontend.Features.RedeemedRewards;
 using ChoreBuddies.Frontend.Features.Reminders;
 using ChoreBuddies.Frontend.Features.Rewards;
@@ -51,14 +52,21 @@ public class Program
         builder.Services.AddScoped<JwtAuthStateProvider>();
         builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<JwtAuthStateProvider>());
         builder.Services.AddScoped<IAuthService, AuthService>();
+
+        // Chores
+        builder.Services.AddScoped<IChoresService, ChoresService>();
+        builder.Services.AddScoped<IScheduledChoresService, ScheduledChoresService>();
+        builder.Services.AddScoped<IPredefinedChoresService, PredefinedChoresService>();
+
+        // Rewards
+        builder.Services.AddScoped<IRewardsService, RewardsService>();
+        builder.Services.AddScoped<IRedeemedRewardsService, RedeemedRewardsService>();
+
+        // Other services
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<IHouseholdService, HouseholdService>();
         builder.Services.AddScoped<INotificationsService, NotificationsService>();
-        builder.Services.AddScoped<IChoresService, ChoresService>();
-        builder.Services.AddScoped<IScheduledChoresService, ScheduledChoresService>();
         builder.Services.AddScoped<IRemindersService, RemindersService>();
-        builder.Services.AddScoped<IRewardsService, RewardsService>();
-        builder.Services.AddScoped<IRedeemedRewardsService, RedeemedRewardsService>();
 
         builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 

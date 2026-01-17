@@ -119,10 +119,11 @@
 
         if (CurrentMode == PageMode.Create)
         {
-            household = await householdService.CreateHouseholdAsync(new CreateHouseholdDto(model.Name!, model.Description));
-            if(household is not null)
+
+            var result = await householdService.CreateHouseholdAsync(new CreateHouseholdDto(model.Name!, model.Description));
+            if (result)
             {
-                navigationManager.NavigateTo($"/household/{household.Id}");
+                navigationManager.NavigateTo("/setup-chores", forceLoad: true);
             }
         }
         else if (CurrentMode == PageMode.Edit)

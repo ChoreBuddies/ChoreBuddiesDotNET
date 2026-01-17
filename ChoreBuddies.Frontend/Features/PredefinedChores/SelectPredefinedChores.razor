@@ -1,0 +1,141 @@
+﻿@page "/setup-chores"
+@using ChoreBuddies.Frontend.Features.ScheduledChores
+@using Shared.DefalutChores
+@using Shared.ScheduledChores
+@inject IPredefinedChoresService predefinedService
+@inject IScheduledChoresService scheduledService
+@inject IAuthService authService
+@inject NavigationManager navManager
+@inject ISnackbar snackbar
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+    <MudText Typo="Typo.h4" Class="mb-4">Choose your starting chores</MudText>
+    <MudText Typo="Typo.body1" Class="mb-8">Select the chores you want to add to your new household.</MudText>
+
+    @if (_loading)
+    {
+        <MudProgressCircular Indeterminate="true" />
+    }
+    else
+    {
+        <MudStack Spacing="4">
+            @* Group by room *@
+            @foreach (var group in _groupedChores)
+            {
+                var groupColorHex = GetColorForRoom(group.Key);
+
+                <MudPaper Class="p-4" Elevation="2">
+                    <MudText Typo="Typo.h6" Style="@($"color:{groupColorHex}; font-weight: 600;")" Class="mb-2">
+                        @group.Key
+                    </MudText>
+
+                    <MudChipSet T="PredefinedChoreDto" SelectionMode="SelectionMode.MultiSelection" CheckMark="true" 
+                        SelectedValuesChanged="@(values => OnGroupSelectionChanged(values, group.Key))">
+                        @foreach (var chore in group)
+                        {
+                            <MudChip T="PredefinedChoreDto"
+                                     Value="@chore"
+                                     Variant="Variant.Text"
+                                     Color="Color.Default"
+                                     Style="@($"color:{groupColorHex}; border-color:{groupColorHex};")">
+                                @chore.name (@chore.rewardPointsCount pkt)
+                            </MudChip>
+                        }
+                    </MudChipSet>
+                </MudPaper>
+            }
+
+            <div class="d-flex justify-end mt-6">
+                <MudButton OnClick="Skip" Variant="Variant.Text" Color="Color.Default" Class="mr-4">Skip</MudButton>
+                <MudButton OnClick="SaveChores" Variant="Variant.Filled" Color="Color.Primary"
+                           Disabled="@(!_selectedChores.Any())">
+                    Add selected (@_selectedChores.Count)
+                </MudButton>
+            </div>
+        </MudStack>
+    }
+</MudContainer>
+
+@code {
+    [Parameter] public int HouseholdId { get; set; }
+
+    private List<PredefinedChoreDto> _allChores = new();
+    private IEnumerable<IGrouping<string, PredefinedChoreDto>> _groupedChores = new List<IGrouping<string, PredefinedChoreDto>>();
+    private HashSet<PredefinedChoreDto> _selectedChores = new HashSet<PredefinedChoreDto>();
+
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var result = await predefinedService.GetAllPredefinedChoresAsync();
+            _allChores = result.ToList();
+            _groupedChores = _allChores.GroupBy(x => x.room).OrderBy(x => x.Key);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void OnGroupSelectionChanged(IReadOnlyCollection<PredefinedChoreDto> selectedInGroup, string roomName)
+    {
+        // Delete all room chores
+        _selectedChores.RemoveWhere(x => x.room == roomName);
+
+        // Add selected room chores
+        foreach (var chore in selectedInGroup)
+        {
+            _selectedChores.Add(chore);
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task SaveChores()
+    {
+        var request = new PredefinedChoreIdsRequest
+        {
+            PredefinedChoreIds = _selectedChores.Select(x => x.id).ToList()
+        };
+
+        var result = await scheduledService.AddPredefinedChoresToHouseholdAsync(request);
+        if (result is null)
+        {
+            snackbar.Add("There was en error while adding chores.", Severity.Error);
+            return;
+        }
+
+        snackbar.Add("Chores have been added!", Severity.Success);
+        navManager.NavigateTo($"/household/manage");
+    }
+
+    private async void Skip()
+    {
+        navManager.NavigateTo($"/household/manage");
+    }
+
+    private string GetColorForRoom(string roomName)
+    {
+        if (string.IsNullOrEmpty(roomName)) return "#424242";
+
+        var customColors = new[]
+        {
+            "#009688", // Teal (Morski)
+            "#9C27B0", // Purple (Fioletowy)
+            "#3F51B5", // Indigo (Granatowy)
+            "#E91E63", // Pink (Różowy)
+            "#00BCD4", // Cyan (Jasny niebieski)
+            "#FF9800", // Orange (Pomarańczowy) 
+            "#673AB7", // Deep Purple (Ciemny fiolet)
+            "#00897B", // Dark Teal
+            "#D81B60", // Dark Pink
+            "#1E88E5"  // Blue
+        };
+
+        // Get hash for consistent color per room
+        int index = Math.Abs(roomName.GetHashCode()) % customColors.Length;
+        return customColors[index];
+    }
+}

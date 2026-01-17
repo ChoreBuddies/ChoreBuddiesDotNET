@@ -98,7 +98,7 @@ public class ScheduledChoresService : IScheduledChoresService
 
     public async Task<IEnumerable<ScheduledChoreDto>> AddPredefinedChoresToHouseholdAsync(List<int> predefinedChoreIds, int householdId)
     {
-        var predefinedChores = await _predefinedChoreService.GetPredefinedChoreAsync(predefinedChoreIds);
+        var predefinedChores = await _predefinedChoreService.GetPredefinedChoresAsync(predefinedChoreIds);
 
         var createdChores = new List<ScheduledChore>();
         foreach (var p in predefinedChores)

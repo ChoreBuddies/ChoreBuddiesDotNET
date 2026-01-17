@@ -1,7 +1,7 @@
 ﻿
 namespace Shared.ScheduledChores;
 
-public class AddPredefinedChoresRequest
+public class PredefinedChoreIdsRequest
 {
     public List<int> PredefinedChoreIds { get; set; } = new();
 }
