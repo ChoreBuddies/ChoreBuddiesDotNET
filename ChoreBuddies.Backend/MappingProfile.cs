@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using ChoreBuddies.Backend.Domain;
-using ChoreBuddies.Backend.Features.Chores;
 using Shared.Chores;
 using Shared.DefalutChores;
 using Shared.Households;
@@ -24,6 +23,7 @@ public class MappingProfile : Profile
         CreateMap<Household, HouseholdDto>().ReverseMap();
         CreateMap<Household, CreateHouseholdDto>().ReverseMap();
         CreateMap<AppUser, AppUserDto>().ReverseMap();
+        CreateMap<AppUser, AppUserMinimalDto>().ReverseMap();
         CreateMap<NotificationPreference, NotificationPreferenceDto>().ReverseMap();
         CreateMap<Reward, RewardDto>().ReverseMap();
         CreateMap<Reward, CreateRewardDto>().ReverseMap();

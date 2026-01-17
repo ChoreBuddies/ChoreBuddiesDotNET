@@ -42,7 +42,7 @@
 	private ChoreViewModel Model = new();
 	private PageMode CurrentMode = PageMode.Create;
 
-	private List<AppUserRoleDto> AvailableUsers = new();
+	private List<AppUserMinimalDto> AvailableUsers = new();
 	private bool _isTypeLocked;
 	protected override async Task OnInitializedAsync()
 	{
@@ -52,8 +52,7 @@
 	}
 	private async Task LoadData(bool isScheduledPath)
 	{
-		AvailableUsers = (await userService.GetMyHouseholdMembersRolesAsync())?.ToList() ?? [];
-
+		AvailableUsers = (await userService.GetMyHouseholdMembersAsync())?.ToList() ?? [];
 
 		if (ChoreId.HasValue)
 		{
