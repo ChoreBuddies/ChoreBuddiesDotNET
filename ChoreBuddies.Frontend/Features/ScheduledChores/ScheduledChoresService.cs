@@ -1,8 +1,7 @@
-﻿using ChoreBuddies.Frontend.Features.ScheduledChores;
-using ChoreBuddies.Frontend.Utilities;
+﻿using ChoreBuddies.Frontend.Utilities;
 using Shared.ScheduledChores;
 
-namespace ChoreBuddies.Frontend.Features.Chores.ScheduledChores;
+namespace ChoreBuddies.Frontend.Features.ScheduledChores;
 
 public interface IScheduledChoresService
 {
