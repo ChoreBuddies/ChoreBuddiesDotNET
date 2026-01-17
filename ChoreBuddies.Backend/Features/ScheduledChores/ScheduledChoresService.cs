@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using ChoreBuddies.Backend.Domain;
-using ChoreBuddies.Backend.Features.DefaultChores;
+using ChoreBuddies.Backend.Features.PredefinedChores;
 using Microsoft.EntityFrameworkCore;
 using Shared.ScheduledChores;
 

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Shared.DefalutChores;
 using Shared.ScheduledChores;
 
-namespace ChoreBuddies.Backend.Features.DefaultChores;
+namespace ChoreBuddies.Backend.Features.PredefinedChores;
 
 [ApiController]
 [Route("api/v1/predefinedChores")]

@@ -1,6 +1,6 @@
 ﻿using ChoreBuddies.Backend.Domain;
 
-namespace ChoreBuddies.Backend.Features.DefaultChores;
+namespace ChoreBuddies.Backend.Features.PredefinedChores;
 
 public interface IPredefinedChoreService
 {

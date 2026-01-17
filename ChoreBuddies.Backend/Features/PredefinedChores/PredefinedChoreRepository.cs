@@ -2,7 +2,7 @@
 using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace ChoreBuddies.Backend.Features.DefaultChores;
+namespace ChoreBuddies.Backend.Features.PredefinedChores;
 
 public interface IPredefinedChoreRepository
 {
