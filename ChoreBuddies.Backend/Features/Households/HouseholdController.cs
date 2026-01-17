@@ -23,14 +23,14 @@ public class HouseholdController(IHouseholdService service, IMapper mapper, IAut
     {
         var userId = _tokenService.GetUserIdFromToken(User);
         var household = await _service.CreateHouseholdAsync(createHouseholdDto, userId);
-        if (household != null)
-        {
-            return Ok(_mapper.Map<HouseholdDto>(household));
-        }
-        else
+        if (household == null)
         {
             return BadRequest();
         }
+
+        string accessToken = await _authService.GenerateAccessTokenAsync(userId);
+
+        return Ok(new AuthResponseDto(accessToken, ""));
     }
     // Read
     [HttpGet]

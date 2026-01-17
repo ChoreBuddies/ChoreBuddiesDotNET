@@ -2,6 +2,7 @@
 
 using AutoMapper;
 using ChoreBuddies.Backend.Domain;
+using ChoreBuddies.Backend.Features.PredefinedChores;
 using ChoreBuddies.Backend.Features.ScheduledChores;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -14,6 +15,7 @@ using Xunit;
 public class ScheduledChoresServiceTests
 {
     private readonly Mock<IScheduledChoresRepository> _repoMock;
+    private readonly Mock<IPredefinedChoreService> _predefinedChoreServiceMock;
     private readonly IMapper _mapper;
     private readonly ScheduledChoresService _service;
 
@@ -25,6 +27,7 @@ public class ScheduledChoresServiceTests
             .Setup(lf => lf.CreateLogger(It.IsAny<string>()))
             .Returns(new Mock<ILogger>().Object);
         _repoMock = new Mock<IScheduledChoresRepository>();
+        _predefinedChoreServiceMock = new Mock<IPredefinedChoreService>();
 
         var config = new MapperConfiguration(cfg =>
         {
@@ -34,7 +37,11 @@ public class ScheduledChoresServiceTests
 
         _mapper = config.CreateMapper();
 
-        _service = new ScheduledChoresService(_mapper, _repoMock.Object);
+        _service = new ScheduledChoresService(
+            _mapper,
+            _repoMock.Object,
+            _predefinedChoreServiceMock.Object
+        );
     }
     [Fact]
     public async Task GetChoreDetailsAsync_ReturnsChore_WhenFound()

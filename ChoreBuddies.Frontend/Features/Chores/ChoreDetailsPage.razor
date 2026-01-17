@@ -4,9 +4,10 @@
 
 @using System.ComponentModel.DataAnnotations
 @using AutoMapper
-@using ChoreBuddies.Frontend.Features.Chores.ScheduledChores
+@using ChoreBuddies.Frontend.Features.PredefinedChores
 @using ChoreBuddies.Frontend.Features.ScheduledChores
 @using Shared.Chores
+@using Shared.DefalutChores
 @using Shared.ScheduledChores
 @using Shared.Users
 @using Utilities
@@ -15,9 +16,21 @@
 @inject IAuthService authService
 @inject NavigationManager navigationManager
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
 @inject IChoresService choresService
 @inject IScheduledChoresService scheduledChoreService
 @inject User.IUserService userService
+
+@if (CurrentMode == PageMode.Create)
+{
+	<MudButton Variant="Variant.Outlined"
+			   Color="Color.Primary"
+			   StartIcon="@Icons.Material.Filled.ContentCopy"
+			   OnClick="OpenTemplateDialog"
+			   Class="mb-4">
+		Wybierz z szablonu
+	</MudButton>
+}
 
 <ChoreForm Model="Model"
 		   Users="AvailableUsers"
@@ -96,5 +109,29 @@
 		Snackbar.Add("Saved successfully!", Severity.Success);
 		CurrentMode = PageMode.View;
 		_isTypeLocked = true;
+	}
+
+	private async Task OpenTemplateDialog()
+	{
+		var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+
+		var dialog = await DialogService.ShowAsync<PredefinedChoreDialog>("Choose predefined chore", options);
+		var result = await dialog.Result;
+
+		if (result is not null &&
+			!result.Canceled &&
+			result.Data is PredefinedChoreDto template)
+		{
+			Model.Name = template.name;
+			Model.Description = template.description;
+			Model.Room = template.room;
+			Model.RewardPointsCount = template.rewardPointsCount;
+			Model.Frequency = template.frequency;
+            Model.IsScheduled = true;
+            Model.ChoreDuration = template.choreDuration;
+            Model.EveryX = template.everyX;
+
+			Snackbar.Add("The data from the predefined chore has been loaded. You can now edit it.", Severity.Info);
+		}
 	}
 }
