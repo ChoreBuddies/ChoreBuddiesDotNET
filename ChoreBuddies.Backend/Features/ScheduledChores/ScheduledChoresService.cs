@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using ChoreBuddies.Backend.Domain;
+using ChoreBuddies.Backend.Features.DefaultChores;
+using Microsoft.EntityFrameworkCore;
 using Shared.ScheduledChores;
 
 namespace ChoreBuddies.Backend.Features.ScheduledChores;
@@ -11,17 +13,23 @@ public interface IScheduledChoresService
     Task<ScheduledChoreDto?> UpdateChoreAsync(ScheduledChoreDto ScheduledChoreDto);
     Task<ScheduledChoreDto?> UpdateChoreFrequencyAsync(int choreId, Frequency frequency);
     Task<ScheduledChoreDto?> DeleteChoreAsync(int choreId);
+    Task<IEnumerable<ScheduledChoreDto>> AddPredefinedChoresToHouseholdAsync(List<int> predefinedChoreIds, int householdId);
     Task<IEnumerable<ScheduledChoreDto>> GetUsersChoreDetailsAsync(int userId);
     Task<IEnumerable<ScheduledChoreDto>> GetMyHouseholdChoreDetailsAsync(int userId);
 }
 public class ScheduledChoresService : IScheduledChoresService
 {
     private readonly IScheduledChoresRepository _repository;
+    private readonly IPredefinedChoreService _predefinedChoreService;
     private readonly IMapper _mapper;
-    public ScheduledChoresService(IMapper mapper, IScheduledChoresRepository scheduedChoresRepository)
+    public ScheduledChoresService(
+        IMapper mapper,
+        IScheduledChoresRepository scheduedChoresRepository,
+        IPredefinedChoreService predefinedChoreService)
     {
         _mapper = mapper;
         _repository = scheduedChoresRepository;
+        _predefinedChoreService = predefinedChoreService;
     }
 
     public async Task<ScheduledChoreDto?> GetChoreDetailsAsync(int choreId)
@@ -86,5 +94,34 @@ public class ScheduledChoresService : IScheduledChoresService
             throw new Exception("Updating Chore Frequency Failed");
         }
         return _mapper.Map<ScheduledChoreDto>(resultChore);
+    }
+
+    public async Task<IEnumerable<ScheduledChoreDto>> AddPredefinedChoresToHouseholdAsync(List<int> predefinedChoreIds, int householdId)
+    {
+        var predefinedChores = await _predefinedChoreService.GetPredefinedChoreAsync(predefinedChoreIds);
+
+        var createdChores = new List<ScheduledChore>();
+        foreach (var p in predefinedChores)
+        {
+            var newChore = new ScheduledChore(
+                name: p.Name,
+                description: p.Description,
+                userId: null,
+                room: p.Room,
+                everyX: p.EveryX,
+                frequency: p.Frequency,
+                rewardPointsCount: p.RewardPointsCount,
+                householdId: householdId,
+                choreDuration: p.ChoreDuration
+            );
+
+            var createdChore = await _repository.CreateChoreAsync(newChore);
+            if (createdChore is null)
+                throw new Exception("Creating Chore from Predefined Chore Failed");
+
+            createdChores.Add(createdChore);
+        }
+
+        return _mapper.Map<List<ScheduledChoreDto>>(createdChores);
     }
 }
