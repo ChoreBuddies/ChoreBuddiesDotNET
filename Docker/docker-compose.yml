@@ -24,7 +24,8 @@ services:
     ports:
       - "5000:8080"
     depends_on:
-      - sqlserver
+      sqlserver:
+        condition: service_healthy
     restart: on-failure
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
@@ -34,6 +35,12 @@ services:
       - JwtSettings__RefreshTokenExpirationDays=7
       - JwtSettings__Issuer=http://backend:8080
       - JwtSettings__Audience=http://frontend:8080
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s # Time for migrations to complete
     networks:
       - app-network   
   frontend:
@@ -43,7 +50,8 @@ services:
     ports:
       - "5001:8080"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: on-failure
     environment: 
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
