@@ -15,6 +15,7 @@ public interface IScheduledChoresRepository
     public Task<ScheduledChore?> DeleteChoreAsync(ScheduledChore chore);
     Task<IEnumerable<ScheduledChore>?> GetUsersChoresAsync(int userId);
     Task<IEnumerable<ScheduledChore>?> GetHouseholdChoresAsync(int userId);
+    Task<IEnumerable<ScheduledChore>?> GetHouseholdChoresWithUserAsync(int userId);
     Task<ScheduledChore?> UpdateChoreFrequencyAsync(int choreId, Frequency frequency);
 
 }
@@ -60,6 +61,26 @@ public class ScheduledChoresRepository(ChoreBuddiesDbContext dbContext) : ISched
             var user = await _dbContext.Users
                 .Include(u => u.Household)
                 .ThenInclude(h => h!.ScheaduledChores)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user?.Household is null || user?.Household?.ScheaduledChores is null)
+                return null;
+            return user?.Household?.ScheaduledChores;
+        }
+        catch (NullReferenceException)
+        {
+            return null;
+        }
+    }
+
+    public async Task<IEnumerable<ScheduledChore>?> GetHouseholdChoresWithUserAsync(int userId)
+    {
+        try
+        {
+            var user = await _dbContext.Users
+                .Include(u => u.Household)
+                .ThenInclude(h => h!.ScheaduledChores)
+                .ThenInclude(s => s.User)
                 .FirstOrDefaultAsync(u => u.Id == userId);
 
             if (user?.Household is null || user?.Household?.ScheaduledChores is null)
@@ -139,7 +160,7 @@ public class ScheduledChoresRepository(ChoreBuddiesDbContext dbContext) : ISched
     }
     public async Task<ScheduledChore?> UpdateChoreFrequencyAsync(int choreId, Frequency frequency)
     {
-        var existingChore = await _dbContext.Set<ScheduledChore>()
+        var existingChore = await _dbContext.Set<ScheduledChore>().Include(c => c.User)
             .FirstOrDefaultAsync(c => c.Id == choreId);
 
         if (existingChore == null)

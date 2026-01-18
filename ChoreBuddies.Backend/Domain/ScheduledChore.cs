@@ -17,6 +17,7 @@ public class ScheduledChore
     public DateTime? LastGenerated { get; set; }
     public int EveryX { get; set; }
     public Household? Household { get; set; }
+    public virtual AppUser? User { get; set; }
 
     private ScheduledChore() { }
 

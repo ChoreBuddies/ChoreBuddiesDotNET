@@ -220,7 +220,7 @@ public class ScheduledChoresServiceTests
         _repoMock.Setup(r => r.GetHouseholdChoresAsync(10)).ReturnsAsync(list);
 
         // Act
-        var result = await _service.GetMyHouseholdChoreDetailsAsync(10);
+        var result = await _service.GetMyHouseholdChoresDetailsAsync(10);
 
         // Assert
         Assert.Single(result);

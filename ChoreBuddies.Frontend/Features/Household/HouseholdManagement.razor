@@ -154,14 +154,12 @@
     // ==== DTOS ====
     private HouseholdDto? household;
 
-    private List<ScheduledChoreTileViewDto> RecurringChores = [];
 
     private List<RedeemedRewardWithUserNameDto> PendingRewards = [];
 
     protected override async Task OnInitializedAsync()
     {
         household = await householdService.GetHouseholdByIdAsync();
-        RecurringChores = (await scheduledChoresService.GetMyHouseholdChoresAsync())?.ToList() ?? [];
         PendingRewards = (await redeemedRewardsService.GetHouseholdsUnfulfilledRedeemedRewardsAsync()).ToList();
     }
 

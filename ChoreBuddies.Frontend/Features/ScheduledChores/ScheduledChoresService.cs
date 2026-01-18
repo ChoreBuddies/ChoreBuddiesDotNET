@@ -1,5 +1,5 @@
-﻿using ChoreBuddies.Frontend.Utilities;
-using Shared.Chores;
+﻿using ChoreBuddies.Frontend.Features.Chores.ScheduledChores;
+using ChoreBuddies.Frontend.Utilities;
 using Shared.ScheduledChores;
 
 namespace ChoreBuddies.Frontend.Features.ScheduledChores;
@@ -7,7 +7,8 @@ namespace ChoreBuddies.Frontend.Features.ScheduledChores;
 public interface IScheduledChoresService
 {
     Task<ScheduledChoreDto?> GetChoreByIdAsync(int id);
-    Task<IEnumerable<ScheduledChoreTileViewDto>?> GetMyHouseholdChoresAsync();
+    Task<IEnumerable<ScheduledChoreDto>?> GetMyHouseholdChoresAsync();
+    Task<IEnumerable<ScheduledChoreTileViewDto>?> GetMyHouseholdChoresOverviewAsync();
     Task<ScheduledChoreTileViewDto?> UpdateChoreFrequencyAsync(int choreId, Frequency frequency);
     Task<ScheduledChoreDto?> UpdateChoreAsync(ScheduledChoreDto choreDto);
     Task<ScheduledChoreDto?> CreateChoreAsync(CreateScheduledChoreDto choreDto);
@@ -42,11 +43,11 @@ public class ScheduledChoresService(HttpClientUtils httpUtils) : IScheduledChore
 );
     }
 
-    public async Task<IEnumerable<ScheduledChoreTileViewDto>?> GetMyHouseholdChoresAsync()
+    public async Task<IEnumerable<ScheduledChoreDto>?> GetMyHouseholdChoresAsync()
     {
         var result = await httpUtils.TryRequestAsync(async () =>
         {
-            return await httpUtils.GetAsync<IEnumerable<ScheduledChoreTileViewDto>?>(
+            return await httpUtils.GetAsync<IEnumerable<ScheduledChoreDto>?>(
                 ScheduledChoresConstants.ApiEndpointGetHouseholdScheduledChores,
                 authorized: true
             );
@@ -103,5 +104,18 @@ public class ScheduledChoresService(HttpClientUtils httpUtils) : IScheduledChore
             request,
             authorized: true
         );
+    }
+
+    public async Task<IEnumerable<ScheduledChoreTileViewDto>?> GetMyHouseholdChoresOverviewAsync()
+    {
+        var result = await httpUtils.TryRequestAsync(async () =>
+        {
+            return await httpUtils.GetAsync<IEnumerable<ScheduledChoreTileViewDto>?>(
+                ScheduledChoresConstants.ApiEndpointGetHouseholdScheduledChoresOverview,
+                authorized: true
+            );
+        });
+
+        return (IEnumerable<ScheduledChoreTileViewDto>?)(result ?? []);
     }
 }
