@@ -91,7 +91,15 @@ public class ScheduledChoresController : ControllerBase
     {
         var userId = _tokenService.GetUserIdFromToken(User);
 
-        var result = await _scheduledChoresService.GetMyHouseholdChoreDetailsAsync(userId);
+        var result = await _scheduledChoresService.GetMyHouseholdChoresDetailsAsync(userId);
+        return Ok(result);
+    }
+    [HttpGet("Household-chores/overview")]
+    public async Task<ActionResult<IEnumerable<ScheduledChoreTileViewDto>>> GetMyHouseholdChoresOverview()
+    {
+        var userId = _tokenService.GetUserIdFromToken(User);
+
+        var result = await _scheduledChoresService.GetMyHouseholdChoresOverviewDetailsAsync(userId);
         return Ok(result);
     }
 }

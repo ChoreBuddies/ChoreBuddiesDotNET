@@ -1,3 +1,3 @@
 ﻿namespace Shared.ScheduledChores;
 
-public record ScheduledChoreTileViewDto(int Id, string Name, string Description, Frequency Frequency);
+public record ScheduledChoreTileViewDto(int Id, string Name, string? UserName, string Description, Frequency Frequency);

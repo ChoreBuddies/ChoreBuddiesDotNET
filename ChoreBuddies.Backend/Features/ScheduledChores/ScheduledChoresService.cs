@@ -15,7 +15,9 @@ public interface IScheduledChoresService
     Task<ScheduledChoreDto?> DeleteChoreAsync(int choreId);
     Task<IEnumerable<ScheduledChoreDto>> AddPredefinedChoresToHouseholdAsync(List<int> predefinedChoreIds, int householdId);
     Task<IEnumerable<ScheduledChoreDto>> GetUsersChoreDetailsAsync(int userId);
-    Task<IEnumerable<ScheduledChoreDto>> GetMyHouseholdChoreDetailsAsync(int userId);
+    Task<IEnumerable<ScheduledChoreDto>> GetMyHouseholdChoresDetailsAsync(int userId);
+    Task<IEnumerable<ScheduledChoreTileViewDto>> GetMyHouseholdChoresOverviewDetailsAsync(int userId);
+
 }
 public class ScheduledChoresService : IScheduledChoresService
 {
@@ -81,7 +83,7 @@ public class ScheduledChoresService : IScheduledChoresService
         return _mapper.Map<List<ScheduledChoreDto>>(await _repository.GetUsersChoresAsync(userId));
     }
 
-    public async Task<IEnumerable<ScheduledChoreDto>> GetMyHouseholdChoreDetailsAsync(int userId)
+    public async Task<IEnumerable<ScheduledChoreDto>> GetMyHouseholdChoresDetailsAsync(int userId)
     {
         return _mapper.Map<List<ScheduledChoreDto>>(await _repository.GetHouseholdChoresAsync(userId));
     }
@@ -123,5 +125,10 @@ public class ScheduledChoresService : IScheduledChoresService
         }
 
         return _mapper.Map<List<ScheduledChoreDto>>(createdChores);
+    }
+
+    public async Task<IEnumerable<ScheduledChoreTileViewDto>> GetMyHouseholdChoresOverviewDetailsAsync(int userId)
+    {
+        return _mapper.Map<List<ScheduledChoreTileViewDto>>(await _repository.GetHouseholdChoresWithUserAsync(userId));
     }
 }

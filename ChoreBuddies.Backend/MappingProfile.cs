@@ -37,6 +37,8 @@ public class MappingProfile : Profile
         CreateMap<ScheduledChore, CreateScheduledChoreDto>().ReverseMap();
         CreateMap<ScheduledChore, ScheduledChoreDto>().ReverseMap();
         CreateMap<ScheduledChore, ScheduledChoreOverviewDto>().ReverseMap();
-        CreateMap<ScheduledChore, ScheduledChoreTileViewDto>().ReverseMap();
+        CreateMap<ScheduledChore, ScheduledChoreTileViewDto>()
+            .ForCtorParam(nameof(ScheduledChoreTileViewDto.UserName), opt => opt.MapFrom(src =>
+                src.User != null ? src.User.UserName : null));
     }
 }
