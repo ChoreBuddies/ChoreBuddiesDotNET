@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.PredefinedChores;
-using Microsoft.EntityFrameworkCore;
 using Shared.ScheduledChores;
 
 namespace ChoreBuddies.Backend.Features.ScheduledChores;
@@ -11,7 +10,7 @@ public interface IScheduledChoresService
     Task<ScheduledChoreDto?> CreateChoreAsync(CreateScheduledChoreDto createScheduledChoreDto, int householdId);
     Task<ScheduledChoreDto?> GetChoreDetailsAsync(int choreId);
     Task<ScheduledChoreDto?> UpdateChoreAsync(ScheduledChoreDto ScheduledChoreDto);
-    Task<ScheduledChoreDto?> UpdateChoreFrequencyAsync(int choreId, Frequency frequency);
+    Task<ScheduledChoreTileViewDto?> UpdateChoreFrequencyAsync(int choreId, Frequency frequency);
     Task<ScheduledChoreDto?> DeleteChoreAsync(int choreId);
     Task<IEnumerable<ScheduledChoreDto>> AddPredefinedChoresToHouseholdAsync(List<int> predefinedChoreIds, int householdId);
     Task<IEnumerable<ScheduledChoreDto>> GetUsersChoreDetailsAsync(int userId);
@@ -88,14 +87,14 @@ public class ScheduledChoresService : IScheduledChoresService
         return _mapper.Map<List<ScheduledChoreDto>>(await _repository.GetHouseholdChoresAsync(userId));
     }
 
-    public async Task<ScheduledChoreDto?> UpdateChoreFrequencyAsync(int choreId, Frequency frequency)
+    public async Task<ScheduledChoreTileViewDto?> UpdateChoreFrequencyAsync(int choreId, Frequency frequency)
     {
         var resultChore = await _repository.UpdateChoreFrequencyAsync(choreId, frequency);
         if (resultChore is null)
         {
             throw new Exception("Updating Chore Frequency Failed");
         }
-        return _mapper.Map<ScheduledChoreDto>(resultChore);
+        return _mapper.Map<ScheduledChoreTileViewDto>(resultChore);
     }
 
     public async Task<IEnumerable<ScheduledChoreDto>> AddPredefinedChoresToHouseholdAsync(List<int> predefinedChoreIds, int householdId)

@@ -160,7 +160,7 @@ public class ScheduledChoresRepository(ChoreBuddiesDbContext dbContext) : ISched
     }
     public async Task<ScheduledChore?> UpdateChoreFrequencyAsync(int choreId, Frequency frequency)
     {
-        var existingChore = await _dbContext.Set<ScheduledChore>()
+        var existingChore = await _dbContext.Set<ScheduledChore>().Include(c => c.User)
             .FirstOrDefaultAsync(c => c.Id == choreId);
 
         if (existingChore == null)
