@@ -165,6 +165,6 @@
         PendingRewards = (await redeemedRewardsService.GetHouseholdsUnfulfilledRedeemedRewardsAsync()).ToList();
     }
 
-    public void EditHousehold() => navigationManager.NavigateTo($"/household-details/{household!.Id}");
+    public void EditHousehold() => navigationManager.NavigateTo($"/household/details/{household!.Id}");
     public async Task FulfillReward(int Id) => await redeemedRewardsService.FulfillRewardAsync(Id);
 }

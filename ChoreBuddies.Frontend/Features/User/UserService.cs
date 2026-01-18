@@ -40,7 +40,7 @@ public class UserService : IUserService
     public async Task<AppUserDto?> GetUserByIdAsync(int userId)
     {
         return await _httpClientUtils.TryRequestAsync(
-            () => _httpClientUtils.GetAsync<AppUserDto>($"{UserConstants.ApiEndpointUser}//{userId}", true)
+            () => _httpClientUtils.GetAsync<AppUserDto>($"{UserConstants.ApiEndpointUser}/{userId}", true)
         );
     }
 
