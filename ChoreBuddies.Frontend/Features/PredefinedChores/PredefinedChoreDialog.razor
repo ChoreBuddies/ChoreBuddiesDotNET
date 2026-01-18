@@ -12,7 +12,23 @@
         }
         else
         {
-            <MudTable Items="@_chores" Hover="true" OnRowClick="RowClickEvent" T="PredefinedChoreDto" Dense="true">
+            <MudTable Items="@_chores"
+                      Hover="true"
+                      OnRowClick="RowClickEvent"
+                      T="PredefinedChoreDto"
+                      Dense="true"
+                      Filter="new Func<PredefinedChoreDto,bool>(FilterFunc)">
+
+                <ToolBarContent>
+                    <MudTextField @bind-Value="_searchString"
+                                  Placeholder="Search (name, room, points)..."
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.Search"
+                                  IconSize="Size.Medium"
+                                  Class="mt-0"
+                                  Immediate="true" /> 
+                </ToolBarContent>
+
                 <HeaderContent>
                     <MudTh>Name</MudTh>
                     <MudTh>Room</MudTh>
@@ -30,14 +46,15 @@
         }
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel">Anuluj</MudButton>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
     </DialogActions>
 </MudDialog>
 
 @code {
     [CascadingParameter] IMudDialogInstance? MudDialog { get; set; }
 
-    private List<PredefinedChoreDto> _chores = new();
+    private List<PredefinedChoreDto> _chores = new(); 
+    private string _searchString = "";
     private bool _loading = true;
 
     protected override async Task OnInitializedAsync()
@@ -59,4 +76,24 @@
     }
 
     private void Cancel() => MudDialog!.Cancel();
+
+    private bool FilterFunc(PredefinedChoreDto element)
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+
+        // Name filter
+        if (element.name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        // Room filter
+        if (element.room.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        // Points filter
+        if ($"{element.rewardPointsCount}".Contains(_searchString))
+            return true;
+
+        return false;
+    }
 }
