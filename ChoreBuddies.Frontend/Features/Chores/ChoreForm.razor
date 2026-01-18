@@ -1,4 +1,4 @@
-﻿@using ChoreBuddies.Frontend.Features.Chores.ScheduledChores
+﻿@using ChoreBuddies.Frontend.Features.ScheduledChores
 @using ChoreBuddies.Frontend.Utilities
 @using Shared.Users
 <MudForm @ref="_form" @bind-IsValid="_isValid">
@@ -72,7 +72,7 @@
 
 @code {
 	[Parameter] public ChoreViewModel Model { get; set; } = new();
-	[Parameter] public List<AppUserRoleDto> Users { get; set; } = new();
+	[Parameter] public List<AppUserMinimalDto> Users { get; set; } = new();
 	[Parameter] public EventCallback<ChoreViewModel> OnValidSubmit { get; set; }
 	[Parameter] public PageMode PageMode { get; set; }
 	[Parameter]

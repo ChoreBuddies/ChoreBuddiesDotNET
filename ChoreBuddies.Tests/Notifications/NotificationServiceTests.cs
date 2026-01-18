@@ -7,6 +7,7 @@ using Moq;
 using Shared.Notifications;
 
 namespace ChoreBuddies.Tests.Notifications;
+
 public class NotificationServiceTests
 {
     private readonly Mock<IAppUserService> _userService = new();

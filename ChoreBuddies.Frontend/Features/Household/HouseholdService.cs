@@ -1,6 +1,7 @@
 ﻿using ChoreBuddies.Frontend.Features.Authentication;
 using ChoreBuddies.Frontend.Features.Chores;
 using ChoreBuddies.Frontend.Utilities;
+using Newtonsoft.Json.Linq;
 using Shared.Authentication;
 using Shared.Chores;
 using Shared.Households;
@@ -13,7 +14,7 @@ public interface IHouseholdService
 {
     public Task<bool> JoinHouseholdAsync(string invitationCode);
     public Task<HouseholdDto?> GetHouseholdByIdAsync(int? id = null);
-    public Task<HouseholdDto?> CreateHouseholdAsync(CreateHouseholdDto householdDto);
+    public Task<bool> CreateHouseholdAsync(CreateHouseholdDto householdDto);
     public Task<HouseholdDto?> UpdateHouseholdAsync(int householdId, CreateHouseholdDto householdDto);
 }
 
@@ -41,17 +42,21 @@ public class HouseholdService : IHouseholdService
 
         return result ?? null;
     }
-    public async Task<HouseholdDto?> CreateHouseholdAsync(CreateHouseholdDto householdDto)
+    public async Task<bool> CreateHouseholdAsync(CreateHouseholdDto householdDto)
     {
-        var result = await _httpUtils.TryRequestAsync(async () =>
+        var tokens = await _httpUtils.PostAsync<CreateHouseholdDto, AuthResponseDto>(
+            HouseholdConstants.ApiEndpointCreateHousehold,
+            householdDto,
+            authorized: true);
+
+        if (tokens != null)
         {
-            return await _httpUtils.PostAsync<CreateHouseholdDto, HouseholdDto?>(
-                HouseholdConstants.ApiEndpointCreateHousehold,
-                householdDto,
-                authorized: true
-            );
-        });
-        return result ?? null;
+            await _authService.UpdateAccessTokenAsync(tokens.AccessToken);
+            return true;
+        }
+
+        return false;
+
     }
     public async Task<HouseholdDto?> UpdateHouseholdAsync(int householdId, CreateHouseholdDto householdDto)
     {
@@ -69,7 +74,10 @@ public class HouseholdService : IHouseholdService
     public async Task<bool> JoinHouseholdAsync(string invitationCode)
     {
         var payload = new JoinHouseholdDto(invitationCode);
-        var tokens = await _httpUtils.PutAsync<JoinHouseholdDto, AuthResponseDto>(HouseholdConstants.ApiEndpointJoinHousehold, payload);
+        var tokens = await _httpUtils.PutAsync<JoinHouseholdDto, AuthResponseDto>(
+            HouseholdConstants.ApiEndpointJoinHousehold,
+            payload,
+            authorized: true);
 
         if (tokens != null)
         {

@@ -1,4 +1,5 @@
 ﻿namespace Shared.RedeemedRewards;
+
 public record RedeemedRewardWithUserNameDto
 {
     public int Id { get; init; }

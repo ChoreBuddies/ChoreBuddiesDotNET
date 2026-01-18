@@ -7,7 +7,7 @@ using System.Security.Claims;
 namespace ChoreBuddies.Backend.Features.ScheduledChores;
 
 [ApiController]
-[Route("api/v1/Scheduledchores")]
+[Route("api/v1/scheduledChores")]
 [Authorize]
 public class ScheduledChoresController : ControllerBase
 {
@@ -51,7 +51,7 @@ public class ScheduledChoresController : ControllerBase
     }
 
     [HttpPost("add-predefined")]
-    public async Task<ActionResult<IEnumerable<ScheduledChoreDto>>> AddPredefinedChores([FromBody] AddPredefinedChoresRequest request)
+    public async Task<ActionResult<IEnumerable<ScheduledChoreDto>>> AddPredefinedChores([FromBody] PredefinedChoreIdsRequest request)
     {
         var householdId = _tokenService.GetHouseholdIdFromToken(User);
 
@@ -86,7 +86,7 @@ public class ScheduledChoresController : ControllerBase
         }
     }
 
-    [HttpGet("HouseholdChores")]
+    [HttpGet("household-chores")]
     public async Task<ActionResult<IEnumerable<ScheduledChoreTileViewDto>>> GetMyHouseholdChores()
     {
         var userId = _tokenService.GetUserIdFromToken(User);

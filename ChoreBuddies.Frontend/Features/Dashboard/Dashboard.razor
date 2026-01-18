@@ -1,4 +1,4 @@
-﻿@page "/dashboard"
+﻿@page "/"
 
 @using ChoreBuddies.Frontend.UI.Components.Chores
 @using Microsoft.AspNetCore.Components.Authorization
@@ -71,7 +71,7 @@
                     {
                         @foreach (var chore in _householdChores)
                         {
-                            <Activity _choreDto="@chore" />
+                            <Activity _choreDto="@chore"/>
                         }
                     }
                 </MudStack>

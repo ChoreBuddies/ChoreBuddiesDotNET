@@ -6,9 +6,11 @@ namespace ChoreBuddies.Frontend.Features.User;
 public interface IUserService
 {
     public Task<AppUserDto?> GetCurrentUserAsync();
+    public Task<AppUserDto?> GetUserByIdAsync(int userId);
     public Task<bool> UpdateUserAsync(AppUserDto user);
     public Task<bool> UpdateUserRoleAsync(int userId, string roleName);
     public Task<IEnumerable<AppUserRoleDto>?> GetMyHouseholdMembersRolesAsync();
+    public Task<IEnumerable<AppUserMinimalDto>?> GetMyHouseholdMembersAsync();
     public Task<IEnumerable<String>> GetAvailableRolesAsync();
 }
 
@@ -35,11 +37,23 @@ public class UserService : IUserService
             () => _httpClientUtils.GetAsync<AppUserDto>(UserConstants.ApiEndpointMe, true)
         );
     }
+    public async Task<AppUserDto?> GetUserByIdAsync(int userId)
+    {
+        return await _httpClientUtils.TryRequestAsync(
+            () => _httpClientUtils.GetAsync<AppUserDto>($"{UserConstants.ApiEndpointUser}/{userId}", true)
+        );
+    }
 
     public async Task<IEnumerable<AppUserRoleDto>?> GetMyHouseholdMembersRolesAsync()
     {
         return await _httpClientUtils.TryRequestAsync(
             () => _httpClientUtils.GetAsync<IEnumerable<AppUserRoleDto>>($"{UserConstants.ApiEndpointMyHouseholdMembers}{true}", true)
+            );
+    }
+    public async Task<IEnumerable<AppUserMinimalDto>?> GetMyHouseholdMembersAsync()
+    {
+        return await _httpClientUtils.TryRequestAsync(
+            () => _httpClientUtils.GetAsync<IEnumerable<AppUserMinimalDto>>(UserConstants.ApiEndpointMyHouseholdMembers, true)
             );
     }
 

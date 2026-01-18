@@ -1,0 +1,99 @@
+﻿@using Shared.DefalutChores
+@using ChoreBuddies.Frontend.Features.ScheduledChores
+@inject IPredefinedChoresService PredefinedService
+
+<MudDialog>
+    <DialogContent>
+        @if (_loading)
+        {
+            <div class="d-flex justify-center my-4">
+                <MudProgressCircular Indeterminate="true" />
+            </div>
+        }
+        else
+        {
+            <MudTable Items="@_chores"
+                      Hover="true"
+                      OnRowClick="RowClickEvent"
+                      T="PredefinedChoreDto"
+                      Dense="true"
+                      Filter="new Func<PredefinedChoreDto,bool>(FilterFunc)">
+
+                <ToolBarContent>
+                    <MudTextField @bind-Value="_searchString"
+                                  Placeholder="Search (name, room, points)..."
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.Search"
+                                  IconSize="Size.Medium"
+                                  Class="mt-0"
+                                  Immediate="true" /> 
+                </ToolBarContent>
+
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Room</MudTh>
+                    <MudTh>Points</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Name">@context.name</MudTd>
+                    <MudTd DataLabel="Room">@context.room</MudTd>
+                    <MudTd DataLabel="Points">@context.rewardPointsCount</MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager />
+                </PagerContent>
+            </MudTable>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance? MudDialog { get; set; }
+
+    private List<PredefinedChoreDto> _chores = new(); 
+    private string _searchString = "";
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var result = await PredefinedService.GetAllPredefinedChoresAsync();
+            _chores = result.OrderBy(c => c.room + c.name).ToList();
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void RowClickEvent(TableRowClickEventArgs<PredefinedChoreDto> tableRowClickEventArgs)
+    {
+        MudDialog!.Close(DialogResult.Ok(tableRowClickEventArgs.Item));
+    }
+
+    private void Cancel() => MudDialog!.Cancel();
+
+    private bool FilterFunc(PredefinedChoreDto element)
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+
+        // Name filter
+        if (element.name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        // Room filter
+        if (element.room.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        // Points filter
+        if ($"{element.rewardPointsCount}".Contains(_searchString))
+            return true;
+
+        return false;
+    }
+}

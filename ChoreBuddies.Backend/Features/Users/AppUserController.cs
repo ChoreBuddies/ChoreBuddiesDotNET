@@ -80,7 +80,7 @@ public class AppUserController(
         }
         var result = await _userService.GetUsersHouseholdMembersAsync(userId);
 
-        var resultDto = result.Select(v => _mapper.Map<AppUserRoleDto>(v));
+        var resultDto = result.Select(v => _mapper.Map<AppUserMinimalDto>(v));
 
         return Ok(resultDto);
     }

@@ -1,5 +1,4 @@
 ﻿@page "/household/manage"
-@using ChoreBuddies.Frontend.Features.Chores.ScheduledChores
 @using ChoreBuddies.Frontend.Features.RedeemedRewards
 @using ChoreBuddies.Frontend.Features.ScheduledChores
 @using ChoreBuddies.Frontend.Features.User
@@ -166,6 +165,6 @@
         PendingRewards = (await redeemedRewardsService.GetHouseholdsUnfulfilledRedeemedRewardsAsync()).ToList();
     }
 
-    public void EditHousehold() => navigationManager.NavigateTo($"/household-details/{household!.Id}");
+    public void EditHousehold() => navigationManager.NavigateTo($"/household/details/{household!.Id}");
     public async Task FulfillReward(int Id) => await redeemedRewardsService.FulfillRewardAsync(Id);
 }
