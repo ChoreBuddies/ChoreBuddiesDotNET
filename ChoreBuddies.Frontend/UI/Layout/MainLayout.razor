@@ -22,7 +22,7 @@
                 @if (_showFullHouseLayout)
                 {
                     <div class="d-none d-md-block">
-                        <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/dashboard"))">Dashboard</MudButton>
+                        <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/"))">Dashboard</MudButton>
                         <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/chores"))">Chores</MudButton>
                         <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/rewards"))">Rewards</MudButton>
                         <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/chat"))">Chat</MudButton>
@@ -51,7 +51,7 @@
                 <MudNavMenu>
                     @if (_showFullHouseLayout)
                     {
-                        <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+                        <MudNavLink Href="/" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
                         <MudNavLink Href="/chores" Icon="@Icons.Material.Filled.Task">Chores</MudNavLink>                    <MudNavLink Href="/rewards" Icon="@Icons.Material.Filled.Star">Rewards</MudNavLink>                    <MudNavLink Href="/chat" Icon="@Icons.Material.Filled.Chat">Chat</MudNavLink>
                         <MudNavLink Href="/settings" Icon="@Icons.Material.Filled.Settings">Settings</MudNavLink>
                     }
