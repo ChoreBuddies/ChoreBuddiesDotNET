@@ -2,19 +2,25 @@
 using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace ChoreBuddies.Backend.Features.DefaultChores;
+namespace ChoreBuddies.Backend.Features.PredefinedChores;
 
 public interface IPredefinedChoreRepository
 {
-    public Task<ICollection<PredefinedChore>> GetAllPredefinedChoreAsync();
+    public Task<IEnumerable<PredefinedChore>> GetAllPredefinedChoreAsync();
+    public Task<IEnumerable<PredefinedChore>> GetPredefinedChoreAsync(List<int> predefinedChoreIds);
 }
 
 public class PredefinedChoreRepository(ChoreBuddiesDbContext dbContext) : IPredefinedChoreRepository
 {
     private ChoreBuddiesDbContext _dbContext = dbContext;
 
-    public async Task<ICollection<PredefinedChore>> GetAllPredefinedChoreAsync()
+    public async Task<IEnumerable<PredefinedChore>> GetAllPredefinedChoreAsync()
     {
         return await _dbContext.PredefinedChores.ToListAsync();
+    }
+
+    public async Task<IEnumerable<PredefinedChore>> GetPredefinedChoreAsync(List<int> predefinedChoreIds)
+    {
+        return await _dbContext.PredefinedChores.Where(x => predefinedChoreIds.Contains(x.Id)).ToListAsync();
     }
 }

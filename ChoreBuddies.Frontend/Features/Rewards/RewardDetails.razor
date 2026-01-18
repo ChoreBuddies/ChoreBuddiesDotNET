@@ -211,7 +211,7 @@
         if ((await redeemedRewardsService.RedeemRewardAsync(RewardId!.Value)) is not null)
         {
             Snackbar.Add("Redeemed successfully", Severity.Success);
-            navigationManager.NavigateTo("/dashboard");
+            navigationManager.NavigateTo("/");
         }
         else
         {

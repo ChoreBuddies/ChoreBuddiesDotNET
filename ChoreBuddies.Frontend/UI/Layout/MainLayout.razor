@@ -22,19 +22,17 @@
                 @if (_showFullHouseLayout)
                 {
                     <div class="d-none d-md-block">
-                        <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/dashboard"))">Dashboard</MudButton>
+                        <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/"))">Dashboard</MudButton>
                         <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/chores"))">Chores</MudButton>
                         <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/rewards"))">Rewards</MudButton>
                         <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/chat"))">Chat</MudButton>
-                        <MudMenu Class="app-bar" Label="Settings"  AnchorOrigin="Origin.BottomLeft" ActivationEvent="@MouseEvent.MouseOver">
-                            <MudMenuItem OnClick="@(() => Navigation.NavigateTo("/settings/notifications"))">Notification Preferences</MudMenuItem>
-                        </MudMenu>                   
+                        <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/household/manage"))">My household</MudButton>
                         </div>
                 }
                 <MudIconButton Icon="@Icons.Material.Filled.Notifications" Class="black-icon" />
                 <MudMenu Icon="@Icons.Material.Filled.AccountCircle" AnchorOrigin="Origin.BottomRight" Class="black-icon" ActivationEvent="@MouseEvent.MouseOver">
                     <MudMenuItem OnClick="@(() => Navigation.NavigateTo("/profile"))">Profile</MudMenuItem>
-                    <MudMenuItem OnClick="@(() => Navigation.NavigateTo("/settings"))">Settings</MudMenuItem>
+                    <MudMenuItem OnClick="@(() => Navigation.NavigateTo("/settings/notifications"))">Settings</MudMenuItem>
                     <MudDivider Style="border-color: black"/>
                     <MudMenuItem OnClick="@Logout">Logout</MudMenuItem>
                 </MudMenu>
@@ -51,9 +49,9 @@
                 <MudNavMenu>
                     @if (_showFullHouseLayout)
                     {
-                        <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+                        <MudNavLink Href="/" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
                         <MudNavLink Href="/chores" Icon="@Icons.Material.Filled.Task">Chores</MudNavLink>                    <MudNavLink Href="/rewards" Icon="@Icons.Material.Filled.Star">Rewards</MudNavLink>                    <MudNavLink Href="/chat" Icon="@Icons.Material.Filled.Chat">Chat</MudNavLink>
-                        <MudNavLink Href="/settings" Icon="@Icons.Material.Filled.Settings">Settings</MudNavLink>
+                        <MudNavLink Href="/household/manage" Icon="@Icons.Material.Filled.Settings">My household</MudNavLink>
                     }
                 </MudNavMenu>
             </MudDrawer>
@@ -253,7 +251,7 @@
 
     private void RedeemRewards()
     {
-        Navigation.NavigateTo("/rewards/redeem");
+        Navigation.NavigateTo("/rewards");
     }
 
     private async void Logout()
