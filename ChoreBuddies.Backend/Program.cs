@@ -236,6 +236,9 @@ public class Program
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
         builder.Services.AddProblemDetails();
 
+        // Health checks
+        builder.Services.AddHealthChecks();
+
         var app = builder.Build();
 
         app.UseExceptionHandler();
@@ -279,6 +282,7 @@ public class Program
         app.UseSwaggerUI();
 
         app.MapHub<ChatHub>("/chatHub");
+        app.MapHealthChecks("/health");
 
         app.Run();
     }
