@@ -22,7 +22,7 @@ public class PredefinedChoreController(IPredefinedChoreService service, IMapper 
     }
 
     [HttpPost]
-    public async Task<ActionResult<List<PredefinedChoreDto>>> GetPredefinedChores(PredefinedChoreIdsRequest request)
+    public async Task<ActionResult<List<PredefinedChoreDto>>> GetPredefinedChores(PredefinedChoreRequest request)
     {
         var chores = await _service.GetPredefinedChoresAsync(request.PredefinedChoreIds);
         return Ok(_mapper.Map<List<PredefinedChoreDto>>(chores));

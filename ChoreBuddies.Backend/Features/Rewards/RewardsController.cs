@@ -1,7 +1,9 @@
 ﻿using ChoreBuddies.Backend.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shared.PredefinedRewards;
 using Shared.Rewards;
+using Shared.ScheduledChores;
 
 namespace ChoreBuddies.Backend.Features.Rewards;
 
@@ -35,6 +37,14 @@ public class RewardsController : ControllerBase
     public async Task<ActionResult<RewardDto>> AddReward([FromBody] CreateRewardDto createRewardDto)
     {
         var result = await _rewardsService.CreateRewardAsync(createRewardDto);
+        return Ok(result);
+    }
+
+    [HttpPost("add-predefined")]
+    public async Task<ActionResult<IEnumerable<RewardDto>>> AddPredefinedRewards([FromBody] PredefinedRewardRequest request)
+    {
+        var householdId = _tokenService.GetHouseholdIdFromToken(User);
+        var result = await _rewardsService.AddPredefinedRewardsToHouseholdAsync(request.PredefinedRewardIds, householdId);
         return Ok(result);
     }
 

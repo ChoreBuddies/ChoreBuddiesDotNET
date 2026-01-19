@@ -95,7 +95,7 @@
 
     private async Task SaveChores()
     {
-        var request = new PredefinedChoreIdsRequest
+        var request = new PredefinedChoreRequest
         {
             PredefinedChoreIds = _selectedChores.Select(x => x.id).ToList()
         };

@@ -51,10 +51,9 @@ public class ScheduledChoresController : ControllerBase
     }
 
     [HttpPost("add-predefined")]
-    public async Task<ActionResult<IEnumerable<ScheduledChoreDto>>> AddPredefinedChores([FromBody] PredefinedChoreIdsRequest request)
+    public async Task<ActionResult<IEnumerable<ScheduledChoreDto>>> AddPredefinedChores([FromBody] PredefinedChoreRequest request)
     {
         var householdId = _tokenService.GetHouseholdIdFromToken(User);
-
         var result = await _scheduledChoresService.AddPredefinedChoresToHouseholdAsync(request.PredefinedChoreIds, householdId);
         return Ok(result);
     }

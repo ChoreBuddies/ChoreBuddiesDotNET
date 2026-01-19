@@ -19,6 +19,6 @@ public class PredefinedChoreService(IPredefinedChoreRepository repository) : IPr
 
     public async Task<IEnumerable<PredefinedChore>> GetPredefinedChoresAsync(List<int> predefinedChoreIds)
     {
-        return await _repository.GetPredefinedChoreAsync(predefinedChoreIds);
+        return await _repository.GetPredefinedChoresAsync(predefinedChoreIds);
     }
 }
