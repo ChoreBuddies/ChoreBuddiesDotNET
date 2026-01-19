@@ -129,9 +129,6 @@ public class ScheduledChoresRepository(ChoreBuddiesDbContext dbContext) : ISched
         if (string.IsNullOrWhiteSpace(chore.Room))
             throw new ArgumentException("Room cannot be empty.", nameof(chore));
 
-        if (chore.MinAge < 0)
-            throw new ArgumentException("MinAge cannot be negative.", nameof(chore));
-
         if (chore.ChoreDuration < 1)
             throw new ArgumentException("ChoreDuration must be at least 1.", nameof(chore));
 
@@ -150,9 +147,8 @@ public class ScheduledChoresRepository(ChoreBuddiesDbContext dbContext) : ISched
         existingChore.Room = chore.Room;
         existingChore.Frequency = chore.Frequency;
         existingChore.RewardPointsCount = chore.RewardPointsCount;
-        existingChore.HouseholdId = chore.HouseholdId;
-        existingChore.MinAge = chore.MinAge;
         existingChore.ChoreDuration = chore.ChoreDuration;
+        existingChore.EveryX = chore.EveryX;
 
         await _dbContext.SaveChangesAsync();
 

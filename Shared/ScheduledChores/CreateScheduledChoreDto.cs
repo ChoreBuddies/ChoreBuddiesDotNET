@@ -7,6 +7,5 @@ public record CreateScheduledChoreDto(
     string Room,
     int RewardPointsCount,
     Frequency Frequency,
-    int? MinAge,
     int ChoreDuration,
     int EveryX);
