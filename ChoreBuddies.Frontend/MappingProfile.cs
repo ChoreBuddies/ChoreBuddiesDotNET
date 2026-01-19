@@ -29,7 +29,6 @@ public class MappingProfile : Profile
                 src.Room,
                 src.RewardPointsCount,
                 src.Frequency,
-                src.HouseholdId,
                 src.ChoreDuration,
                 src.EveryX
             )); ;

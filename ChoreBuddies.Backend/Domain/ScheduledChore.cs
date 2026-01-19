@@ -5,7 +5,6 @@ namespace ChoreBuddies.Backend.Domain;
 public class ScheduledChore
 {
     public int Id { get; set; }
-    public int MinAge { get; set; }
     public string Name { get; set; } = null!;
     public string Description { get; set; } = null!;
     public int? UserId { get; set; }
@@ -30,7 +29,6 @@ public class ScheduledChore
         Frequency frequency,
         int rewardPointsCount,
         int householdId,
-        int minAge = 0,
         int choreDuration = 1
     )
     {
@@ -42,7 +40,6 @@ public class ScheduledChore
         Frequency = frequency;
         RewardPointsCount = rewardPointsCount;
         HouseholdId = householdId;
-        MinAge = minAge;
         ChoreDuration = choreDuration;
     }
 }

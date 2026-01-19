@@ -3,7 +3,6 @@
 public record ScheduledChoreDto
 {
     public int Id { get; init; }
-    public int MinAge { get; init; }
     public string Name { get; init; } = "";
     public string Description { get; init; } = "";
     public int? UserId { get; init; }
