@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Shared.DefalutChores;
-using Shared.ScheduledChores;
+using Shared.PredefinedChores;
+using Shared.PredefinedChores;
 
 namespace ChoreBuddies.Backend.Features.PredefinedChores;
 

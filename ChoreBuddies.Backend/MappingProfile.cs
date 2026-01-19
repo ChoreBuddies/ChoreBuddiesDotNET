@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
 using ChoreBuddies.Backend.Domain;
 using Shared.Chores;
-using Shared.DefalutChores;
 using Shared.Households;
 using Shared.Notifications;
+using Shared.PredefinedChores;
+using Shared.PredefinedChores;
 using Shared.PredefinedRewards;
 using Shared.RedeemedRewards;
 using Shared.Rewards;
-using Shared.ScheduledChores;
 using Shared.Users;
 
 namespace ChoreBuddies.Backend;

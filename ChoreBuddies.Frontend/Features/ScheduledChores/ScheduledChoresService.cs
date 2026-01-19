@@ -1,6 +1,6 @@
 ﻿using ChoreBuddies.Frontend.Features.Chores.ScheduledChores;
 using ChoreBuddies.Frontend.Utilities;
-using Shared.ScheduledChores;
+using Shared.PredefinedChores;
 
 namespace ChoreBuddies.Frontend.Features.ScheduledChores;
 

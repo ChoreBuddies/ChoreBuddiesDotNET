@@ -164,7 +164,7 @@ public class Program
         // Chores
         builder.Services.AddScoped<IChoresRepository, ChoresRepository>();
         builder.Services.AddScoped<IChoresService, ChoresService>();
-        // Default Chores
+        // Predefined Chores
         builder.Services.AddScoped<IPredefinedChoreRepository, PredefinedChoreRepository>();
         builder.Services.AddScoped<IPredefinedChoreService, PredefinedChoreService>();
         // ScheduledChore
@@ -182,7 +182,7 @@ public class Program
         // Rewards
         builder.Services.AddScoped<IRewardsRepository, RewardsRepository>();
         builder.Services.AddScoped<IRewardsService, RewardsService>();
-        // Default Rewards
+        // Predefined Rewards
         builder.Services.AddScoped<IPredefinedRewardsRepository, PredefinedRewardsRepository>();
         builder.Services.AddScoped<IPredefinedRewardsService, PredefinedRewardsService>();
         // Redeemed Rewards

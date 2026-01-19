@@ -2,8 +2,8 @@
 using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.PredefinedRewards;
 using Shared.Chores;
+using Shared.PredefinedChores;
 using Shared.Rewards;
-using Shared.ScheduledChores;
 
 namespace ChoreBuddies.Backend.Features.Rewards;
 

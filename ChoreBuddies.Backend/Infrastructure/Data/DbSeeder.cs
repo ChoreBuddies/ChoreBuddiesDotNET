@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Shared.Authentication;
 using Shared.Chores;
 using Shared.Notifications;
-using Shared.ScheduledChores;
+using Shared.PredefinedChores;
 
 namespace ChoreBuddies.Backend.Infrastructure.Data;
 

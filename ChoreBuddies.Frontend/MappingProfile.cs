@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using ChoreBuddies.Frontend.Features.Chores;
 using Shared.Chores;
-using Shared.ScheduledChores;
+using Shared.PredefinedChores;
 
 namespace ChoreBuddies.Frontend;
 

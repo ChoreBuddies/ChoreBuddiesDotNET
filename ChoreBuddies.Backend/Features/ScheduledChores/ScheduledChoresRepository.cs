@@ -1,7 +1,7 @@
 ﻿using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using Shared.ScheduledChores;
+using Shared.PredefinedChores;
 
 namespace ChoreBuddies.Backend.Features.ScheduledChores;
 

@@ -1,4 +1,4 @@
-﻿using Shared.ScheduledChores;
+﻿using Shared.PredefinedChores;
 
 namespace ChoreBuddies.Backend.Domain;
 

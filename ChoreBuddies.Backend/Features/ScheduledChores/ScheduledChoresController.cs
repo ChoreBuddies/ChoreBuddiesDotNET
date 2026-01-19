@@ -1,7 +1,7 @@
 ﻿using ChoreBuddies.Backend.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Shared.ScheduledChores;
+using Shared.PredefinedChores;
 using System.Security.Claims;
 
 namespace ChoreBuddies.Backend.Features.ScheduledChores;

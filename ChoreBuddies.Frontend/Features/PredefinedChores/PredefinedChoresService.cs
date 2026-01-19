@@ -1,7 +1,7 @@
 ﻿using ChoreBuddies.Frontend.Utilities;
 using Shared.Chat;
-using Shared.DefalutChores;
-using Shared.ScheduledChores;
+using Shared.PredefinedChores;
+using Shared.PredefinedChores;
 
 namespace ChoreBuddies.Frontend.Features.PredefinedChores;
 

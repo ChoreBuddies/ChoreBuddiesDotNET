@@ -1,6 +1,5 @@
-﻿using Shared.ScheduledChores;
-
-namespace Shared.DefalutChores;
+﻿
+namespace Shared.PredefinedChores;
 
 public record PredefinedChoreDto(
     int id,

@@ -1,0 +1,128 @@
+﻿@page "/household/setup/rewards"
+@using ChoreBuddies.Frontend.Features.Rewards
+@using Shared.PredefinedRewards
+@inject IPredefinedRewardsService predefinedService
+@inject IRewardsService rewardService
+@inject IAuthService authService
+@inject NavigationManager navManager
+@inject ISnackbar snackbar
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+    <MudText Typo="Typo.h4" Class="mb-4">Choose your starting rewards</MudText>
+    <MudText Typo="Typo.body1" Class="mb-8">Select the rewards you want to add to your new household.</MudText>
+
+    @if (_loading)
+    {
+        <MudProgressCircular Indeterminate="true" />
+    }
+    else
+    {
+        <MudStack Spacing="4">
+                var groupColorHex = GetColorForRoom(group.Key);
+
+                <MudPaper Class="p-4" Elevation="2">
+                    <MudText Typo="Typo.h6" Style="font-weight: 600;" Color="Color.Surface" Class="mb-2">
+                        Rewards
+                    </MudText>
+
+                    <MudChipSet T="PredefinedRewardDto" SelectionMode="SelectionMode.MultiSelection" CheckMark="true"
+                                SelectedValuesChanged="@(values => OnSelectionChanged(values))">
+                        @foreach (var reward in _allRewards)
+                        {
+                            var groupColorHex = GetColorForRoom(reward.Name);
+                            <MudChip T="PredefinedRewardDto"
+                                     Value="@reward"
+                                     Variant="Variant.Text"
+                                     Color="Color.Default"
+                                     Style="@($"color:{groupColorHex}; border-color:{groupColorHex};")">
+                                @reward.Name (@reward.Cost pkt)
+                            </MudChip>
+                        }
+                    </MudChipSet>
+                </MudPaper>
+
+            <div class="d-flex justify-end mt-6">
+                <MudButton OnClick="Skip" Variant="Variant.Text" Color="Color.Default" Class="mr-4">Skip</MudButton>
+                <MudButton OnClick="SaveChores" Variant="Variant.Filled" Color="Color.Primary"
+                           Disabled="@(!_selectedRewards.Any())">
+                    Add selected (@_selectedRewards.Count)
+                </MudButton>
+            </div>
+        </MudStack>
+    }
+</MudContainer>
+
+@code {
+    [Parameter] public int HouseholdId { get; set; }
+
+    private List<PredefinedRewardDto> _allRewards = new();
+    private HashSet<PredefinedRewardDto> _selectedRewards = new HashSet<PredefinedRewardDto>();
+
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var result = await predefinedService.GetAllPredefinedRewardsAsync();
+            _allRewards = result.ToList();
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void OnSelectionChanged(IReadOnlyCollection<PredefinedRewardDto> selected)
+    {
+        _selectedRewards = selected.ToHashSet();
+
+        StateHasChanged();
+    }
+
+    private async Task SaveChores()
+    {
+        var request = new PredefinedRewardRequest
+        {
+            PredefinedRewardIds = _selectedRewards.Select(x => x.Id).ToList()
+        };
+
+        var result = await rewardService.AddPredefinedRewardsToHouseholdAsync(request);
+        if (result is null)
+        {
+            snackbar.Add("There was en error while adding rewards.", Severity.Error);
+            return;
+        }
+
+        snackbar.Add("Rewards have been added!", Severity.Success);
+        navManager.NavigateTo($"/household/manage");
+    }
+
+    private async void Skip()
+    {
+        navManager.NavigateTo($"/household/manage");
+    }
+
+    private string GetColorForRoom(string name)
+    {
+        if (string.IsNullOrEmpty(name)) return "#424242";
+
+        var customColors = new[]
+        {
+              "#5B6FE6", // Primary Blue (Twój bazowy)
+              "#3F51B5", // Indigo Blue
+              "#3949AB", // Deep Indigo
+              "#303F9F", // Dark Indigo
+              "#512DA8", // Deep Purple
+              "#673AB7", // Purple (lekko jaśniejszy akcent)
+              "#00695C", // Dark Teal
+              "#00796B", // Teal Green
+              "#2E7D32", // Dark Green
+              "#1E3A8A"  // Navy Blue
+        };
+
+        // Get hash for consistent color per room
+        int index = Math.Abs(name.GetHashCode()) % customColors.Length;
+        return customColors[index];
+    }
+}

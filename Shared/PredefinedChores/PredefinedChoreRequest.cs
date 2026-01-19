@@ -1,5 +1,5 @@
 ﻿
-namespace Shared.ScheduledChores;
+namespace Shared.PredefinedChores;
 
 public class PredefinedChoreRequest
 {
