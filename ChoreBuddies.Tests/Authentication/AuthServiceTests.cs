@@ -1,6 +1,7 @@
 ﻿using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Notifications.Email;
 using ChoreBuddies.Backend.Features.Notifications.NotificationPreferences;
+using ChoreBuddies.Backend.Features.Users;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using ChoreBuddies.Backend.Infrastructure.Authentication.Exceptions;
 using FluentAssertions;
@@ -15,6 +16,7 @@ public class AuthServiceTests
     private readonly Mock<ITokenService> _tokenServiceMock;
     private readonly Mock<UserManager<AppUser>> _userManagerMock;
     private readonly Mock<IEmailService> _emailServiceMock;
+    private readonly Mock<IAppUserService> _userServiceMock;
     private readonly Mock<INotificationPreferenceService> _notificationServiceMock;
     private readonly Mock<TimeProvider> _timeProviderMock;
     private readonly AuthService _authService;
@@ -24,6 +26,7 @@ public class AuthServiceTests
         _tokenServiceMock = new Mock<ITokenService>();
         _emailServiceMock = new Mock<IEmailService>();
         _notificationServiceMock = new Mock<INotificationPreferenceService>();
+        _userServiceMock = new Mock<IAppUserService>();
         _timeProviderMock = new Mock<TimeProvider>();
 
         var store = new Mock<IUserStore<AppUser>>();
@@ -35,8 +38,11 @@ public class AuthServiceTests
             _tokenServiceMock.Object,
             _timeProviderMock.Object,
             _emailServiceMock.Object,
-            _notificationServiceMock.Object
+            _notificationServiceMock.Object,
+            _userServiceMock.Object
         );
+
+        _userServiceMock.Setup(x => x.UpdateUserRoleAsync(It.IsAny<int>(), It.IsAny<string>())).ReturnsAsync(true);
     }
 
     // --- LOGIN ---

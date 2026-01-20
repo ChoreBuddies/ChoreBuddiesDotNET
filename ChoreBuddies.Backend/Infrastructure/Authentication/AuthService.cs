@@ -1,6 +1,7 @@
 ﻿using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Notifications.Email;
 using ChoreBuddies.Backend.Features.Notifications.NotificationPreferences;
+using ChoreBuddies.Backend.Features.Users;
 using ChoreBuddies.Backend.Infrastructure.Authentication.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using Shared.Authentication;
@@ -15,13 +16,14 @@ public interface IAuthService
     public Task<string> GenerateAccessTokenAsync(int userId);
 }
 
-public class AuthService(UserManager<AppUser> userManager, ITokenService tokenService, TimeProvider timeProvider, IEmailService emailService, INotificationPreferenceService notificationPreferenceService) : IAuthService
+public class AuthService(UserManager<AppUser> userManager, ITokenService tokenService, TimeProvider timeProvider, IEmailService emailService, INotificationPreferenceService notificationPreferenceService, IAppUserService userService) : IAuthService
 {
     private readonly UserManager<AppUser> _userManager = userManager;
     private readonly ITokenService _tokenService = tokenService;
     private readonly TimeProvider _timeProvider = timeProvider;
     private readonly IEmailService _emailService = emailService;
     private readonly INotificationPreferenceService _notificationPreferenceService = notificationPreferenceService;
+    private readonly IAppUserService _userService = userService;
     public async Task<AuthResponseDto> LoginUserAsync(LoginRequestDto loginRequest)
     {
         var user = await _userManager.FindByEmailAsync(loginRequest.Email);
@@ -57,12 +59,19 @@ public class AuthService(UserManager<AppUser> userManager, ITokenService tokenSe
             DateOfBirth = registerRequest.DateOfBirth,
             UserName = registerRequest.UserName
         };
-        var result = await _userManager.CreateAsync(newUser, registerRequest.Password);
 
+        var result = await _userManager.CreateAsync(newUser, registerRequest.Password);
         if (!result.Succeeded)
         {
             throw new RegistrationFailedException(result.Errors.Select(err => err.Description));
         }
+
+        var roleUpdateResult = await _userService.UpdateUserRoleAsync(newUser.Id, AuthConstants.RoleAdult);
+        if (!roleUpdateResult)
+        {
+            throw new RegistrationFailedException(result.Errors.Select(err => err.Description));
+        }
+
         await _notificationPreferenceService.CreateDefaultPreferencesAsync(newUser);
 
         var accessToken = await _tokenService.CreateAccessTokenAsync(newUser);
