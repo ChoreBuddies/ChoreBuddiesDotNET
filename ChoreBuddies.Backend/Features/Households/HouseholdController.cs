@@ -3,8 +3,9 @@ using ChoreBuddies.Backend.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Authentication;
+using Shared.Households;
 
-namespace Shared.Households;
+namespace ChoreBuddies.Backend.Features.Households;
 
 [ApiController]
 [Route("api/v1/household")]

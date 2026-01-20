@@ -1,6 +1,7 @@
 using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Chat;
 using ChoreBuddies.Backend.Features.Chores;
+using ChoreBuddies.Backend.Features.Households;
 using ChoreBuddies.Backend.Features.Notifications;
 using ChoreBuddies.Backend.Features.Notifications.Email;
 using ChoreBuddies.Backend.Features.Notifications.NotificationPreferences;

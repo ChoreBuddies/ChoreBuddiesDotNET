@@ -1,4 +1,6 @@
 ﻿using ChoreBuddies.Backend.Domain;
+using ChoreBuddies.Backend.Features.Households;
+using ChoreBuddies.Backend.Features.Households.Exceptions;
 using ChoreBuddies.Backend.Features.Users;
 using Moq;
 using Shared.Households;
@@ -67,7 +69,7 @@ public class HouseholdsServiceTests
         _userRepo.Setup(x => x.GetUserByIdAsync(It.IsAny<int>()))
             .ReturnsAsync((AppUser?)null);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+        await Assert.ThrowsAsync<ArgumentException>(() =>
             _service.CreateHouseholdAsync(
                 new CreateHouseholdDto("Test", ""), 10));
     }
@@ -126,7 +128,7 @@ public class HouseholdsServiceTests
         _userRepo.Setup(x => x.GetUserByIdAsync(10))
             .ReturnsAsync((AppUser?)null);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+        await Assert.ThrowsAsync<ArgumentException>(() =>
             _service.JoinHouseholdAsync("INV123", 10));
     }
 
@@ -139,7 +141,7 @@ public class HouseholdsServiceTests
         _householdRepo.Setup(x => x.GetHouseholdByInvitationCodeAsync("INV123"))
             .ReturnsAsync((Household?)null);
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() =>
+        await Assert.ThrowsAsync<InvalidInvitationCodeException>(() =>
             _service.JoinHouseholdAsync("INV123", 10));
     }
 

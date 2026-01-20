@@ -1,4 +1,5 @@
-﻿using ChoreBuddies.Backend.Infrastructure.Authentication.Exceptions;
+﻿using ChoreBuddies.Backend.Features.Households.Exceptions;
+using ChoreBuddies.Backend.Infrastructure.Authentication.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -51,6 +52,11 @@ public class GlobalExceptionHandler : IExceptionHandler
             case ArgumentException:
                 problemDetails.Status = StatusCodes.Status400BadRequest;
                 problemDetails.Title = "Bad Request";
+                problemDetails.Detail = exception.Message;
+                break;
+            case InvalidInvitationCodeException:
+                problemDetails.Status = StatusCodes.Status400BadRequest;
+                problemDetails.Title = "Joining household failed";
                 problemDetails.Detail = exception.Message;
                 break;
         }
