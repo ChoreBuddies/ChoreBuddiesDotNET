@@ -158,6 +158,6 @@ public class AuthService(
     private async Task HandleLogOut()
     {
         await LogoutAsync();
-        _navigationManager.NavigateTo("/login");
+        _navigationManager.NavigateTo("/login", forceLoad: true);
     }
 }
