@@ -4,7 +4,6 @@ using ChoreBuddies.Backend.Features.PredefinedRewards;
 using FluentAssertions;
 using Moq;
 using Shared.PredefinedRewards;
-using Xunit;
 
 namespace ChoreBuddies.Tests.Rewards;
 

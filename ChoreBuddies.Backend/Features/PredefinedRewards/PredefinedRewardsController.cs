@@ -1,9 +1,5 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Shared.PredefinedChores;
-using Shared.PredefinedChores;
 using Shared.PredefinedRewards;
 
 namespace ChoreBuddies.Backend.Features.PredefinedRewards;

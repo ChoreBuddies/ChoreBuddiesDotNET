@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using ChoreBuddies.Backend.Domain;
 using Shared.PredefinedRewards;
 
 namespace ChoreBuddies.Backend.Features.PredefinedRewards;

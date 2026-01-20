@@ -1,12 +1,7 @@
 ﻿using ChoreBuddies.Frontend.Features.Authentication;
-using ChoreBuddies.Frontend.Features.Chores;
 using ChoreBuddies.Frontend.Utilities;
-using Newtonsoft.Json.Linq;
 using Shared.Authentication;
-using Shared.Chores;
 using Shared.Households;
-using Shared.Users;
-using System.Net.Http.Json;
 
 namespace ChoreBuddies.Frontend.Features.Household;
 

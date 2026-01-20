@@ -1,7 +1,5 @@
 ﻿using ChoreBuddies.Frontend.Utilities;
-using Shared.Chat;
 using Shared.Chores;
-using System.Net.Http.Json;
 
 namespace ChoreBuddies.Frontend.Features.Chores;
 

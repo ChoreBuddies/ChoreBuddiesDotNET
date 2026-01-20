@@ -1,7 +1,6 @@
 ﻿using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace ChoreBuddies.Backend.Features.Chat;
 

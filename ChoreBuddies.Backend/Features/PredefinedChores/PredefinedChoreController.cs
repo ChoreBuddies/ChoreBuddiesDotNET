@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.PredefinedChores;
-using Shared.PredefinedChores;
 
 namespace ChoreBuddies.Backend.Features.PredefinedChores;
 

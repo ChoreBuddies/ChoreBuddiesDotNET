@@ -1,7 +1,4 @@
-﻿using ChoreBuddies.Frontend.Features.PredefinedChores;
-using ChoreBuddies.Frontend.Utilities;
-using Shared.PredefinedChores;
-using Shared.PredefinedChores;
+﻿using ChoreBuddies.Frontend.Utilities;
 using Shared.PredefinedRewards;
 
 namespace ChoreBuddies.Frontend.Features.PredefinedRewards;

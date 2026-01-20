@@ -4,7 +4,6 @@ using Shared.Chores;
 using Shared.Households;
 using Shared.Notifications;
 using Shared.PredefinedChores;
-using Shared.PredefinedChores;
 using Shared.PredefinedRewards;
 using Shared.RedeemedRewards;
 using Shared.Rewards;

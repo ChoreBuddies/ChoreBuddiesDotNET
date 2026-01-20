@@ -1,7 +1,6 @@
 ﻿using ChoreBuddies.Backend.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Shared.PredefinedChores;
 using Shared.PredefinedRewards;
 using Shared.Rewards;
 
