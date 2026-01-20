@@ -185,7 +185,7 @@ public class AppUserService(IAppUserRepository userRepository, UserManager<AppUs
     public async Task<int> GetUserPointsCountAsync(int userId)
     {
         var user = await GetUserByIdAsync(userId);
-        if(user is null)
+        if (user is null)
         {
             throw new InvalidOperationException($"User with id {userId} not found.");
         }

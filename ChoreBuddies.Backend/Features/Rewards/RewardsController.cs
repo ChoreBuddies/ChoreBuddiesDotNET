@@ -35,7 +35,7 @@ public class RewardsController : ControllerBase
     [HttpPost("add")]
     public async Task<ActionResult<RewardDto>> AddReward([FromBody] CreateRewardDto createRewardDto)
     {
-        if(createRewardDto.HouseholdId == 0)
+        if (createRewardDto.HouseholdId == 0)
         {
             createRewardDto = createRewardDto with { HouseholdId = _tokenService.GetHouseholdIdFromToken(User) };
         }
