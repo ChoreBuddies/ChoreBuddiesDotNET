@@ -44,6 +44,14 @@ public class AppUserController(
 
         return Ok(_mapper.Map<AppUserDto>(user));
     }
+    [HttpGet("myPoints")]
+    public async Task<IActionResult> GetMyPointsAsync()
+    {
+        var userId = _tokenService.GetUserIdFromToken(User);
+        var result = await _userService.GetUserPointsCountAsync(userId);
+
+        return Ok(result);
+    }
 
     [HttpPut("me")]
     public async Task<IActionResult> UpdateMeAsync([FromBody] UpdateAppUserDto updateAppUserDto)

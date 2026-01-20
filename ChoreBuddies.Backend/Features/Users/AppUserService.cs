@@ -19,6 +19,7 @@ public interface IAppUserService
     public Task<ICollection<AppUser>> GetUsersHouseholdAdultsAsync(int userId);
     public Task<ICollection<AppUser>> GetUsersHouseholdChildrensAsync(int userId);
 
+    public Task<int> GetUserPointsCountAsync(int userId);
     public Task<bool> AddPointsToUser(int userId, int pointsCount);
     public Task<bool> RemovePointsFromUser(int userId, int pointsCount);
     public Task<bool> UpdateUserRoleAsync(int userId, string roleName);
@@ -179,6 +180,16 @@ public class AppUserService(IAppUserRepository userRepository, UserManager<AppUs
         var roles = _roleManager.Roles;
 
         return await Task.FromResult(roles.Select(r => r.Name!));
+    }
+
+    public async Task<int> GetUserPointsCountAsync(int userId)
+    {
+        var user = await GetUserByIdAsync(userId);
+        if (user is null)
+        {
+            throw new InvalidOperationException($"User with id {userId} not found.");
+        }
+        return user.PointsCount;
     }
 }
 
