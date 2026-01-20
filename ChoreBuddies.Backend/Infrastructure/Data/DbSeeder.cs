@@ -378,13 +378,15 @@ public class DbSeeder
     private List<AppUser> generateUsers(int n)
     {
         var users = new List<AppUser>();
+        var random = new Random();
         for (var i = 0; i < n; i++)
             users.Add(new AppUser
             {
                 Email = $"user{i + 1}@test.com",
                 UserName = $"UserName{i + 1}",
                 FirstName = $"User{i + 1}",
-                LastName = "Testowski"
+                LastName = "Testowski",
+                PointsCount = random.Next(100, 1000)
             });
 
         return users;
