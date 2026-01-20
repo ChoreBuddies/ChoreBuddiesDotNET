@@ -1,7 +1,9 @@
 ﻿using ChoreBuddies.Backend.Domain;
+using ChoreBuddies.Backend.Features.Households.Exceptions;
 using ChoreBuddies.Backend.Features.Users;
+using Shared.Households;
 
-namespace Shared.Households;
+namespace ChoreBuddies.Backend.Features.Households;
 
 public interface IHouseholdService
 {
@@ -42,11 +44,11 @@ public class HouseholdService(IHouseholdRepository repository, IInvitationCodeSe
     {
         var user = await _appUserRepository.GetUserByIdAsync(userId);
         if (user is null)
-            throw new InvalidOperationException($"User not found for ID: {userId}");
+            throw new ArgumentException("User not found");
 
         var household = await _repository.GetHouseholdByInvitationCodeAsync(invitationCode);
         if (household is null)
-            throw new KeyNotFoundException($"No household found matching invitation code: {invitationCode}");
+            throw new InvalidInvitationCodeException(invitationCode);
 
         await _repository.JoinHouseholdAsync(household, user);
         return household;

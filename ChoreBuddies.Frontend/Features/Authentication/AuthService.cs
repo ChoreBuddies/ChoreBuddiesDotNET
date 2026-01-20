@@ -67,7 +67,7 @@ public class AuthService(
 
         if (_authStateProvider is JwtAuthStateProvider jwtAuthStateProvider)
         {
-            jwtAuthStateProvider.NotifyUserLogout();
+            jwtAuthStateProvider.NotifyUserAuthentication(token);
         }
     }
 
