@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ChoreBuddies.Backend.Domain;
+using ChoreBuddies.Backend.Features.PredefinedRewards;
 using ChoreBuddies.Backend.Features.Rewards;
 using Moq;
 using Shared.Rewards;
@@ -10,12 +11,13 @@ namespace ChoreBuddies.Tests.Rewards;
 public class RewardsServiceTests
 {
     private readonly Mock<IRewardsRepository> _repository = new();
+    private readonly Mock<IPredefinedRewardsService> _predefinedService = new();
     private readonly Mock<IMapper> _mapper = new();
     private readonly RewardsService _service;
 
     public RewardsServiceTests()
     {
-        _service = new RewardsService(_mapper.Object, _repository.Object);
+        _service = new RewardsService(_mapper.Object, _repository.Object, _predefinedService.Object);
     }
 
     // -------------------------------------------------------

@@ -37,7 +37,7 @@ public class DefaultRewardsServiceTests
 
         var defaultRewardDtos = new List<PredefinedRewardDto>
         {
-            new(1, "Reward 1", "test", 50)
+            new(1, "Reward 1", "test", 50, 4)
         };
 
         _defaultRewardRepo
