@@ -1,6 +1,6 @@
 ﻿using ChoreBuddies.Frontend.Features.Chores.ScheduledChores;
 using ChoreBuddies.Frontend.Utilities;
-using Shared.ScheduledChores;
+using Shared.PredefinedChores;
 
 namespace ChoreBuddies.Frontend.Features.ScheduledChores;
 
@@ -14,7 +14,7 @@ public interface IScheduledChoresService
     Task<ScheduledChoreDto?> CreateChoreAsync(CreateScheduledChoreDto choreDto);
 
     Task<bool> DeleteChoreAsync(int choreId);
-    Task<IEnumerable<ScheduledChoreDto>?> AddPredefinedChoresToHouseholdAsync(PredefinedChoreIdsRequest request);
+    Task<IEnumerable<ScheduledChoreDto>?> AddPredefinedChoresToHouseholdAsync(PredefinedChoreRequest request);
 
 }
 public class ScheduledChoresService(HttpClientUtils httpUtils) : IScheduledChoresService
@@ -97,9 +97,9 @@ public class ScheduledChoresService(HttpClientUtils httpUtils) : IScheduledChore
         );
     }
 
-    public async Task<IEnumerable<ScheduledChoreDto>?> AddPredefinedChoresToHouseholdAsync(PredefinedChoreIdsRequest request)
+    public async Task<IEnumerable<ScheduledChoreDto>?> AddPredefinedChoresToHouseholdAsync(PredefinedChoreRequest request)
     {
-        return await httpUtils.PostAsync<PredefinedChoreIdsRequest, IEnumerable<ScheduledChoreDto>>(
+        return await httpUtils.PostAsync<PredefinedChoreRequest, IEnumerable<ScheduledChoreDto>>(
             ScheduledChoresConstants.ApiEndpointAddPredefined,
             request,
             authorized: true

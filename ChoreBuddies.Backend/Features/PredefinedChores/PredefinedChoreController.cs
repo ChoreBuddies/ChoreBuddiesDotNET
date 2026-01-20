@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Shared.DefalutChores;
-using Shared.ScheduledChores;
+using Shared.PredefinedChores;
 
 namespace ChoreBuddies.Backend.Features.PredefinedChores;
 
@@ -22,7 +21,7 @@ public class PredefinedChoreController(IPredefinedChoreService service, IMapper 
     }
 
     [HttpPost]
-    public async Task<ActionResult<List<PredefinedChoreDto>>> GetPredefinedChores(PredefinedChoreIdsRequest request)
+    public async Task<ActionResult<List<PredefinedChoreDto>>> GetPredefinedChores(PredefinedChoreRequest request)
     {
         var chores = await _service.GetPredefinedChoresAsync(request.PredefinedChoreIds);
         return Ok(_mapper.Map<List<PredefinedChoreDto>>(chores));

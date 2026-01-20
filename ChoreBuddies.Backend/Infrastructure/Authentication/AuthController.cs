@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Shared.Authentication;
-using System.Security.Claims;
 
 namespace ChoreBuddies.Backend.Infrastructure.Authentication;
 

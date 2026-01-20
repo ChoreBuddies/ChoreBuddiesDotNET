@@ -1,4 +1,4 @@
-﻿namespace Shared.ScheduledChores;
+﻿namespace Shared.PredefinedChores;
 
 public record CreateScheduledChoreDto(
     string Name,

@@ -1,7 +1,6 @@
-﻿@page "/setup-chores"
+﻿@page "/household/setup/chores"
 @using ChoreBuddies.Frontend.Features.ScheduledChores
-@using Shared.DefalutChores
-@using Shared.ScheduledChores
+@using Shared.PredefinedChores
 @inject IPredefinedChoresService predefinedService
 @inject IScheduledChoresService scheduledService
 @inject IAuthService authService
@@ -95,7 +94,7 @@
 
     private async Task SaveChores()
     {
-        var request = new PredefinedChoreIdsRequest
+        var request = new PredefinedChoreRequest
         {
             PredefinedChoreIds = _selectedChores.Select(x => x.id).ToList()
         };
@@ -108,12 +107,12 @@
         }
 
         snackbar.Add("Chores have been added!", Severity.Success);
-        navManager.NavigateTo($"/household/manage");
+        navManager.NavigateTo($"/household/setup/rewards");
     }
 
     private async void Skip()
     {
-        navManager.NavigateTo($"/household/manage");
+        navManager.NavigateTo($"/household/setup/rewards");
     }
 
     private string GetColorForRoom(string roomName)

@@ -1,7 +1,5 @@
 ﻿using ChoreBuddies.Frontend.Utilities;
-using Shared.Chat;
-using Shared.DefalutChores;
-using Shared.ScheduledChores;
+using Shared.PredefinedChores;
 
 namespace ChoreBuddies.Frontend.Features.PredefinedChores;
 
@@ -25,9 +23,9 @@ public class PredefinedChoresService(HttpClientUtils httpUtils) : IPredefinedCho
 
     public async Task<IEnumerable<PredefinedChoreDto>> GetPredefinedChoresAsync(List<int> predefinedChoreIds)
     {
-        var result = await httpUtils.PostAsync<PredefinedChoreIdsRequest, List<PredefinedChoreDto>>(
+        var result = await httpUtils.PostAsync<PredefinedChoreRequest, List<PredefinedChoreDto>>(
                 PredefinedChoresConstants.ApiEndpointGet,
-                new PredefinedChoreIdsRequest { PredefinedChoreIds = predefinedChoreIds },
+                new PredefinedChoreRequest { PredefinedChoreIds = predefinedChoreIds },
                 authorized: true
             );
 

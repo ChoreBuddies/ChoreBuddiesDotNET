@@ -4,12 +4,11 @@
 
 @using System.ComponentModel.DataAnnotations
 @using AutoMapper
-@using ChoreBuddies.Frontend.Features.PredefinedChores
 @using ChoreBuddies.Frontend.Features.Chores.ScheduledChores
+@using ChoreBuddies.Frontend.Features.PredefinedChores
 @using ChoreBuddies.Frontend.Features.ScheduledChores
 @using Shared.Chores
-@using Shared.DefalutChores
-@using Shared.ScheduledChores
+@using Shared.PredefinedChores
 @using Shared.Users
 @using Utilities
 
@@ -27,7 +26,7 @@
 	<MudButton Variant="Variant.Outlined"
 			   Color="Color.Primary"
 			   StartIcon="@Icons.Material.Filled.ContentCopy"
-			   OnClick="OpenTemplateDialog"
+			   OnClick="OpenPredefinedChoreDialog"
 			   Class="mb-4">
 		Select from predefined
 	</MudButton>
@@ -112,7 +111,7 @@
 		_isTypeLocked = true;
 	}
 
-	private async Task OpenTemplateDialog()
+	private async Task OpenPredefinedChoreDialog()
 	{
 		var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
 

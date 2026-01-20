@@ -1,4 +1,5 @@
 ﻿using ChoreBuddies.Frontend.Utilities;
+using Shared.PredefinedRewards;
 using Shared.Rewards;
 
 namespace ChoreBuddies.Frontend.Features.Rewards;
@@ -9,6 +10,7 @@ public interface IRewardsService
     public Task<RewardDto?> CreateRewardAsync(CreateRewardDto createRewardDto);
     public Task<RewardDto?> UpdateRewardAsync(RewardDto updateRewardDto);
     public Task<ICollection<RewardDto>> GetHouseholdRewardsAsync();
+    Task<IEnumerable<RewardDto>?> AddPredefinedRewardsToHouseholdAsync(PredefinedRewardRequest request);
 }
 public class RewardsService(HttpClientUtils httpUtils) : IRewardsService
 {
@@ -57,5 +59,14 @@ public class RewardsService(HttpClientUtils httpUtils) : IRewardsService
         });
 
         return result ?? [];
+    }
+
+    public async Task<IEnumerable<RewardDto>?> AddPredefinedRewardsToHouseholdAsync(PredefinedRewardRequest request)
+    {
+        return await httpUtils.PostAsync<PredefinedRewardRequest, IEnumerable<RewardDto>>(
+            RewardsConstants.ApiEndpointAddPredefinedReward,
+            request,
+            authorized: true
+        );
     }
 }

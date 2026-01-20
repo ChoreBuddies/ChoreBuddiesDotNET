@@ -1,6 +1,6 @@
-﻿@using Shared.PredefinedChores
-@using ChoreBuddies.Frontend.Features.PredefinedChores
-@inject IPredefinedChoresService PredefinedService
+﻿@using ChoreBuddies.Frontend.Features.PredefinedRewards
+@using Shared.PredefinedRewards
+@inject IPredefinedRewardsService PredefinedService
 
 <MudDialog>
     <DialogContent>
@@ -12,32 +12,32 @@
         }
         else
         {
-            <MudTable Items="@_chores"
+            <MudTable Items="@_rewards"
                       Hover="true"
                       OnRowClick="RowClickEvent"
-                      T="PredefinedChoreDto"
+                      T="PredefinedRewardDto"
                       Dense="true"
-                      Filter="new Func<PredefinedChoreDto,bool>(FilterFunc)">
+                      Filter="new Func<PredefinedRewardDto,bool>(FilterFunc)">
 
                 <ToolBarContent>
                     <MudTextField @bind-Value="_searchString"
-                                  Placeholder="Search (name, room, points)..."
+                                  Placeholder="Search (name, cost, quantity)..."
                                   Adornment="Adornment.Start"
                                   AdornmentIcon="@Icons.Material.Filled.Search"
                                   IconSize="Size.Medium"
                                   Class="mt-0"
-                                  Immediate="true" /> 
+                                  Immediate="true" />
                 </ToolBarContent>
 
                 <HeaderContent>
                     <MudTh>Name</MudTh>
-                    <MudTh>Room</MudTh>
-                    <MudTh>Points</MudTh>
+                    <MudTh>Cost</MudTh>
+                    <MudTh>Quantity Available</MudTh>
                 </HeaderContent>
                 <RowTemplate>
-                    <MudTd DataLabel="Name">@context.name</MudTd>
-                    <MudTd DataLabel="Room">@context.room</MudTd>
-                    <MudTd DataLabel="Points">@context.rewardPointsCount</MudTd>
+                    <MudTd DataLabel="Name">@context.Name</MudTd>
+                    <MudTd DataLabel="Cost">@context.Cost</MudTd>
+                    <MudTd DataLabel="Quantity Available">@context.QuantityAvailable</MudTd>
                 </RowTemplate>
                 <PagerContent>
                     <MudTablePager />
@@ -53,7 +53,7 @@
 @code {
     [CascadingParameter] IMudDialogInstance? MudDialog { get; set; }
 
-    private List<PredefinedChoreDto> _chores = new(); 
+    private List<PredefinedRewardDto> _rewards = new();
     private string _searchString = "";
     private bool _loading = true;
 
@@ -61,8 +61,8 @@
     {
         try
         {
-            var result = await PredefinedService.GetAllPredefinedChoresAsync();
-            _chores = result.OrderBy(c => c.room + c.name).ToList();
+            var result = await PredefinedService.GetAllPredefinedRewardsAsync();
+            _rewards = result.OrderBy(c => c.Name).ToList();
         }
         finally
         {
@@ -70,28 +70,28 @@
         }
     }
 
-    private void RowClickEvent(TableRowClickEventArgs<PredefinedChoreDto> tableRowClickEventArgs)
+    private void RowClickEvent(TableRowClickEventArgs<PredefinedRewardDto> tableRowClickEventArgs)
     {
         MudDialog!.Close(DialogResult.Ok(tableRowClickEventArgs.Item));
     }
 
     private void Cancel() => MudDialog!.Cancel();
 
-    private bool FilterFunc(PredefinedChoreDto element)
+    private bool FilterFunc(PredefinedRewardDto element)
     {
         if (string.IsNullOrWhiteSpace(_searchString))
             return true;
 
         // Name filter
-        if (element.name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+        if (element.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
             return true;
 
-        // Room filter
-        if (element.room.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+        // Cost filter
+        if ($"{element.Cost}".Contains(_searchString))
             return true;
 
-        // Points filter
-        if ($"{element.rewardPointsCount}".Contains(_searchString))
+        // QuantityAvailable filter
+        if ($"{element.QuantityAvailable}".Contains(_searchString))
             return true;
 
         return false;

@@ -6,7 +6,7 @@ using ChoreBuddies.Backend.Features.PredefinedChores;
 using ChoreBuddies.Backend.Features.ScheduledChores;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Shared.ScheduledChores;
+using Shared.PredefinedChores;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

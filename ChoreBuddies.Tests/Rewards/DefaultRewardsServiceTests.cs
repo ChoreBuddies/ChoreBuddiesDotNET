@@ -4,7 +4,6 @@ using ChoreBuddies.Backend.Features.PredefinedRewards;
 using FluentAssertions;
 using Moq;
 using Shared.PredefinedRewards;
-using Xunit;
 
 namespace ChoreBuddies.Tests.Rewards;
 
@@ -37,7 +36,7 @@ public class DefaultRewardsServiceTests
 
         var defaultRewardDtos = new List<PredefinedRewardDto>
         {
-            new(1, "Reward 1", "test", 50)
+            new(1, "Reward 1", "test", 50, 4)
         };
 
         _defaultRewardRepo

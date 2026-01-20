@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Chores;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace ChoreBuddies.Backend.Features.Chores;
 

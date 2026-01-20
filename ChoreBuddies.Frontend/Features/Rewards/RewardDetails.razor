@@ -1,6 +1,8 @@
 ﻿@page "/rewards/new"
 @page "/reward-details/{RewardId:int}"
+@using ChoreBuddies.Frontend.Features.PredefinedRewards
 @using ChoreBuddies.Frontend.Features.RedeemedRewards
+@using Shared.PredefinedRewards
 @using Shared.Rewards
 @using Shared.Users
 @using System.ComponentModel.DataAnnotations
@@ -9,6 +11,7 @@
 @inject IAuthService authService
 @inject NavigationManager navigationManager
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
 @inject IRedeemedRewardsService redeemedRewardsService
 @inject IRewardsService rewardsService
 @inject IAuthService authService
@@ -18,6 +21,17 @@
     <MudText Typo="Typo.h5" Style="font-weight: 800;" Class="mb-6">
         @GetPageTitle()
     </MudText>
+
+    @if (CurrentMode == PageMode.Create)
+    {
+        <MudButton Variant="Variant.Outlined"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.ContentCopy"
+                   OnClick="OpenPredefinedRewardDialog"
+                   Class="mb-4">
+            Select from predefined
+        </MudButton>
+    }
 
     <MudForm @ref="form" @bind-IsValid="@success">
         @if (model is not null)
@@ -240,6 +254,27 @@
             Description = description;
             Cost = cost;
             QuantityAvailable = quantity;
+        }
+    }
+
+    private async Task OpenPredefinedRewardDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+
+        var dialog = await DialogService.ShowAsync<PredefinedRewardDialog>("Choose predefined reward", options);
+        var result = await dialog.Result;
+
+        if (result is not null &&
+            !result.Canceled &&
+            result.Data is PredefinedRewardDto template &&
+            model is not null)
+        {
+            model.RewardName = template.Name;
+            model.Description = template.Description;
+            model.Cost = template.Cost;
+            model.QuantityAvailable = template.QuantityAvailable;
+
+            Snackbar.Add("The data from the predefined chore has been loaded. You can now edit it.", Severity.Info);
         }
     }
 }

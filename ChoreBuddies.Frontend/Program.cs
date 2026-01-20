@@ -6,6 +6,7 @@ using ChoreBuddies.Frontend.Features.ExceptionHandler;
 using ChoreBuddies.Frontend.Features.Household;
 using ChoreBuddies.Frontend.Features.Notifications;
 using ChoreBuddies.Frontend.Features.PredefinedChores;
+using ChoreBuddies.Frontend.Features.PredefinedRewards;
 using ChoreBuddies.Frontend.Features.RedeemedRewards;
 using ChoreBuddies.Frontend.Features.Reminders;
 using ChoreBuddies.Frontend.Features.Rewards;
@@ -61,6 +62,7 @@ public class Program
         // Rewards
         builder.Services.AddScoped<IRewardsService, RewardsService>();
         builder.Services.AddScoped<IRedeemedRewardsService, RedeemedRewardsService>();
+        builder.Services.AddScoped<IPredefinedRewardsService, PredefinedRewardsService>();
 
         // Other services
         builder.Services.AddScoped<IUserService, UserService>();

@@ -1,10 +1,8 @@
 using AutoMapper;
-using ChoreBuddies.Backend.Features.Users;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Authentication;
-using System.Security.Claims;
 
 namespace Shared.Households;
 

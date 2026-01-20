@@ -1,4 +1,4 @@
-﻿using Shared.ScheduledChores;
+﻿using Shared.PredefinedChores;
 using System.ComponentModel.DataAnnotations;
 
 namespace ChoreBuddies.Frontend.Features.Chores;
