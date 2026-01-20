@@ -12,6 +12,7 @@ public interface IUserService
     public Task<IEnumerable<AppUserRoleDto>?> GetMyHouseholdMembersRolesAsync();
     public Task<IEnumerable<AppUserMinimalDto>?> GetMyHouseholdMembersAsync();
     public Task<IEnumerable<String>> GetAvailableRolesAsync();
+    public Task<int> GetUsersPointsCountAsync();
 }
 
 public class UserService : IUserService
@@ -74,5 +75,12 @@ public class UserService : IUserService
             await _httpClientUtils.PutAsync(UserConstants.ApiEndpointRole, updateRoleDto, true);
             return true;
         });
+    }
+
+    public async Task<int> GetUsersPointsCountAsync()
+    {
+        return await _httpClientUtils.TryRequestAsync(
+            () => _httpClientUtils.GetAsync<int>(UserConstants.ApiEndpointPoints, true)
+        );
     }
 }

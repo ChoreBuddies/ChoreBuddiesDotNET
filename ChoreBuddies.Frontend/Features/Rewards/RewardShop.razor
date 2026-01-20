@@ -1,5 +1,6 @@
 ﻿@page "/rewards"
 @using ChoreBuddies.Frontend.Features.RedeemedRewards
+@using ChoreBuddies.Frontend.Features.User
 @using MudBlazor
 @using Shared.RedeemedRewards
 @using Shared.Rewards
@@ -7,6 +8,7 @@
 @inject IRedeemedRewardsService redeemedRewardsService
 @inject IRewardsService rewardsService
 @inject ISnackbar Snackbar
+@inject IUserService userService
 @inject NavigationManager navigationManager
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
@@ -123,7 +125,7 @@
 
     // ===== OBJECTS =====
 
-    private int TotalPoints = 1250;
+    private int TotalPoints = 0;
 
     private List<RewardDto> AvailableRewards = [];
 
@@ -132,6 +134,7 @@
     // ==== LOGIC ====
     protected override async Task OnInitializedAsync()
     {
+        TotalPoints = await userService.GetUsersPointsCountAsync();
         AvailableRewards = (await rewardsService.GetHouseholdRewardsAsync()).ToList();
         RedeemedRewards = (await redeemedRewardsService.GetUsersRedeemedRewardsAsync()).OrderByDescending(r => r.Id).ToList();
     }
