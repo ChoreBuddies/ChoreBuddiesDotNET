@@ -29,7 +29,6 @@
                         <MudButton Class="app-bar" OnClick="@(() => Navigation.NavigateTo("/household/manage"))">My household</MudButton>
                         </div>
                 }
-                <MudIconButton Icon="@Icons.Material.Filled.Notifications" Class="black-icon" />
                 <MudMenu Icon="@Icons.Material.Filled.AccountCircle" AnchorOrigin="Origin.BottomRight" Class="black-icon" ActivationEvent="@MouseEvent.MouseOver">
                     <MudMenuItem OnClick="@(() => Navigation.NavigateTo("/profile"))">Profile</MudMenuItem>
                     <MudMenuItem OnClick="@(() => Navigation.NavigateTo("/settings/notifications"))">Settings</MudMenuItem>
