@@ -23,8 +23,11 @@
             <MudForm @bind-IsValid="@success" @bind-Errors="@errors">
                 <MudTextField @bind-Value="email" T="string" Label="Email" Required="true" RequiredError="Email is required!"
                               Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})" style="margin-bottom:8px" />
-                <MudTextField @bind-Value="password" T="string" Label="Password" InputType="InputType.Password"
-                              Required="true" RequiredError="Password is required!" Style="margin-bottom:32px" />
+                <MudTextField @bind-Value="password" T="string" Label="Password"
+                              InputType="@(_showPassword ? InputType.Text : InputType.Password)"
+                              Required="true" RequiredError="Password is required!" Style="margin-bottom:32px"
+                              Adornment="Adornment.End" OnAdornmentClick="TogglePasswordVisibility"
+                              AdornmentIcon="@(_showPassword ? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility)" />
             </MudForm>
             <MudText>Don’t have an account yet?  <MudLink Href="/signup">Sign up here</MudLink></MudText>
             <div class="d-flex align-center justify-space-around pt-3">
@@ -42,6 +45,8 @@
     string email = "";
     string password = "";
 
+    private bool _showPassword;
+
     private async Task LoginAction()
     {
         if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password)) return;
@@ -54,5 +59,10 @@
             navigationManager.NavigateTo("/");
             StateHasChanged();
         }
+    }
+
+    private void TogglePasswordVisibility()
+    {
+        _showPassword = !_showPassword;
     }
 }
