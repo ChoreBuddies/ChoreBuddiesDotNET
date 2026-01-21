@@ -55,15 +55,21 @@
 
                 <MudItem xs="12" sm="6">
                     <MudTextField @bind-Value="password" T="string" Label="Password"
-                                  HelperText="Choose a strong password" InputType="InputType.Password"
+                                  HelperText="Choose a strong password"
+                                  InputType="@(_showPassword ? InputType.Text : InputType.Password)"
                                   Required="true" RequiredError="Password is required!"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense" />
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"
+                                  Adornment="Adornment.End" OnAdornmentClick="TogglePasswordVisibility"
+                                  AdornmentIcon="@(_showPassword ? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility)" />
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudTextField T="string" Label="Repeat Password"
-                                  HelperText="Repeat the password" InputType="InputType.Password"
+                                  HelperText="Repeat the password"
+                                  InputType="@(_showRepeatPassword ? InputType.Text : InputType.Password)"
                                   Validation="@(new Func<string, string>(PasswordMatch))"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense" />
+                                  Variant="Variant.Outlined" Margin="Margin.Dense"
+                                  Adornment="Adornment.End" OnAdornmentClick="ToggleRepeatPasswordVisibility"
+                                  AdornmentIcon="@(_showRepeatPassword ? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility)" />
                 </MudItem>
 
                 <MudItem xs="12" Class="d-flex align-center justify-space-between mt-2">
@@ -91,6 +97,9 @@
     // Allowed date range for date of birth picker (from 4 years to 120 years ago)
     DateTime MaxAllowedDate => timeProvider.GetUtcNow().AddYears(-4).UtcDateTime;
     DateTime MinAllowedDate => timeProvider.GetUtcNow().AddYears(-120).UtcDateTime;
+
+    private bool _showPassword;
+    private bool _showRepeatPassword;
 
     private string PasswordMatch(string arg)
     {
@@ -121,5 +130,15 @@
             navigationManager.NavigateTo("/");
             StateHasChanged();
         }
+    }
+
+    private void TogglePasswordVisibility()
+    {
+        _showPassword = !_showPassword;
+    }
+
+    private void ToggleRepeatPasswordVisibility()
+    {
+        _showRepeatPassword = !_showRepeatPassword;
     }
 }
