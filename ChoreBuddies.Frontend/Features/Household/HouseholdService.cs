@@ -39,7 +39,7 @@ public class HouseholdService : IHouseholdService
     }
     public async Task<bool> CreateHouseholdAsync(CreateHouseholdDto householdDto)
     {
-        var tokens = await _httpUtils.PostAsync<CreateHouseholdDto, AuthResponseDto>(
+        var tokens = await _httpUtils.PostAsync<CreateHouseholdDto, AccessTokenDto>(
             HouseholdConstants.ApiEndpointCreateHousehold,
             householdDto,
             authorized: true);
@@ -69,7 +69,7 @@ public class HouseholdService : IHouseholdService
     public async Task<bool> JoinHouseholdAsync(string invitationCode)
     {
         var payload = new JoinHouseholdDto(invitationCode);
-        var tokens = await _httpUtils.PutAsync<JoinHouseholdDto, AuthResponseDto>(
+        var tokens = await _httpUtils.PutAsync<JoinHouseholdDto, AccessTokenDto>(
             HouseholdConstants.ApiEndpointJoinHousehold,
             payload,
             authorized: true);
