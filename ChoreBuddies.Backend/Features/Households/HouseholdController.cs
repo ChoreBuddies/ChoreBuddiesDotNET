@@ -29,7 +29,7 @@ public class HouseholdController(IHouseholdService service, IMapper mapper, IAut
 
         string accessToken = await _authService.GenerateAccessTokenAsync(userId);
 
-        return Ok(new AuthResponseDto(accessToken, ""));
+        return Ok(new AccessTokenDto(accessToken));
     }
     // Read
     [HttpGet]
@@ -77,7 +77,7 @@ public class HouseholdController(IHouseholdService service, IMapper mapper, IAut
 
         string accessToken = await _authService.GenerateAccessTokenAsync(userId);
 
-        return Ok(new AuthResponseDto(accessToken, ""));
+        return Ok(new AccessTokenDto(accessToken));
     }
     // Delete
     [HttpDelete("{householdId}")]
