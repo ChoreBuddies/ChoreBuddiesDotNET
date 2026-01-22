@@ -2,7 +2,7 @@
 using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace Shared.Households;
+namespace ChoreBuddies.Backend.Features.Households;
 
 public interface IHouseholdRepository
 {
@@ -18,6 +18,8 @@ public interface IHouseholdRepository
     // Delete
     public Task<Household?> DeleteHouseholdAsync(Household household);
     public Task<bool> CheckIfUserBelongsAsync(int householdId, int userId);
+
+    public Task<Household?> GeHouseholdWithUsersWithChoresDueToFromDateAsync(int householdId, DateTime fromDate);
 }
 
 public class HouseholdRepository(ChoreBuddiesDbContext dbContext) : IHouseholdRepository
@@ -97,5 +99,14 @@ public class HouseholdRepository(ChoreBuddiesDbContext dbContext) : IHouseholdRe
         return await _dbContext.Households
             .AnyAsync(h => h.Id == householdId &&
                            h.Users.Any(u => u.Id == userId));
+    }
+
+    public async Task<Household?> GeHouseholdWithUsersWithChoresDueToFromDateAsync(int householdId, DateTime fromDate)
+    {
+        return await _dbContext.Households
+                .Include(h => h.Users)
+                    .ThenInclude(u => u.Chores
+                        .Where(c => c.DueDate >= fromDate))
+                .FirstOrDefaultAsync(h => h.Id == householdId);
     }
 }
