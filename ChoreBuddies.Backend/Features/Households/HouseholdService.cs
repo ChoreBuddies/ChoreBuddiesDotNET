@@ -18,6 +18,8 @@ public interface IHouseholdService
     public Task<Household?> DeleteHouseholdAsync(int householdId);
     // Validate
     public Task<bool> CheckIfUserBelongsAsync(int householdId, int userId);
+
+    public Task<int> GetUserIdForAutoAssignAsync(int householdId);
 }
 
 public class HouseholdService(IHouseholdRepository repository, IInvitationCodeService invitationCodeService, IAppUserRepository appUserRepository) : IHouseholdService
@@ -85,4 +87,23 @@ public class HouseholdService(IHouseholdRepository repository, IInvitationCodeSe
         return await _repository.CheckIfUserBelongsAsync(householdId, userId);
     }
 
+    public async Task<int> GetUserIdForAutoAssignAsync(int householdId)
+    {
+        var fromDate = DateTime.UtcNow.AddDays(-7);
+
+        var household = await _repository.GeHouseholdWithUsersWithChoresDueToFromDateAsync(householdId, fromDate);
+        if (household != null)
+        {
+            var users = household.Users;
+            if (users == null || !users.Any())
+            {
+                throw new HouseholdHasNoUsersException(householdId);
+            }
+            return users.OrderBy(u => u.Chores.Count()).First().Id;
+        }
+        else
+        {
+            throw new HouseholdDoesNotExistException(householdId);
+        }
+    }
 }

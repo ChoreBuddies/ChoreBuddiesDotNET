@@ -1,4 +1,6 @@
-﻿namespace Shared.Households;
+﻿using ChoreBuddies.Backend.Features.Households;
+
+namespace Shared.Households;
 
 public interface IInvitationCodeService
 {
