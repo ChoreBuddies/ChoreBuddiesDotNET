@@ -1,4 +1,6 @@
 ﻿using ChoreBuddies.Backend.Domain;
+using ChoreBuddies.Backend.Features.Households;
+using ChoreBuddies.Backend.Features.Households.Exceptions;
 using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Shared.PredefinedChores;
@@ -16,45 +18,63 @@ public class ScheduledChoresBackgroundService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var now = DateTime.Now;
-        var nextMidnight = now.Date.AddDays(1);
-        var initialDelay = nextMidnight - now;
+        var nextMidnight = DateTime.UtcNow.Date.AddDays(1);
+        var initialDelay = nextMidnight - DateTime.UtcNow;
         await Task.Delay(initialDelay, stoppingToken);
 
         while (!stoppingToken.IsCancellationRequested)
         {
             using var scope = _services.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<ChoreBuddiesDbContext>();
+            var householdService = scope.ServiceProvider.GetRequiredService<IHouseholdService>();
 
-            var periodicChores = await db.ScheduledChores.ToListAsync();
+            var scheduledChores = await db.ScheduledChores.ToListAsync();
 
-            foreach (var pc in periodicChores)
+            foreach (var sc in scheduledChores)
             {
-                if (!ShouldGenerate(pc))
+                if (!ShouldGenerate(sc))
                     continue;
 
-                DateTime dueDate = pc.Frequency switch
+                DateTime dueDate = sc.Frequency switch
                 {
-                    Frequency.Daily => DateTime.Now.AddDays(1),
-                    Frequency.Weekly => DateTime.Now.AddDays(7),
-                    Frequency.Monthly => DateTime.Now.AddMonths(1),
-                    _ => DateTime.Now
+                    Frequency.Daily => DateTime.UtcNow.AddDays(1),
+                    Frequency.Weekly => DateTime.UtcNow.AddDays(7),
+                    Frequency.Monthly => DateTime.UtcNow.AddMonths(1),
+                    _ => DateTime.UtcNow
                 };
 
+                var userId = sc.UserId;
+                if (userId is null)
+                {
+                    try
+                    {
+                        userId = await householdService.GetUserIdForAutoAssignAsync(sc.Id);
+                    }
+                    catch (HouseholdDoesNotExistException)
+                    {
+                        var choresToDelete = db.ScheduledChores.Where(u => u.HouseholdId == sc.HouseholdId);
+                        db.ScheduledChores.RemoveRange(choresToDelete);
+                        continue;
+                    }
+                    catch (HouseholdHasNoUsersException)
+                    {
+                        userId = null;
+                    }
+                }
                 var chore = new Chore(
-                    name: pc.Name,
-                    description: pc.Description,
-                    userId: null,
-                    householdId: pc.HouseholdId,
+                    name: sc.Name,
+                    description: sc.Description,
+                    userId: userId,
+                    householdId: sc.HouseholdId,
                     dueDate: dueDate,
                     status: Shared.Chores.Status.Assigned,
-                    room: pc.Room,
-                    rewardPointsCount: pc.RewardPointsCount
+                    room: sc.Room,
+                    rewardPointsCount: sc.RewardPointsCount
                 );
 
                 db.Chores.Add(chore);
 
-                pc.LastGenerated = DateTime.Now;
+                sc.LastGenerated = DateTime.UtcNow;
             }
 
             await db.SaveChangesAsync();
@@ -77,7 +97,7 @@ public class ScheduledChoresBackgroundService : BackgroundService
             _ => last
         };
 
-        return DateTime.Now >= next;
+        return DateTime.UtcNow >= next;
     }
 }
 
