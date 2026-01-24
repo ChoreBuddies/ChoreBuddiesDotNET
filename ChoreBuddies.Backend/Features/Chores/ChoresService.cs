@@ -20,8 +20,8 @@ public interface IChoresService
     public Task<IEnumerable<ChoreDto>> GetMyHouseholdChoreDetailsAsync(int userId);
     public Task<IEnumerable<ChoreDto>> CreateChoreListAsync(IEnumerable<CreateChoreDto> createChoreDtoList);
     public Task AssignChoreAsync(int choreId, int userId);
-    public Task<ChoreDto> MarkChoreAsDone(int choreId, int userId, bool verified);
-    public Task<ChoreDto> VerifyChore(int choreId, int userId);
+    public Task<ChoreDto> MarkChoreAsDoneAsync(int choreId, int userId, bool verified);
+    public Task<ChoreDto> VerifyChoreAsync(int choreId, int userId);
 }
 
 public class ChoresService : IChoresService
@@ -111,7 +111,7 @@ public class ChoresService : IChoresService
         await SendNewChoreAssignedNotification(userId, newChore);
     }
 
-    public async Task<ChoreDto> MarkChoreAsDone(int choreId, int userId, bool verified)
+    public async Task<ChoreDto> MarkChoreAsDoneAsync(int choreId, int userId, bool verified)
     {
         var chore = await _repository.GetChoreByIdAsync(choreId) ?? throw new Exception("Chore not found");
         if (chore.Status != Status.Assigned)
@@ -132,7 +132,7 @@ public class ChoresService : IChoresService
         }
         return _mapper.Map<ChoreDto>(await _repository.UpdateChoreAsync(chore!));
     }
-    public async Task<ChoreDto> VerifyChore(int choreId, int userId)
+    public async Task<ChoreDto> VerifyChoreAsync(int choreId, int userId)
     {
         var chore = await _repository.GetChoreByIdAsync(choreId) ?? throw new Exception("Chore not found");
         if (chore.Status != Status.UnverifiedCompleted)
