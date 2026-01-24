@@ -19,10 +19,10 @@ public class RemindersService : IRemindersService
 
     public async Task<bool> SetReminder(int choreId, DateTime remindAt)
     {
-        var data = new ReminderDto(remindAt);
+        var data = new ReminderDto(remindAt, choreId);
         return await _httpClientUtils.TryRequestAsync(async () =>
         {
-            await _httpClientUtils.PostAsync($"{RemindersConstants.ApiEndpointSetReminder}/{choreId}", data, true);
+            await _httpClientUtils.PostAsync(RemindersConstants.ApiEndpointSetReminder, data, true);
             return true;
         });
     }

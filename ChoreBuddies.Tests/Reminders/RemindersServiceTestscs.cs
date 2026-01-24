@@ -32,15 +32,15 @@ public class RemindersServiceTests
     {
         // Arrange
         var remindAt = DateTime.Now.AddHours(1);
-
-        var reminderDto = new ReminderDto(remindAt);
+        var choreId = 10;
+        var reminderDto = new ReminderDto(remindAt, choreId);
         _choresServiceMock
             .Setup(x => x.GetChoreDetailsAsync(It.IsAny<int>()))
             .ReturnsAsync((ChoreDto?)null);
 
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() =>
-            _service.SetReminder(userId: 1, choreId: 10, reminderDto)
+            _service.SetReminder(userId: 1, reminderDto)
         );
     }
 
@@ -49,16 +49,15 @@ public class RemindersServiceTests
     {
         // Arrange
         var remindAt = DateTime.Now.AddDays(1);
-        var reminderDto = new ReminderDto(remindAt);
-
         var chore = new ChoreDto(10, "Take out trash", "", 0, 0, null, null, "");
+        var reminderDto = new ReminderDto(remindAt, chore.Id);
 
         _choresServiceMock
             .Setup(x => x.GetChoreDetailsAsync(chore.Id))
             .ReturnsAsync(chore);
 
         // Act
-        await _service.SetReminder(5, chore.Id, reminderDto);
+        await _service.SetReminder(5, reminderDto);
 
         // Assert
         _backgroundJobClientMock.Verify(
@@ -75,7 +74,6 @@ public class RemindersServiceTests
         var choreId = 3;
         var householdId = 3;
         var remindAt = DateTime.Now.AddHours(1);
-        var reminderDto = new ReminderDto(remindAt);
 
         var chore = new ChoreDto(
             choreId,
@@ -87,13 +85,14 @@ public class RemindersServiceTests
             null,
             ""
         );
+        var reminderDto = new ReminderDto(remindAt, chore.Id);
 
         _choresServiceMock
             .Setup(x => x.GetChoreDetailsAsync(choreId))
             .ReturnsAsync(chore);
 
         // Act
-        await _service.SetReminder(userId, choreId, reminderDto);
+        await _service.SetReminder(userId, reminderDto);
 
         // Assert
         _backgroundJobClientMock.Verify(

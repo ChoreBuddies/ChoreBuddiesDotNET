@@ -7,16 +7,16 @@ namespace ChoreBuddies.Backend.Features.Reminders;
 
 public interface IRemindersService
 {
-    public Task SetReminder(int userId, int choreId, ReminderDto reminderDto);
+    public Task SetReminder(int userId, ReminderDto reminderDto);
 }
 public class RemindersService(IBackgroundJobClient backgroundJobClient, IChoresService choresService) : IRemindersService
 {
     private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
     private readonly IChoresService _choresService = choresService;
 
-    public async Task SetReminder(int userId, int choreId, ReminderDto reminderDto)
+    public async Task SetReminder(int userId, ReminderDto reminderDto)
     {
-        var chore = await _choresService.GetChoreDetailsAsync(choreId);
+        var chore = await _choresService.GetChoreDetailsAsync(reminderDto.choreId);
         if (chore == null)
         {
             throw new ArgumentNullException(nameof(chore));

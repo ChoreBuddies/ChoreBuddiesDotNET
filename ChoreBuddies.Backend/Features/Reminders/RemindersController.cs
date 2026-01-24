@@ -13,10 +13,10 @@ public class RemindersController(IRemindersService remindersService, ITokenServi
     private readonly IRemindersService _remindersService = remindersService;
     private readonly ITokenService _tokenService = tokenService;
 
-    [HttpPost("{choreId}")]
-    public async Task<ActionResult> SetReminder([FromRoute] int choreId, [FromBody] ReminderDto reminderDto)
+    [HttpPost()]
+    public async Task<ActionResult> SetReminder([FromBody] ReminderDto reminderDto)
     {
-        await _remindersService.SetReminder(_tokenService.GetUserIdFromToken(User), choreId, reminderDto);
+        await _remindersService.SetReminder(_tokenService.GetUserIdFromToken(User), reminderDto);
         return Ok();
     }
 }
