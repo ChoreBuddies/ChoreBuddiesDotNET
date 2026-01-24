@@ -27,7 +27,8 @@
 			   Color="Color.Primary"
 			   StartIcon="@Icons.Material.Filled.ContentCopy"
 			   OnClick="OpenPredefinedChoreDialog"
-			   Class="mb-4">
+			   Class="mb-4"
+			   Style="text-transform: none;">
 		Select from predefined
 	</MudButton>
 }
@@ -43,7 +44,6 @@
 	private PageMode CurrentMode = PageMode.Create;
 
 	private List<AppUserMinimalDto> AvailableUsers = new();
-	private bool _isTypeLocked;
 	protected override async Task OnInitializedAsync()
 	{
 		bool isScheduledPath = navigationManager.Uri.ToLower().Contains("scheduled");
@@ -57,7 +57,6 @@
 		if (ChoreId.HasValue)
 		{
 			CurrentMode = PageMode.View;
-			_isTypeLocked = true;
 
 			if (isScheduledPath)
 			{
@@ -108,7 +107,6 @@
 		}
 		Snackbar.Add("Saved successfully!", Severity.Success);
 		CurrentMode = PageMode.View;
-		_isTypeLocked = true;
 	}
 
 	private async Task OpenPredefinedChoreDialog()
