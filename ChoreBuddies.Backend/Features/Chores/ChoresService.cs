@@ -20,7 +20,8 @@ public interface IChoresService
     public Task<IEnumerable<ChoreDto>> GetMyHouseholdChoreDetailsAsync(int userId);
     public Task<IEnumerable<ChoreDto>> CreateChoreListAsync(IEnumerable<CreateChoreDto> createChoreDtoList);
     public Task AssignChoreAsync(int choreId, int userId);
-    public Task<ChoreDto> MarkChoreAsDone(int choreId, int userId);
+    public Task<ChoreDto> MarkChoreAsDone(int choreId, int userId, bool verified);
+    public Task<ChoreDto> VerifyChore(int choreId, int userId);
 }
 
 public class ChoresService : IChoresService
@@ -110,13 +111,34 @@ public class ChoresService : IChoresService
         await SendNewChoreAssignedNotification(userId, newChore);
     }
 
-    public async Task<ChoreDto> MarkChoreAsDone(int choreId, int userId)
+    public async Task<ChoreDto> MarkChoreAsDone(int choreId, int userId, bool verified)
     {
         var chore = await _repository.GetChoreByIdAsync(choreId) ?? throw new Exception("Chore not found");
         if (chore.Status != Status.Assigned)
             throw new Exception("Chore must be assigned in order to be able to mark as done");
         if (chore.UserId != userId)
             throw new Exception("Only user who has to do this chore can mark it as done");
+        if (verified)
+        {
+            chore.Status = Status.Completed;
+            if (!await _appUserService.AddPointsToUser(userId, chore!.RewardPointsCount))
+            {
+                throw new Exception("There was an error while adding points to the user.");
+            }
+        }
+        else
+        {
+            chore.Status = Status.UnverifiedCompleted;
+        }
+        return _mapper.Map<ChoreDto>(await _repository.UpdateChoreAsync(chore!));
+    }
+    public async Task<ChoreDto> VerifyChore(int choreId, int userId)
+    {
+        var chore = await _repository.GetChoreByIdAsync(choreId) ?? throw new Exception("Chore not found");
+        if (chore.Status != Status.UnverifiedCompleted)
+            throw new Exception("Chore must be assigned in order to be able to mark as done");
+        if (chore.UserId == userId)
+            throw new Exception("Only another user can verify the chore");
         chore.Status = Status.Completed;
         if (!await _appUserService.AddPointsToUser(userId, chore!.RewardPointsCount))
         {
