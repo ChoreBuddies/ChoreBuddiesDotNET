@@ -115,7 +115,7 @@ public class ChoresController : ControllerBase
     {
         var userId = _tokenService.GetUserIdFromToken(User);
         var role = _tokenService.GetUserRoleFromToken(User);
-        if(role != "Adult")
+        if (role != "Adult")
         {
             return Forbid();
         }
