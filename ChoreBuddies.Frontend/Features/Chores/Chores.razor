@@ -40,13 +40,27 @@
                         {
                             <UpcomingChore _choreDto="chore" OnChanged="ComponentStateChanged" />
                         }
-                        <MudText Typo="Typo.button" Class="mx-4 text-muted">
-                            Completed Chores
-                        </MudText>
-                        <MudDivider Class="mt-1 mb-3" Style="border-width: 2px;" />
-                        @foreach (var chore in _userChores.Where(c => c.Status == Status.Completed))
+                        @if ((_filteredChores = _userChores.Where(c => c.Status == Status.UnverifiedCompleted)).Count() > 0)
                         {
-                            <UpcomingChore _choreDto="chore" OnChanged="ComponentStateChanged" />
+                            <MudText Typo="Typo.button" Class="mx-4 text-muted">
+                                Unverified Chores
+                            </MudText>
+                            <MudDivider Class="mt-1 mb-3" Style="border-width: 2px;" />
+                            @foreach (var chore in _filteredChores)
+                            {
+                                <UpcomingChore _choreDto="chore" OnChanged="ComponentStateChanged" />
+                            }
+                        }
+                        @if ((_filteredChores = _userChores.Where(c => c.Status == Status.Completed)).Count() > 0)
+                        {
+                            <MudText Typo="Typo.button" Class="mx-4 text-muted">
+                                Completed Chores
+                            </MudText>
+                            <MudDivider Class="mt-1 mb-3" Style="border-width: 2px;" />
+                            @foreach (var chore in _filteredChores)
+                            {
+                                <UpcomingChore _choreDto="chore" OnChanged="ComponentStateChanged" />
+                            }
                         }
                     }
 
@@ -59,6 +73,7 @@
 @code
 {
     public List<ChoreDto>? _userChores { get; set; }
+    public IEnumerable<ChoreDto>? _filteredChores { get; set; }
 
     protected override async Task OnInitializedAsync()
     {

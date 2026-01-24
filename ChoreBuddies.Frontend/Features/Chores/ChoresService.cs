@@ -9,7 +9,7 @@ public interface IChoresService
     public Task<ChoreDto?> GetChoreByIdAsync(int id);
     public Task<IEnumerable<ChoreDto>?> GetMyChoresAsync();
     public Task<IEnumerable<ChoreDto>?> GetMyHouseholdChoresAsync();
-    public Task<IEnumerable<ChoreDto>?> GetMyHouseholdUnverifiedChoresAsync();
+    public Task<IEnumerable<ChoreOverviewDto>?> GetMyHouseholdUnverifiedChoresAsync();
     public Task<ChoreDto?> UpdateChoreAsync(ChoreDto choreDto);
     public Task<ChoreDto?> MarkChoreAsDoneAsync(int choreId);
     public Task<ChoreDto?> VerifyChoreAsync(int choreId);
@@ -65,11 +65,11 @@ public class ChoresService(HttpClientUtils httpUtils) : IChoresService
 
         return result ?? [];
     }
-    public async Task<IEnumerable<ChoreDto>?> GetMyHouseholdUnverifiedChoresAsync()
+    public async Task<IEnumerable<ChoreOverviewDto>?> GetMyHouseholdUnverifiedChoresAsync()
     {
         var result = await httpUtils.TryRequestAsync(async () =>
         {
-            return await httpUtils.GetAsync<IEnumerable<ChoreDto>?>(
+            return await httpUtils.GetAsync<IEnumerable<ChoreOverviewDto>?>(
                 ChoresConstants.ApiEndpointGetHouseholdUnverifiedChores,
                 authorized: true
             );

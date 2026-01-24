@@ -4,6 +4,6 @@ public enum Status
 {
     Unassigned,
     Assigned,
-    UnverifiedCompleted,
     Completed,
+    UnverifiedCompleted,
 }
