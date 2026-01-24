@@ -12,6 +12,7 @@
 @inject NavigationManager navigationManager
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject IJSRuntime JS
 @inject IRedeemedRewardsService redeemedRewardsService
 @inject IRewardsService rewardsService
 @inject IAuthService authService
@@ -211,7 +212,7 @@
             {
                 CurrentMode = PageMode.View;
                 Snackbar.Add("Saved successfully", Severity.Success);
-                navigationManager.NavigateTo($"/reward-details/{result.Id}");
+                await JS.InvokeVoidAsync("history.back");
             }
             else
             {

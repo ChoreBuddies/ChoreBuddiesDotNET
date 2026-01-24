@@ -16,7 +16,7 @@ public class MappingProfile : Profile
                     src.UserId,
                     src.HouseholdId,
                     src.DueDate,
-                    null,
+                    src.UserId == null ? Status.Unassigned : Status.Assigned,
                     src.Room,
                     src.RewardPointsCount
                 ));
