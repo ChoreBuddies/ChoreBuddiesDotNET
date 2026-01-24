@@ -2,94 +2,104 @@
 @using ChoreBuddies.Frontend.Utilities
 @using Shared.Users
 <MudForm @ref="_form" @bind-IsValid="_isValid">
-	<MudStack Spacing="3">
-		<div>
-			<MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Chore Name</MudText>
-			<MudTextField Variant="Variant.Outlined"
-						  Margin="Margin.Dense"
-						  class="rounded-lg bg-white"
-						  @bind-Value="Model.Name" ReadOnly="PageMode == PageMode.View" Required="true" />
-		</div>
+    <MudStack Spacing="3">
+        <div>
+            <MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Chore Name</MudText>
+            <MudTextField Variant="Variant.Outlined"
+                          Margin="Margin.Dense"
+                          class="rounded-lg bg-white"
+                          @bind-Value="Model.Name" ReadOnly="PageMode == PageMode.View" Required="true" />
+        </div>
 
-		<div>
-			<MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Description</MudText>
-			<MudTextField Variant="Variant.Outlined"
-						  Margin="Margin.Dense"
-						  class="rounded-lg bg-white" @bind-Value="Model.Description" Lines="3" ReadOnly="PageMode == PageMode.View" />
-		</div>
+        <div>
+            <MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Description</MudText>
+            <MudTextField Variant="Variant.Outlined"
+                          Margin="Margin.Dense"
+                          class="rounded-lg bg-white" @bind-Value="Model.Description" Lines="3" ReadOnly="PageMode == PageMode.View" />
+        </div>
 
-		<div>
-			<MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Room</MudText>
-			<MudTextField Variant="Variant.Outlined"
-						  Margin="Margin.Dense"
-						  class="rounded-lg bg-white" @bind-Value="Model.Room" ReadOnly="PageMode == PageMode.View" Required="true" />
-		</div>
+        <div>
+            <MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Room</MudText>
+            <MudTextField Variant="Variant.Outlined"
+                          Margin="Margin.Dense"
+                          class="rounded-lg bg-white" @bind-Value="Model.Room" ReadOnly="PageMode == PageMode.View" Required="true" />
+        </div>
 
-		<div>
-			<MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Assigned to</MudText>
-			<MudSelect T="int?" Variant="Variant.Outlined"
-					   Margin="Margin.Dense"
-					   class="rounded-lg bg-white" @bind-Value="Model.UserId" ReadOnly="PageMode == PageMode.View" Clearable="true">
-				@foreach (var user in Users)
-				{
-					<MudSelectItem T="int?" Value="@(user.Id)">@user.UserName</MudSelectItem>
-				}
-			</MudSelect>
-		</div>
+        <div>
+            <MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Assigned to</MudText>
+            <MudSelect T="int?" Variant="Variant.Outlined"
+                       Margin="Margin.Dense"
+                       class="rounded-lg bg-white" @bind-Value="Model.UserId" ReadOnly="PageMode == PageMode.View" Clearable="true">
+                @foreach (var user in Users)
+                {
+                    <MudSelectItem T="int?" Value="@(user.Id)">@user.UserName</MudSelectItem>
+                }
+            </MudSelect>
+        </div>
+        <div>
+            <MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Reward Points</MudText>
+            <MudNumericField @bind-Value="Model.RewardPointsCount"
+                             Variant="Variant.Outlined"
+                             Margin="Margin.Dense"
+                             HideSpinButtons="true"
+                             ReadOnly="PageMode == PageMode.View"
+                             Clearable="true"
+                             class="rounded-lg bg-white" />
+        </div>
 
-		<MudCheckBox T="bool" @bind-Value="@(Model.IsScheduled)"
-					 Label="Is Scheduled"
-					 Disabled="PageMode != PageMode.Create" />
+        <MudCheckBox T="bool" @bind-Value="@(Model.IsScheduled)"
+                     Label="Is Scheduled"
+                     Disabled="PageMode != PageMode.Create" />
 
-		@if (!Model.IsScheduled)
-		{
-			<div>
-				<MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Due date</MudText>
-				<MudDatePicker Variant="Variant.Outlined"
-							   Margin="Margin.Dense"
-							   class="rounded-lg bg-white" @bind-Date="Model.DueDate" ReadOnly="PageMode == PageMode.View" />
-			</div>
-		}
+        @if (!Model.IsScheduled)
+        {
+            <div>
+                <MudText Class="mb-1" Style="font-weight: 600; font-size: 0.9rem;">Due date</MudText>
+                <MudDatePicker Variant="Variant.Outlined"
+                               Margin="Margin.Dense"
+                               class="rounded-lg bg-white" @bind-Date="Model.DueDate" ReadOnly="PageMode == PageMode.View" />
+            </div>
+        }
 
-		<SchedulingFields Model="Model" PageMode="PageMode" />
+        <SchedulingFields Model="Model" PageMode="PageMode" />
 
-		<div class="d-flex justify-end gap-2 mt-4">
-			@if (PageMode == PageMode.View)
-			{
-				<MudButton OnClick="SwitchToEdit" Variant="Variant.Filled">Edit</MudButton>
-			}
-			else
-			{
-				<MudButton OnClick="OnSaveInternal" Color="Color.Primary" Variant="Variant.Filled">Save</MudButton>
-				@if (PageMode == PageMode.Edit)
-				{
-					<MudButton OnClick="() => PageMode = PageMode.View" Color="Color.Error" Variant="Variant.Outlined">Cancel</MudButton>
-				}
-			}
-		</div>
-	</MudStack>
+        <div class="d-flex justify-end gap-2 mt-4">
+            @if (PageMode == PageMode.View)
+            {
+                <MudButton OnClick="SwitchToEdit" Variant="Variant.Filled">Edit</MudButton>
+            }
+            else
+            {
+                <MudButton OnClick="OnSaveInternal" Color="Color.Primary" Variant="Variant.Filled">Save</MudButton>
+                @if (PageMode == PageMode.Edit)
+                {
+                    <MudButton OnClick="() => PageMode = PageMode.View" Color="Color.Error" Variant="Variant.Outlined">Cancel</MudButton>
+                }
+            }
+        </div>
+    </MudStack>
 </MudForm>
 
 @code {
-	[Parameter] public ChoreViewModel Model { get; set; } = new();
-	[Parameter] public List<AppUserMinimalDto> Users { get; set; } = new();
-	[Parameter] public EventCallback<ChoreViewModel> OnValidSubmit { get; set; }
-	[Parameter] public PageMode PageMode { get; set; }
-	[Parameter]
-	public EventCallback<PageMode> PageModeChanged { get; set; }
-	[Parameter] public bool ShowCancel { get; set; }
+    [Parameter] public ChoreViewModel Model { get; set; } = new();
+    [Parameter] public List<AppUserMinimalDto> Users { get; set; } = new();
+    [Parameter] public EventCallback<ChoreViewModel> OnValidSubmit { get; set; }
+    [Parameter] public PageMode PageMode { get; set; }
+    [Parameter]
+    public EventCallback<PageMode> PageModeChanged { get; set; }
+    [Parameter] public bool ShowCancel { get; set; }
 
-	private MudForm? _form;
-	private bool _isValid;
+    private MudForm? _form;
+    private bool _isValid;
 
-	private async Task OnSaveInternal()
-	{
-		await _form!.Validate();
-		if (_isValid) await OnValidSubmit.InvokeAsync(Model);
-	}
-	private async Task SwitchToEdit()
-	{
-		PageMode = PageMode.Edit;
-		await PageModeChanged.InvokeAsync(PageMode);
-	}
+    private async Task OnSaveInternal()
+    {
+        await _form!.Validate();
+        if (_isValid) await OnValidSubmit.InvokeAsync(Model);
+    }
+    private async Task SwitchToEdit()
+    {
+        PageMode = PageMode.Edit;
+        await PageModeChanged.InvokeAsync(PageMode);
+    }
 }

@@ -148,6 +148,8 @@
         if ((await redeemedRewardsService.RedeemRewardAsync(rewardId)) is not null)
         {
             Snackbar.Add("Redeemed successfully", Severity.Success);
+            RedeemedRewards = (await redeemedRewardsService.GetUsersRedeemedRewardsAsync()).OrderByDescending(r => r.Id).ToList();
+            StateHasChanged();
         }
         else
         {
