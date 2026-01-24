@@ -78,7 +78,7 @@ public class ChoresController : ControllerBase
         var result = await _choresService.GetMyHouseholdChoreDetailsAsync(userId);
         return Ok(result);
     }
-    [HttpGet("unverifiedHouseholdChores")]
+    [HttpGet("householdChores/unverified")]
     public async Task<ActionResult<IEnumerable<ChoreOverviewDto>>> GetMyHouseholdUnverifiedChores()
     {
         var userId = _tokenService.GetUserIdFromToken(User);
