@@ -28,7 +28,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Protocols.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Shared.Households;
 using System.Text;
 
 namespace ChoreBuddies.Backend;

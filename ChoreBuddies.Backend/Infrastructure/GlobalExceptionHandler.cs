@@ -54,6 +54,11 @@ public class GlobalExceptionHandler : IExceptionHandler
                 problemDetails.Title = "Bad Request";
                 problemDetails.Detail = exception.Message;
                 break;
+            case InvitationCodeGenerationException:
+                problemDetails.Status = StatusCodes.Status400BadRequest;
+                problemDetails.Title = "Unique Code Genrator Failed";
+                problemDetails.Detail = exception.Message;
+                break;
             case InvalidInvitationCodeException:
                 problemDetails.Status = StatusCodes.Status400BadRequest;
                 problemDetails.Title = "Joining household failed";

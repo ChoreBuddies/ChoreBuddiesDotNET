@@ -10,20 +10,20 @@ namespace ChoreBuddies.Tests.Households;
 public class HouseholdsServiceTests
 {
     private readonly Mock<IHouseholdRepository> _householdRepo;
-    private readonly Mock<IAppUserRepository> _userRepo;
+    private readonly Mock<IAppUserService> _userService;
     private readonly Mock<IInvitationCodeService> _invitationService;
     private readonly HouseholdService _service;
 
     public HouseholdsServiceTests()
     {
         _householdRepo = new Mock<IHouseholdRepository>();
-        _userRepo = new Mock<IAppUserRepository>();
+        _userService = new Mock<IAppUserService>();
         _invitationService = new Mock<IInvitationCodeService>();
 
         _service = new HouseholdService(
             _householdRepo.Object,
             _invitationService.Object,
-            _userRepo.Object
+            _userService.Object
         );
     }
 
@@ -40,7 +40,7 @@ public class HouseholdsServiceTests
         _householdRepo.Setup(x => x.CreateHouseholdAsync(It.IsAny<Household>()))
             .ReturnsAsync(created);
 
-        _userRepo.Setup(x => x.GetUserByIdAsync(It.IsAny<int>()))
+        _userService.Setup(x => x.GetUserByIdAsync(It.IsAny<int>()))
             .ReturnsAsync(new AppUser { Id = 10 });
 
         _householdRepo.Setup(x => x.GetHouseholdByInvitationCodeAsync("INV123"))
@@ -66,7 +66,7 @@ public class HouseholdsServiceTests
         _householdRepo.Setup(x => x.CreateHouseholdAsync(It.IsAny<Household>()))
             .ReturnsAsync(new Household(1, "Test", "INV123", ""));
 
-        _userRepo.Setup(x => x.GetUserByIdAsync(It.IsAny<int>()))
+        _userService.Setup(x => x.GetUserByIdAsync(It.IsAny<int>()))
             .ReturnsAsync((AppUser?)null);
 
         await Assert.ThrowsAsync<ArgumentException>(() =>
@@ -110,7 +110,7 @@ public class HouseholdsServiceTests
         var user = new AppUser { Id = 10 };
         var household = new Household(77, "Test", "INV123", "");
 
-        _userRepo.Setup(x => x.GetUserByIdAsync(10))
+        _userService.Setup(x => x.GetUserByIdAsync(10))
             .ReturnsAsync(user);
 
         _householdRepo.Setup(x => x.GetHouseholdByInvitationCodeAsync("INV123"))
@@ -125,7 +125,7 @@ public class HouseholdsServiceTests
     [Fact]
     public async Task JoinHouseholdAsync_ShouldThrow_WhenUserNotFound()
     {
-        _userRepo.Setup(x => x.GetUserByIdAsync(10))
+        _userService.Setup(x => x.GetUserByIdAsync(10))
             .ReturnsAsync((AppUser?)null);
 
         await Assert.ThrowsAsync<ArgumentException>(() =>
@@ -135,7 +135,7 @@ public class HouseholdsServiceTests
     [Fact]
     public async Task JoinHouseholdAsync_ShouldThrow_WhenHouseholdNotFound()
     {
-        _userRepo.Setup(x => x.GetUserByIdAsync(10))
+        _userService.Setup(x => x.GetUserByIdAsync(10))
             .ReturnsAsync(new AppUser { Id = 10 });
 
         _householdRepo.Setup(x => x.GetHouseholdByInvitationCodeAsync("INV123"))

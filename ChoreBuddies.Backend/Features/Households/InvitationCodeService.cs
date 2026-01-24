@@ -1,6 +1,6 @@
-﻿using ChoreBuddies.Backend.Features.Households;
+﻿using ChoreBuddies.Backend.Features.Households.Exceptions;
 
-namespace Shared.Households;
+namespace ChoreBuddies.Backend.Features.Households;
 
 public interface IInvitationCodeService
 {
@@ -44,6 +44,6 @@ public class InvitationCodeService : IInvitationCodeService
                 return code;
         }
 
-        throw new InvalidOperationException("Generating unique invitation code failed.");
+        throw new InvitationCodeGenerationException();
     }
 }

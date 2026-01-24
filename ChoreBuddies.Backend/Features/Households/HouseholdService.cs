@@ -1,6 +1,7 @@
 ﻿using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Households.Exceptions;
 using ChoreBuddies.Backend.Features.Users;
+using Shared.Authentication;
 using Shared.Households;
 
 namespace ChoreBuddies.Backend.Features.Households;
@@ -31,12 +32,16 @@ public class HouseholdService(IHouseholdRepository repository, IInvitationCodeSe
     public async Task<Household?> CreateHouseholdAsync(CreateHouseholdDto createHouseholdDto, int userId)
     {
         var invitationCode = await _invitationCodeService.GenerateUniqueInvitationCodeAsync();
-        var result = await _repository.CreateHouseholdAsync(new Household(userId, createHouseholdDto.Name,
-            invitationCode, description: createHouseholdDto?.Description));
-        await JoinHouseholdAsync(invitationCode, userId);
+
+        var newHousehold = await _repository.CreateHouseholdAsync(
+            new Household(userId, createHouseholdDto.Name, invitationCode, createHouseholdDto.Description)
+        );
+
+        await _appUserService.UpdateUserRoleAsync(userId, AuthConstants.RoleAdult);
+
+        var result = await JoinHouseholdAsync(invitationCode, userId);
 
         return result;
-
     }
 
     public async Task<Household?> GetUsersHouseholdAsync(int householdId)
@@ -53,6 +58,9 @@ public class HouseholdService(IHouseholdRepository repository, IInvitationCodeSe
         var household = await _repository.GetHouseholdByInvitationCodeAsync(invitationCode);
         if (household is null)
             throw new InvalidInvitationCodeException(invitationCode);
+
+        if (household.OwnerId != userId)
+            await _appUserService.UpdateUserRoleAsync(userId, AuthConstants.RoleChild);
 
         await _repository.JoinHouseholdAsync(household, user);
         return household;
