@@ -13,10 +13,11 @@ public class RedeemedRewardsController(IRedeemedRewardsService redeemedRewardsSe
     private readonly IRedeemedRewardsService _redeemedRewardsService = redeemedRewardsService;
     private readonly ITokenService _tokenService = tokenService;
     [HttpPost("redeem")]
-    public async Task<ActionResult<RedeemedRewardDto>> RedeemReward([FromQuery] int rewardId, [FromBody] bool isFulfilled)
+    public async Task<ActionResult<RedeemedRewardDto>> RedeemReward([FromBody] CreateRedeemedRewardDto rewardDto)
     {
         var userId = _tokenService.GetUserIdFromToken(User);
-        var result = await _redeemedRewardsService.RedeemRewardAsync(userId, rewardId, isFulfilled);
+        var role = _tokenService.GetUserRoleFromToken(User);
+        var result = await _redeemedRewardsService.RedeemRewardAsync(userId, rewardDto.RewardId, rewardDto.IsFulfilled && role == "Adult");
         return Ok(result);
     }
     [HttpPut("fulfill/{rewardId}")]
