@@ -107,7 +107,20 @@ public class ChoresController : ControllerBase
     public async Task<ActionResult<ChoreDto>> MarkChoreAsDone([FromQuery] int choreId)
     {
         var userId = _tokenService.GetUserIdFromToken(User);
-        var result = await _choresService.MarkChoreAsDone(choreId, userId);
+        var role = _tokenService.GetUserRoleFromToken(User);
+        var result = await _choresService.MarkChoreAsDone(choreId, userId, role == "Adult");
+        return Ok(result);
+    }
+    [HttpPost("verify")]
+    public async Task<ActionResult<ChoreDto>> VerifyChore([FromQuery] int choreId)
+    {
+        var userId = _tokenService.GetUserIdFromToken(User);
+        var role = _tokenService.GetUserRoleFromToken(User);
+        if(role != "Adult")
+        {
+            return Forbid();
+        }
+        var result = await _choresService.VerifyChore(choreId, userId);
         return Ok(result);
     }
 }
