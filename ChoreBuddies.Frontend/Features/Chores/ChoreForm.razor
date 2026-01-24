@@ -63,21 +63,21 @@
 
         <SchedulingFields Model="Model" PageMode="PageMode" />
 
-        <div class="d-flex justify-end gap-2 mt-4">
-            @if (PageMode == PageMode.View)
-            {
-                <MudButton OnClick="SwitchToEdit" Variant="Variant.Filled">Edit</MudButton>
-            }
-            else
-            {
-                <MudButton OnClick="OnSaveInternal" Color="Color.Primary" Variant="Variant.Filled">Save</MudButton>
-                @if (PageMode == PageMode.Edit)
-                {
-                    <MudButton OnClick="() => PageMode = PageMode.View" Color="Color.Error" Variant="Variant.Outlined">Cancel</MudButton>
-                }
-            }
-        </div>
-    </MudStack>
+		<div class="d-flex justify-end gap-2 mt-4">
+			@if (PageMode == PageMode.View)
+			{
+				<MudButton OnClick="SwitchToEdit" Variant="Variant.Filled">Edit</MudButton>
+			}
+			else
+			{
+				<MudButton OnClick="OnSaveInternal" Color="Color.Primary" Variant="Variant.Filled" Style="text-transform: none;">Save</MudButton>
+				@if (PageMode == PageMode.Edit)
+				{
+					<MudButton OnClick="() => PageMode = PageMode.View" Color="Color.Error" Variant="Variant.Outlined" Style="text-transform: none;">Cancel</MudButton>
+				}
+			}
+		</div>
+	</MudStack>
 </MudForm>
 
 @code {
