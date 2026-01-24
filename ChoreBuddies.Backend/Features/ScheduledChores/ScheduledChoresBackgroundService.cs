@@ -5,6 +5,7 @@ using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Shared.Chores;
 using Shared.PredefinedChores;
+using Shared.Utilities;
 namespace ChoreBuddies.Backend.Features.ScheduledChores;
 
 public class ScheduledChoresBackgroundService : BackgroundService
@@ -55,7 +56,7 @@ public class ScheduledChoresBackgroundService : BackgroundService
                         DateTime dueDate = sc.Frequency switch
                         {
                             Frequency.Daily => loopNow.Date.AddDays(1),
-                            Frequency.Weekly => loopNow.Date.AddDays(7),
+                            Frequency.Weekly => loopNow.Date.AddWeeks(1),
                             Frequency.Monthly => loopNow.Date.AddMonths(1),
                             _ => loopNow.Date.AddDays(1)
                         };
@@ -122,7 +123,7 @@ public class ScheduledChoresBackgroundService : BackgroundService
         DateTime next = frequency switch
         {
             Frequency.Daily => last.AddDays(everyX),
-            Frequency.Weekly => last.AddDays(everyX * 7),
+            Frequency.Weekly => last.AddWeeks(everyX),
             Frequency.Monthly => last.AddMonths(everyX),
             _ => last
         };
