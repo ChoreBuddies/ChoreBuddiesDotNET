@@ -22,10 +22,10 @@ public interface IHouseholdService
     public Task<int> GetUserIdForAutoAssignAsync(int householdId);
 }
 
-public class HouseholdService(IHouseholdRepository repository, IInvitationCodeService invitationCodeService, IAppUserRepository appUserRepository) : IHouseholdService
+public class HouseholdService(IHouseholdRepository repository, IInvitationCodeService invitationCodeService, IAppUserService appUserService) : IHouseholdService
 {
     private readonly IHouseholdRepository _repository = repository;
-    private readonly IAppUserRepository _appUserRepository = appUserRepository;
+    private readonly IAppUserService _appUserService = appUserService;
     private readonly IInvitationCodeService _invitationCodeService = invitationCodeService;
     private const int AutoAssignLookbackDays = 7;
     public async Task<Household?> CreateHouseholdAsync(CreateHouseholdDto createHouseholdDto, int userId)
@@ -34,6 +34,7 @@ public class HouseholdService(IHouseholdRepository repository, IInvitationCodeSe
         var result = await _repository.CreateHouseholdAsync(new Household(userId, createHouseholdDto.Name,
             invitationCode, description: createHouseholdDto?.Description));
         await JoinHouseholdAsync(invitationCode, userId);
+
         return result;
 
     }
@@ -45,7 +46,7 @@ public class HouseholdService(IHouseholdRepository repository, IInvitationCodeSe
 
     public async Task<Household?> JoinHouseholdAsync(string invitationCode, int userId)
     {
-        var user = await _appUserRepository.GetUserByIdAsync(userId);
+        var user = await _appUserService.GetUserByIdAsync(userId);
         if (user is null)
             throw new ArgumentException("User not found");
 

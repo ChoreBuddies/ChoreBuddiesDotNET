@@ -66,7 +66,7 @@ public class AuthService(UserManager<AppUser> userManager, ITokenService tokenSe
             throw new RegistrationFailedException(result.Errors.Select(err => err.Description));
         }
 
-        var roleUpdateResult = await _userService.UpdateUserRoleAsync(newUser.Id, AuthConstants.RoleAdult);
+        var roleUpdateResult = await _userService.UpdateUserRoleAsync(newUser.Id, AuthConstants.RoleChild);
         if (!roleUpdateResult)
         {
             throw new RegistrationFailedException(result.Errors.Select(err => err.Description));
