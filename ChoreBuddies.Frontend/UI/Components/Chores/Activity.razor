@@ -26,13 +26,13 @@
     [Parameter] public ChoreDto? _choreDto { get; set; }
     public string? _userName { get; set; }
     public string? GetTitle() => _choreDto?.Name;
-    public async Task<string?> GetStatus()
+    public string GetStatus()
     {
         if (_choreDto?.Status == Status.Assigned)
         {
             return $"Assigned to {_userName}";
         }
-        return _choreDto?.Status.ToString();
+        return _choreDto?.Status.ToString() ?? "";
     }
     public string? GetIcon() => MudBlazor.FontIcons.MaterialSymbols.Outlined.CheckCircle;
     private async Task<string?> GetChoreUserName()

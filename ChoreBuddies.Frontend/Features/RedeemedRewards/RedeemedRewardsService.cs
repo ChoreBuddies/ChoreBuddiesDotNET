@@ -5,7 +5,7 @@ namespace ChoreBuddies.Frontend.Features.RedeemedRewards;
 
 public interface IRedeemedRewardsService
 {
-    public Task<RedeemedRewardDto?> RedeemRewardAsync(int rewardId, bool isfulfilled = false);
+    public Task<RedeemedRewardDto?> RedeemRewardAsync(int rewardId, bool isfulfilled = true);
     public Task<bool> FulfillRewardAsync(int rewardId);
     public Task<ICollection<RedeemedRewardDto>> GetUsersRedeemedRewardsAsync();
     public Task<ICollection<RedeemedRewardWithUserNameDto>> GetHouseholdsUnfulfilledRedeemedRewardsAsync();
@@ -16,21 +16,21 @@ public class RedeemedRewardsService(HttpClientUtils httpUtils) : IRedeemedReward
     {
         return await httpUtils.TryRequestAsync(async () =>
         {
-            return await httpUtils.PutAsync<int, bool>(
-                RedeemedRewardsConstants.ApiEndpointFulfillReward + redeemedRewardId,
-                redeemedRewardId,
+            return await httpUtils.PutAsync<FulfillRewardDto, bool>(
+                RedeemedRewardsConstants.ApiEndpointFulfillReward,
+                new FulfillRewardDto(redeemedRewardId),
                 authorized: true
             );
         });
     }
 
-    public async Task<RedeemedRewardDto?> RedeemRewardAsync(int rewardId, bool isFulfilled = false)
+    public async Task<RedeemedRewardDto?> RedeemRewardAsync(int rewardId, bool isFulfilled = true)
     {
         return await httpUtils.TryRequestAsync(async () =>
         {
-            return await httpUtils.PostAsync<bool, RedeemedRewardDto>(
-                $"{RedeemedRewardsConstants.ApiEndpointRedeemRewards}{rewardId}",
-                isFulfilled,
+            return await httpUtils.PostAsync<CreateRedeemedRewardDto, RedeemedRewardDto>(
+                RedeemedRewardsConstants.ApiEndpointRedeemRewards,
+                new CreateRedeemedRewardDto(rewardId, isFulfilled),
                 authorized: true
             );
         });

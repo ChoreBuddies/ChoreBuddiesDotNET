@@ -13,21 +13,22 @@ public class RedeemedRewardsController(IRedeemedRewardsService redeemedRewardsSe
     private readonly IRedeemedRewardsService _redeemedRewardsService = redeemedRewardsService;
     private readonly ITokenService _tokenService = tokenService;
     [HttpPost("redeem")]
-    public async Task<ActionResult<RedeemedRewardDto>> RedeemReward([FromQuery] int rewardId, [FromBody] bool isFulfilled)
+    public async Task<ActionResult<RedeemedRewardDto>> RedeemReward([FromBody] CreateRedeemedRewardDto rewardDto)
     {
         var userId = _tokenService.GetUserIdFromToken(User);
-        var result = await _redeemedRewardsService.RedeemRewardAsync(userId, rewardId, isFulfilled);
+        var role = _tokenService.GetUserRoleFromToken(User);
+        var result = await _redeemedRewardsService.RedeemRewardAsync(userId, rewardDto.RewardId, rewardDto.IsFulfilled && role == "Adult");
         return Ok(result);
     }
-    [HttpPut("fulfill/{rewardId}")]
-    public async Task<ActionResult<bool>> FulfillReward(int redeemedRewardId)
+    [HttpPut("fulfill")]
+    public async Task<ActionResult<bool>> FulfillReward([FromBody] FulfillRewardDto fulfillRewardDto)
     {
         var role = _tokenService.GetUserRoleFromToken(User);
         if (role != "Adult")
         {
             return Forbid();
         }
-        return Ok(await _redeemedRewardsService.FulfillRewardAsync(redeemedRewardId));
+        return Ok(await _redeemedRewardsService.FulfillRewardAsync(fulfillRewardDto.redeemedRewardId));
     }
     [HttpGet]
     public async Task<ActionResult<ICollection<RedeemedRewardDto>>> GetUsersRedeemedRewards([FromQuery] int? userId)
