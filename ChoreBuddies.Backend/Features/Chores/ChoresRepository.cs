@@ -1,6 +1,7 @@
 ﻿using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Shared.Chores;
 
 namespace ChoreBuddies.Backend.Features.Chores;
 
@@ -21,6 +22,7 @@ public interface IChoresRepository
     public Task<Chore?> DeleteChoreAsync(Chore chore);
     public Task<IEnumerable<Chore>?> GetUsersChoresAsync(int userId);
     public Task<IEnumerable<Chore>?> GetHouseholdChoresAsync(int userId);
+    public Task<IEnumerable<Chore>?> GetHouseholdUnverifiedChoresAsync(int userId);
     public Task<IEnumerable<Chore>?> CreateChoreListAsync(IEnumerable<Chore> createChoreDtoList);
     public Task<Chore?> AssignChoreAsync(int choreId, int userId);
 
@@ -133,6 +135,24 @@ public class ChoresRepository(ChoreBuddiesDbContext dbContext) : IChoresReposito
             if (user?.Household is null || user?.Household?.Chores is null)
                 return null;
             return user?.Household?.Chores;
+        }
+        catch (NullReferenceException)
+        {
+            return null;
+        }
+    }
+    public async Task<IEnumerable<Chore>?> GetHouseholdUnverifiedChoresAsync(int userId)
+    {
+        try
+        {
+            var user = await _dbContext.Users
+                .Include(u => u.Household)
+                .ThenInclude(h => h!.Chores)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user?.Household is null || user?.Household?.Chores is null)
+                return null;
+            return user?.Household?.Chores?.Where(c => c.Status == Status.UnverifiedCompleted);
         }
         catch (NullReferenceException)
         {

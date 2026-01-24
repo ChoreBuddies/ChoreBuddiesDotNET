@@ -17,7 +17,7 @@ public class ChoresController : ControllerBase
     public ChoresController(IChoresService tasksService, ITokenService tokenService)
     {
         _choresService = tasksService;
-        _tokenService = tokenService; // TODO: update methods to use tokenservice
+        _tokenService = tokenService;
     }
 
     [HttpGet("{id}")]
@@ -64,24 +64,26 @@ public class ChoresController : ControllerBase
         }
         else
         {
-            var myUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var myUserId = _tokenService.GetUserIdFromToken(User);
 
-            if (myUserId is null)
-                return Unauthorized();
-
-            var result = await _choresService.GetUsersChoreDetailsAsync(int.Parse(myUserId));
+            var result = await _choresService.GetUsersChoreDetailsAsync(myUserId);
             return Ok(result);
         }
     }
-    [HttpGet("HouseholdChores")]
+    [HttpGet("householdChores")]
     public async Task<ActionResult<IEnumerable<ChoreDto>>> GetMyHouseholdChores()
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = _tokenService.GetUserIdFromToken(User);
 
-        if (userId is null)
-            return Unauthorized();
+        var result = await _choresService.GetMyHouseholdChoreDetailsAsync(userId);
+        return Ok(result);
+    }
+    [HttpGet("unverifiedHouseholdChores")]
+    public async Task<ActionResult<IEnumerable<ChoreOverviewDto>>> GetMyHouseholdUnverifiedChores()
+    {
+        var userId = _tokenService.GetUserIdFromToken(User);
 
-        var result = await _choresService.GetMyHouseholdChoreDetailsAsync(int.Parse(userId));
+        var result = await _choresService.GetMyHouseholdUnverifiedChoresAsync(userId);
         return Ok(result);
     }
     [HttpPost("assign")]
@@ -94,12 +96,9 @@ public class ChoresController : ControllerBase
         }
         else
         {
-            var myUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var myUserId = _tokenService.GetUserIdFromToken(User);
 
-            if (myUserId is null)
-                return Unauthorized();
-
-            await _choresService.AssignChoreAsync(choreId, int.Parse(myUserId));
+            await _choresService.AssignChoreAsync(choreId, myUserId);
             return Ok();
         }
     }

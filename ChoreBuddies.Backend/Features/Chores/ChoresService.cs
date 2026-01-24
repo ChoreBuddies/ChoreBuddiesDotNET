@@ -18,6 +18,7 @@ public interface IChoresService
     public Task<ChoreDto?> DeleteChoreAsync(int choreId);
     public Task<IEnumerable<ChoreDto>> GetUsersChoreDetailsAsync(int userId);
     public Task<IEnumerable<ChoreDto>> GetMyHouseholdChoreDetailsAsync(int userId);
+    public Task<IEnumerable<ChoreOverviewDto>> GetMyHouseholdUnverifiedChoresAsync(int userId);
     public Task<IEnumerable<ChoreDto>> CreateChoreListAsync(IEnumerable<CreateChoreDto> createChoreDtoList);
     public Task AssignChoreAsync(int choreId, int userId);
     public Task<ChoreDto> MarkChoreAsDoneAsync(int choreId, int userId, bool verified);
@@ -97,6 +98,11 @@ public class ChoresService : IChoresService
     public async Task<IEnumerable<ChoreDto>> GetMyHouseholdChoreDetailsAsync(int userId)
     {
         return _mapper.Map<List<ChoreDto>>(await _repository.GetHouseholdChoresAsync(userId));
+    }
+
+    public async Task<IEnumerable<ChoreOverviewDto>> GetMyHouseholdUnverifiedChoresAsync(int userId)
+    {
+        return _mapper.Map<List<ChoreOverviewDto>>(await _repository.GetHouseholdUnverifiedChoresAsync(userId));
     }
 
     public async Task<IEnumerable<ChoreDto>> CreateChoreListAsync(IEnumerable<CreateChoreDto> createChoreDtoList)
