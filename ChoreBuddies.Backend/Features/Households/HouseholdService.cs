@@ -27,6 +27,7 @@ public class HouseholdService(IHouseholdRepository repository, IInvitationCodeSe
     private readonly IHouseholdRepository _repository = repository;
     private readonly IAppUserRepository _appUserRepository = appUserRepository;
     private readonly IInvitationCodeService _invitationCodeService = invitationCodeService;
+    private const int AutoAssignLookbackDays = 7;
     public async Task<Household?> CreateHouseholdAsync(CreateHouseholdDto createHouseholdDto, int userId)
     {
         var invitationCode = await _invitationCodeService.GenerateUniqueInvitationCodeAsync();
@@ -89,7 +90,7 @@ public class HouseholdService(IHouseholdRepository repository, IInvitationCodeSe
 
     public async Task<int> GetUserIdForAutoAssignAsync(int householdId)
     {
-        var fromDate = DateTime.UtcNow.AddDays(-7);
+        var fromDate = DateTime.UtcNow.AddDays(-AutoAssignLookbackDays);
 
         var household = await _repository.GeHouseholdWithUsersWithChoresDueToFromDateAsync(householdId, fromDate);
         if (household != null)
@@ -99,7 +100,11 @@ public class HouseholdService(IHouseholdRepository repository, IInvitationCodeSe
             {
                 throw new HouseholdHasNoUsersException(householdId);
             }
-            return users.OrderBy(u => u.Chores.Count()).First().Id;
+            var leastBurdenedUser = users
+                .OrderBy(u => u.Chores.Count())
+                .First();
+
+            return leastBurdenedUser.Id;
         }
         else
         {
