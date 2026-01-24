@@ -28,9 +28,9 @@ public class RedeemedRewardsService(HttpClientUtils httpUtils) : IRedeemedReward
     {
         return await httpUtils.TryRequestAsync(async () =>
         {
-            return await httpUtils.PostAsync<bool, RedeemedRewardDto>(
-                $"{RedeemedRewardsConstants.ApiEndpointRedeemRewards}{rewardId}",
-                isFulfilled,
+            return await httpUtils.PostAsync<CreateRedeemedRewardDto, RedeemedRewardDto>(
+                RedeemedRewardsConstants.ApiEndpointRedeemRewards,
+                new CreateRedeemedRewardDto(rewardId, isFulfilled),
                 authorized: true
             );
         });
