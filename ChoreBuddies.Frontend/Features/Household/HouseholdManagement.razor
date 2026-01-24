@@ -1,16 +1,20 @@
 ﻿@page "/household/manage"
+@using ChoreBuddies.Frontend.Features.Chores
 @using ChoreBuddies.Frontend.Features.RedeemedRewards
 @using ChoreBuddies.Frontend.Features.ScheduledChores
 @using ChoreBuddies.Frontend.Features.User
 @using MudBlazor
+@using Shared.Chores
 @using Shared.Households
 @using Shared.PredefinedChores
 @using Shared.RedeemedRewards
 @using Shared.Rewards
 @using Shared.Users
+@inject IChoresService choresService
 @inject IHouseholdService householdService
 @inject IRedeemedRewardsService redeemedRewardsService
 @inject IScheduledChoresService scheduledChoresService
+@inject IUserService userService
 @inject NavigationManager navigationManager
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
@@ -35,11 +39,11 @@
                     </MudText>
 
                     <MudButton Variant="Variant.Outlined"
-                    StartIcon="@Icons.Material.Filled.Edit"
-                    OnClick="@EditHousehold"
-                    Color="Color.Primary"
-                    Size="Size.Large"
-                    Style="text-transform:none; border-radius:20px;">
+                               StartIcon="@Icons.Material.Filled.Edit"
+                               OnClick="@EditHousehold"
+                               Color="Color.Primary"
+                               Size="Size.Large"
+                               Style="text-transform:none; border-radius:20px;">
                         Edit
                     </MudButton>
                 </MudStack>
@@ -64,7 +68,7 @@
     }
 
     <!-- ===== Members & roles ===== -->
-    <HouseholdMembersManagement/>
+    <HouseholdMembersManagement Members="Users" />
 
 
     <!-- ===== Recurring chores ===== -->
@@ -115,38 +119,77 @@
             </MudButton>
         </MudItem>
     </MudGrid> *@
+    <!-- ===== Chore approvals ===== -->
+    <MudText Typo="Typo.h6" Class="mb-4" Style="font-weight:700;">
+        Chore Verifications
+    </MudText>
 
+    @if (Chores is null || Chores.Count == 0)
+    {
+        <p>There are no unverified chores</p>
+    }
+    else
+    {
+        <MudTable Items="Chores" Elevation="0" Style="border-radius:12px;">
+            <HeaderContent>
+                <MudTh>User</MudTh>
+                <MudTh>Chore</MudTh>
+                <MudTh Style="width: 25%; white-space: nowrap; text-align: center;"></MudTh>
+            </HeaderContent>
+
+            <RowTemplate>
+                <MudTd>@GetUserName((int)context.UserId!)</MudTd>
+                <MudTd>@context.Name</MudTd>
+                <MudTd Align="Align.Right">
+                    <MudStack Direction="Row" Spacing="1">
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Size="Size.Small"
+                                   Style="text-transform:none;"
+                                   OnClick="@(() => VerifyChore(context.Id))">
+                            Mark as verified
+                        </MudButton>
+                    </MudStack>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
     <!-- ===== Reward approvals ===== -->
     <MudText Typo="Typo.h6" Class="mb-4" Style="font-weight:700;">
         Reward Approvals
     </MudText>
+    @if (PendingRewards is null || PendingRewards.Count == 0)
+    {
+        <p>There are no unverified chores</p>
+    }
+    else
+    {
+        <MudTable Items="PendingRewards" Elevation="0" Style="border-radius:12px;">
+            <HeaderContent>
+                <MudTh>User</MudTh>
+                <MudTh>Reward</MudTh>
+                <MudTh>Points</MudTh>
+                <MudTh Style="width: 25%; white-space: nowrap; text-align: center;"></MudTh>
+            </HeaderContent>
 
-    <MudTable Items="PendingRewards" Elevation="0" Style="border-radius:12px;">
-        <HeaderContent>
-            <MudTh>User</MudTh>
-            <MudTh>Reward</MudTh>
-            <MudTh>Points</MudTh>
-            <MudTh></MudTh>
-        </HeaderContent>
-
-        <RowTemplate>
-            <MudTd>@context.UserName</MudTd>
-            <MudTd>@context.Name</MudTd>
-            <MudTd>@context.PointsSpent</MudTd>
-            <MudTd Align="Align.Right">
-                <MudStack Direction="Row" Spacing="1">
-                    <MudButton Variant="Variant.Filled"
-                    Color="Color.Primary"
-                    Size="Size.Small"
-                    Style="text-transform:none;"
-                    OnClick="@(() => FulfillReward(context.Id))">
-                        Mark as fulfilled
-                    </MudButton>
-                </MudStack>
-            </MudTd>
-        </RowTemplate>
-    </MudTable>
-
+            <RowTemplate>
+                <MudTd>@context.UserName</MudTd>
+                <MudTd>@context.Name</MudTd>
+                <MudTd>@context.PointsSpent</MudTd>
+                <MudTd Align="Align.Right">
+                    <MudStack Direction="Row" Spacing="1">
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Size="Size.Small"
+                                   Style="text-transform:none;"
+                                   OnClick="@(() => FulfillReward(context.Id))">
+                            Mark as fulfilled
+                        </MudButton>
+                    </MudStack>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
 </MudContainer>
 
 @code {
@@ -156,13 +199,24 @@
 
 
     private List<RedeemedRewardWithUserNameDto> PendingRewards = [];
+    private List<ChoreOverviewDto> Chores = [];
+    private List<AppUserRoleDto> Users = [];
+
+    // ==== Logic ====
 
     protected override async Task OnInitializedAsync()
     {
         household = await householdService.GetHouseholdByIdAsync();
         PendingRewards = (await redeemedRewardsService.GetHouseholdsUnfulfilledRedeemedRewardsAsync()).ToList();
+        Chores = (await choresService.GetMyHouseholdUnverifiedChoresAsync())?.ToList() ?? [];
+        Users = (await userService.GetMyHouseholdMembersRolesAsync())?.ToList() ?? [];
     }
 
     public void EditHousehold() => navigationManager.NavigateTo($"/household/details/{household!.Id}");
+    public string GetUserName(int Id)
+    {
+        return Users?.Where(u => u.Id == Id)?.FirstOrDefault()?.UserName ?? "";
+    }
     public async Task FulfillReward(int Id) => await redeemedRewardsService.FulfillRewardAsync(Id);
+    public async Task VerifyChore(int Id) => await choresService.VerifyChoreAsync(Id);
 }

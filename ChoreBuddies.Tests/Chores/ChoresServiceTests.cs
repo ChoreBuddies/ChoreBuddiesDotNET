@@ -215,7 +215,7 @@ public class ChoresServiceTests
     }
 
     // ---------------------------
-    // MarkChoreAsDone
+    // MarkChoreAsDoneAsync
     // ---------------------------
     [Fact]
     public async Task MarkChoreAsDone_ShouldMarkCompletedAndIncreaseUserPoints()
@@ -232,7 +232,7 @@ public class ChoresServiceTests
         _repo.Setup(r => r.UpdateChoreAsync(chore)).ReturnsAsync(updatedChore);
         _mapper.Setup(m => m.Map<ChoreDto>(updatedChore)).Returns(mappedDto);
 
-        var result = await _service.MarkChoreAsDone(1, 10);
+        var result = await _service.MarkChoreAsDoneAsync(1, 10, true);
 
         result.Status.Should().Be(Status.Completed);
     }
@@ -243,7 +243,7 @@ public class ChoresServiceTests
         _repo.Setup(r => r.GetChoreByIdAsync(1))
             .ReturnsAsync((Chore?)null);
 
-        await _service.Invoking(s => s.MarkChoreAsDone(1, 10))
+        await _service.Invoking(s => s.MarkChoreAsDoneAsync(1, 10, true))
             .Should().ThrowAsync<Exception>()
             .WithMessage("Chore not found");
     }
@@ -255,7 +255,7 @@ public class ChoresServiceTests
 
         _repo.Setup(r => r.GetChoreByIdAsync(1)).ReturnsAsync(chore);
 
-        await _service.Invoking(s => s.MarkChoreAsDone(1, 5))
+        await _service.Invoking(s => s.MarkChoreAsDoneAsync(1, 5, true))
             .Should().ThrowAsync<Exception>()
             .WithMessage("Chore must be assigned in order to be able to mark as done");
     }
@@ -267,7 +267,7 @@ public class ChoresServiceTests
 
         _repo.Setup(r => r.GetChoreByIdAsync(1)).ReturnsAsync(chore);
 
-        await _service.Invoking(s => s.MarkChoreAsDone(1, 99))
+        await _service.Invoking(s => s.MarkChoreAsDoneAsync(1, 99, true))
             .Should().ThrowAsync<Exception>()
             .WithMessage("Only user who has to do this chore can mark it as done");
     }

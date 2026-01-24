@@ -115,7 +115,7 @@
         if (householdChoresEnum is not null && householdChoresEnum.Count() != 0)
         {
             _householdCompletionPercent = (int)Math.Round(Convert.ToDouble(householdChoresEnum.Where(c => c.Status == Status.Completed).Count()) * 100 / Convert.ToDouble(householdChoresEnum.Count()));
-            householdChores = householdChoresEnum.OrderBy(c => c.DueDate).ToList(); // change order by to last changed date
+            householdChores = householdChoresEnum.OrderBy(c => c.DueDate).ToList(); // TODO:change order by to last changed date
             if (householdChores.Count > 4)
             {
                 householdChores = householdChores.Take(4).ToList();

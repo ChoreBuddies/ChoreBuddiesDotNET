@@ -9,73 +9,73 @@
     <div>
         <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start" Class="mb-3">
 
-<MudText Typo="Typo.h5" Class="mb-4" Style="font-weight:700;">
-    Household Members
-</MudText>
- @if (!_isEditingChores)
-                       {
-            <MudButton Variant="Variant.Outlined"
-                       StartIcon="@Icons.Material.Filled.Edit"
-                       Color="Color.Primary"
-                       Size="Size.Large"
-                       @onclick="() => _isEditingChores = true"
-                       Style="text-transform:none; border-radius:20px;">
-                Edit
-            </MudButton>
-                       }
-    </MudStack>
-    <div style="width: 60px; height: 4px; background-color: var(--mud-palette-primary); border-radius: 2px;" />
-        </div>
+            <MudText Typo="Typo.h5" Class="mb-4" Style="font-weight:700;">
+                Household Members
+            </MudText>
+            @if (!_isEditingChores)
+            {
+                <MudButton Variant="Variant.Outlined"
+                StartIcon="@Icons.Material.Filled.Edit"
+                Color="Color.Primary"
+                Size="Size.Large"
+                @onclick="() => _isEditingChores = true"
+                Style="text-transform:none; border-radius:20px;">
+                    Edit
+                </MudButton>
+            }
+        </MudStack>
+        <div style="width: 60px; height: 4px; background-color: var(--mud-palette-primary); border-radius: 2px;" />
+    </div>
 
 
 
 
-<MudTable T="UserModel"
-          Items="MembersModel"
-          Elevation="0"
-          Class="mb-3"
-          Style="border-radius:12px; background:#f5f6f8;">
+    <MudTable T="UserModel"
+    Items="MembersModel"
+    Elevation="0"
+    Class="mb-3"
+    Style="border-radius:12px; background:#f5f6f8;">
 
-    <HeaderContent>
-        <MudTh>User</MudTh>
-        <MudTh>Role</MudTh>
-        <MudTh></MudTh>
-    </HeaderContent>
+        <HeaderContent>
+            <MudTh>User</MudTh>
+            <MudTh>Role</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
 
-    <RowTemplate Context="member">
-        <MudTd>@member.UserName</MudTd>
+        <RowTemplate Context="member">
+            <MudTd>@member.UserName</MudTd>
 
-        <MudTd>
-            <MudSelect T="string"
-                       @bind-Value="member.RoleName"
-                       Dense="true"
-                       Disabled="@(!_isEditingChores || _currentUserIsChild || member.Id == _userId)">
-                @foreach (var role in AvailableRoles)
-                {
-                    <MudSelectItem T="string" Value="@role">@role</MudSelectItem>
-                }
-            </MudSelect>
-        </MudTd>
-    </RowTemplate>
+            <MudTd>
+                <MudSelect T="string"
+                @bind-Value="member.RoleName"
+                Dense="true"
+                Disabled="@(!_isEditingChores || _currentUserIsChild || member.Id == _userId)">
+                    @foreach (var role in AvailableRoles)
+                    {
+                        <MudSelectItem T="string" Value="@role">@role</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudTd>
+        </RowTemplate>
 
-</MudTable>
+    </MudTable>
 
 
     <MudStack Row="true" Justify="Justify.FlexEnd" Style="@($"visibility: {(_isEditingChores ? "visible" : "hidden")};")">
         @* @if (_isEditingChores)
         { *@
-            <MudButton Variant="Variant.Outlined"
-                       Color="Color.Error"
-                       Style="width:fit-content; text-transform:none;"
-                       @onclick="@CancelEditingRoles">
-                Cancel
-            </MudButton>
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       Style="width:fit-content; text-transform:none;"
-                       @onclick="@SaveRoles">
-                Save Roles
-            </MudButton>
+        <MudButton Variant="Variant.Outlined"
+        Color="Color.Error"
+        Style="width:fit-content; text-transform:none;"
+        @onclick="@CancelEditingRoles">
+            Cancel
+        </MudButton>
+        <MudButton Variant="Variant.Filled"
+        Color="Color.Primary"
+        Style="width:fit-content; text-transform:none;"
+        @onclick="@SaveRoles">
+            Save Roles
+        </MudButton>
         @* } *@
         @* else
         {
@@ -90,10 +90,11 @@
 
 </MudPaper>
 @code {
+    // ==== PARAMETERS ====
+    [Parameter] public List<AppUserRoleDto> Members { get; set; } = [];
 
     // ==== MODELS ====
     private List<UserModel> MembersModel = [];
-    private List<AppUserRoleDto> Members = [];
     private List<string> AvailableRoles = [];
 
     // ==== STATES ====
@@ -104,7 +105,6 @@
     protected override async Task OnInitializedAsync()
     {
         AvailableRoles = (await userService.GetAvailableRolesAsync())?.ToList() ?? [];
-        Members = (await userService.GetMyHouseholdMembersRolesAsync())?.ToList() ?? [];
         _userId = await authService.GetUserIdAsync();
 
         var currentUserDto = Members.FirstOrDefault(x => x.Id == _userId);
