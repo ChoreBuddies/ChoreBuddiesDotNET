@@ -22,12 +22,15 @@
 
         <MudItem xs="4" Class="d-flex justify-end align-center">
             <MudStack>
-                <MudButton Color="Color.Default" Variant="Variant.Outlined" Class="mt-1" OnClick="OpenReminderDialog"> @*TODO: Add navigation to chores when they're done*@
+                <MudButton Color="Color.Default" Variant="Variant.Outlined" Class="mt-1" OnClick="OpenReminderDialog">
                     Set a reminder
                 </MudButton>
-                <MudButton Color="Color.Default" Variant="Variant.Outlined" Class="mt-1" OnClick="MarkChoreAsDone">
-                    Mark as done
-                </MudButton>
+                @if (_choreDto?.Status != Status.Completed)
+                {
+                    <MudButton Color="Color.Default" Variant="Variant.Outlined" Class="mt-1" OnClick="MarkChoreAsDone">
+                        Mark as done
+                    </MudButton>
+                }
             </MudStack>
         </MudItem>
     </MudGrid>
@@ -55,16 +58,16 @@
     private async Task OpenReminderDialog()
     {
         var parameters = new DialogParameters
-        {
-            ["Label"] = "Set reminder"
-        };
+            {
+                ["Label"] = "Set reminder"
+            };
 
         var options = new DialogOptions
-        {
-            CloseButton = true,
-            MaxWidth = MaxWidth.ExtraSmall,
-            FullWidth = true
-        };
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.ExtraSmall,
+                FullWidth = true
+            };
 
         var dialog = await DialogService.ShowAsync<DateTimePickerPopUp>(
             title: "",

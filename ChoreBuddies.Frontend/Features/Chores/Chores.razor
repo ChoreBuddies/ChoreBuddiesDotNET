@@ -36,7 +36,15 @@
                     }
                     else
                     {
-                        @foreach (var chore in _userChores)
+                        @foreach (var chore in _userChores.Where(c => c.Status == Status.Assigned))
+                        {
+                            <UpcomingChore _choreDto="chore" OnChanged="ComponentStateChanged" />
+                        }
+                        <MudText Typo="Typo.button" Class="mx-4 text-muted">
+                            Completed Chores
+                        </MudText>
+                        <MudDivider Class="mt-1 mb-3" Style="border-width: 2px;" />
+                        @foreach (var chore in _userChores.Where(c => c.Status == Status.Completed))
                         {
                             <UpcomingChore _choreDto="chore" OnChanged="ComponentStateChanged" />
                         }
