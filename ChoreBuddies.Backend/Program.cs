@@ -220,7 +220,7 @@ public class Program
         builder.Services.AddScoped<IEmailService, EmailService>();
         builder.Services.AddScoped<INotificationPreferenceRepository, NotificationPreferenceRepository>();
         builder.Services.AddScoped<INotificationPreferenceService, NotificationPreferenceService>();
-        builder.Services.AddScoped<INotificationChannel>(sp => sp.GetRequiredService<EmailService>());
+        builder.Services.AddScoped<INotificationChannel>(sp => (INotificationChannel)sp.GetRequiredService<IEmailService>());
         builder.Services.AddScoped<INotificationChannel, FirebaseNotificationsService>();
         builder.Services.AddScoped<INotificationService, NotificationService>();
         builder.Services.AddScoped<IRemindersService, RemindersService>();
