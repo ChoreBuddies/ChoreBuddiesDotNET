@@ -3,6 +3,7 @@ using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Authentication;
 using Shared.Users;
 
 namespace ChoreBuddies.Backend.Features.Users;
@@ -44,6 +45,7 @@ public class AppUserController(
 
         return Ok(_mapper.Map<AppUserDto>(user));
     }
+
     [HttpGet("myPoints")]
     public async Task<IActionResult> GetMyPointsAsync()
     {
@@ -63,6 +65,7 @@ public class AppUserController(
     }
 
     [HttpPut("{userId}")]
+    [Authorize(Roles = AuthConstants.RoleAdult)]
     public async Task<IActionResult> UpdateUserAsync(int userId, [FromBody] UpdateAppUserDto updateAppUserDto)
     {
         var result = await _userService.UpdateUserAsync(userId, updateAppUserDto);
@@ -115,8 +118,8 @@ public class AppUserController(
         return Ok(resultDto);
     }
 
-    // TODO: Add check if user is the owner/Adult of the household
     [HttpPut("role")]
+    [Authorize(Roles = AuthConstants.RoleAdult)]
     public async Task<IActionResult> UpdateUserRoleAsync([FromBody] UpdateRoleDto dto)
     {
         var user = await GetCurrentUser();
@@ -138,6 +141,7 @@ public class AppUserController(
             return BadRequest(ex.Message);
         }
     }
+
     [HttpGet("role")]
     public async Task<IActionResult> GetAvailableRolesAsync()
     {

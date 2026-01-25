@@ -1,6 +1,7 @@
 ﻿using ChoreBuddies.Backend.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Authentication;
 using Shared.PredefinedChores;
 using System.Security.Claims;
 
@@ -28,6 +29,7 @@ public class ScheduledChoresController : ControllerBase
     }
 
     [HttpPost("update")]
+    [Authorize(Roles = AuthConstants.RoleAdult)]
     public async Task<ActionResult<ScheduledChoreDto>> UpdateChore([FromBody] ScheduledChoreDto ScheduledChoreDto)
     {
         var result = await _scheduledChoresService.UpdateChoreAsync(ScheduledChoreDto);
@@ -35,6 +37,7 @@ public class ScheduledChoresController : ControllerBase
     }
 
     [HttpPut("frequency")]
+    [Authorize(Roles = AuthConstants.RoleAdult)]
     public async Task<ActionResult<ScheduledChoreTileViewDto>> UpdateChoreFrequency([FromBody] ScheduledChoreFrequencyUpdateDto scheduledChoreDto)
     {
         var result = await _scheduledChoresService.UpdateChoreFrequencyAsync(scheduledChoreDto.Id, scheduledChoreDto.Frequency);
@@ -42,6 +45,7 @@ public class ScheduledChoresController : ControllerBase
     }
 
     [HttpPost("add")]
+    [Authorize(Roles = AuthConstants.RoleAdult)]
     public async Task<ActionResult<ScheduledChoreDto>> AddChore([FromBody] CreateScheduledChoreDto createScheduledChoreDto)
     {
         var householdId = _tokenService.GetHouseholdIdFromToken(User);
@@ -51,6 +55,7 @@ public class ScheduledChoresController : ControllerBase
     }
 
     [HttpPost("add-predefined")]
+    [Authorize(Roles = AuthConstants.RoleAdult)]
     public async Task<ActionResult<IEnumerable<ScheduledChoreDto>>> AddPredefinedChores([FromBody] PredefinedChoreRequest request)
     {
         var householdId = _tokenService.GetHouseholdIdFromToken(User);
@@ -59,6 +64,7 @@ public class ScheduledChoresController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = AuthConstants.RoleAdult)]
     public async Task<ActionResult<ScheduledChoreDto>> DeleteChore(int id)
     {
         var result = await _scheduledChoresService.DeleteChoreAsync(id);
@@ -93,6 +99,7 @@ public class ScheduledChoresController : ControllerBase
         var result = await _scheduledChoresService.GetMyHouseholdChoresDetailsAsync(userId);
         return Ok(result);
     }
+
     [HttpGet("Household-chores/overview")]
     public async Task<ActionResult<IEnumerable<ScheduledChoreTileViewDto>>> GetMyHouseholdChoresOverview()
     {
