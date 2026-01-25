@@ -12,7 +12,7 @@
             <MudText Typo="Typo.h5" Class="mb-4" Style="font-weight:700;">
                 Household Members
             </MudText>
-            @if (!_isEditingChores)
+            @if (!_isEditingChores && !_currentUserIsChild)
             {
                 <MudButton Variant="Variant.Outlined"
                 StartIcon="@Icons.Material.Filled.Edit"
