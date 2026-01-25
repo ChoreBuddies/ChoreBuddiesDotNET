@@ -25,19 +25,19 @@
 @if (CurrentMode == PageMode.Create)
 {
 	<MudButton Variant="Variant.Outlined"
-			   Color="Color.Primary"
-			   StartIcon="@Icons.Material.Filled.ContentCopy"
-			   OnClick="OpenPredefinedChoreDialog"
-			   Class="mb-4"
-			   Style="text-transform: none;">
+	Color="Color.Primary"
+	StartIcon="@Icons.Material.Filled.ContentCopy"
+	OnClick="OpenPredefinedChoreDialog"
+	Class="mb-4"
+	Style="text-transform: none;">
 		Select from predefined
 	</MudButton>
 }
 
 <ChoreForm Model="Model"
-		   Users="AvailableUsers"
-		    @bind-PageMode="CurrentMode"
-		   OnValidSubmit="HandleSave" />
+Users="AvailableUsers"
+@bind-PageMode="CurrentMode"
+OnValidSubmit="HandleSave" />
 
 @code {
 	[Parameter] public int? ChoreId { get; set; }
@@ -80,17 +80,18 @@
 
 	private async Task HandleSave(ChoreViewModel updatedModel)
 	{
+		dynamic? result;
 		if (CurrentMode == PageMode.Edit)
 		{
 			if (updatedModel.IsScheduled)
 			{
 				var dto = Mapper.Map<ScheduledChoreDto>(updatedModel);
-				await scheduledChoreService.UpdateChoreAsync(dto);
+				result = await scheduledChoreService.UpdateChoreAsync(dto);
 			}
 			else
 			{
 				var dto = Mapper.Map<ChoreDto>(updatedModel);
-				await choresService.UpdateChoreAsync(dto);
+				result = await choresService.UpdateChoreAsync(dto);
 			}
 		}
 		else
@@ -98,16 +99,19 @@
 			if (updatedModel.IsScheduled)
 			{
 				var dto = Mapper.Map<CreateScheduledChoreDto>(updatedModel);
-				await scheduledChoreService.CreateChoreAsync(dto);
+				result = await scheduledChoreService.CreateChoreAsync(dto);
 			}
 			else
 			{
 				var dto = Mapper.Map<CreateChoreDto>(updatedModel);
-				await choresService.CreateChoreAsync(dto);
+				result = await choresService.CreateChoreAsync(dto);
 			}
 		}
-		Snackbar.Add("Saved successfully!", Severity.Success);
-		await JS.InvokeVoidAsync("history.back");
+		if(result is not null)
+		{
+			Snackbar.Add("Saved successfully!", Severity.Success);
+			await JS.InvokeVoidAsync("history.back");
+		}
 	}
 
 	private async Task OpenPredefinedChoreDialog()

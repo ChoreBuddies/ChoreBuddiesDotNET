@@ -29,4 +29,15 @@ public class Chore(
     // Navigation properties
     public virtual Household? Household { get; set; }
     public virtual AppUser? User { get; set; }
+    private Chore() : this(
+    default!, // name
+    default!, // description
+    default,  // userId
+    default,  // householdId
+    default,  // dueDate
+    default,  // status
+    default!, // room
+    default,  // rewardPointsCount
+    default   // completedDate
+    ) { }
 }

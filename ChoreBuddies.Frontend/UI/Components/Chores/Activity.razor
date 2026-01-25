@@ -28,11 +28,17 @@
     public string? GetTitle() => _choreDto?.Name;
     public string GetStatus()
     {
-        if (_choreDto?.Status == Status.Assigned)
+        switch (_choreDto?.Status)
         {
-            return $"Assigned to {_userName}";
+            case Status.Assigned:
+                return $"Assigned to {_userName}";
+            case Status.UnverifiedCompleted:
+                return $"{_userName} is waiting for verification";
+            case Status.Completed:
+                return $"Completed by {_userName}";
+            default:
+                return _choreDto?.Status.ToString() ?? "";
         }
-        return _choreDto?.Status.ToString() ?? "";
     }
     public string? GetIcon() => MudBlazor.FontIcons.MaterialSymbols.Outlined.CheckCircle;
     private async Task<string?> GetChoreUserName()
