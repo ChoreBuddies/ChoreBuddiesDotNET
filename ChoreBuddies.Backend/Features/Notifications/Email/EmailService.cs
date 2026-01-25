@@ -23,11 +23,11 @@ public class EmailService : INotificationChannel, IEmailService
 {
     NotificationChannel INotificationChannel.ChannelType => NotificationChannel.Email;
 
-    private readonly MailerooClient _client;
+    private readonly IMailerooClient _client;
     private readonly string _defaultFrom;
     private readonly string _defaultFromName;
 
-    public EmailService(MailerooClient mailerooClient, IOptions<EmailServiceOptions> options)
+    public EmailService(IMailerooClient mailerooClient, IOptions<EmailServiceOptions> options)
     {
         _client = mailerooClient;
         _defaultFrom = options.Value.From;

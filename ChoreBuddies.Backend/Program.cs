@@ -211,10 +211,14 @@ public class Program
                 !string.IsNullOrWhiteSpace(o.FromName),
                 "Maileroo EmailServiceOptions are not configured correctly")
             .ValidateOnStart();
+        builder.Services.AddScoped<IMailerooClient>(sp =>
+        {
+            var client = sp.GetRequiredService<MailerooClient>();
+            return new MailerooClientAdapter(client);
+        });
 
-        builder.Services.AddScoped<EmailService>();
+        builder.Services.AddScoped<IEmailService, EmailService>();
         builder.Services.AddScoped<INotificationPreferenceRepository, NotificationPreferenceRepository>();
-        builder.Services.AddScoped<IEmailService>(sp => sp.GetRequiredService<EmailService>());
         builder.Services.AddScoped<INotificationPreferenceService, NotificationPreferenceService>();
         builder.Services.AddScoped<INotificationChannel>(sp => sp.GetRequiredService<EmailService>());
         builder.Services.AddScoped<INotificationChannel, FirebaseNotificationsService>();
