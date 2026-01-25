@@ -167,7 +167,7 @@ public class AuthService(
     {
         var role = await GetUserRoleAsync();
         if (string.IsNullOrEmpty(role)) return true;
-        return String.Compare(role, "child", true) == 0;
+        return String.Compare(role, AuthConstants.RoleChild, true) == 0;
     }
 }
 

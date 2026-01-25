@@ -1,6 +1,7 @@
 ﻿using ChoreBuddies.Backend.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Authentication;
 using Shared.PredefinedRewards;
 using Shared.Rewards;
 
@@ -26,6 +27,7 @@ public class RewardsController : ControllerBase
     }
 
     [HttpPost("update")]
+    [Authorize(Roles = AuthConstants.RoleAdult)]
     public async Task<ActionResult<RewardDto>> UpdateReward([FromBody] RewardDto rewardDto)
     {
         var result = await _rewardsService.UpdateRewardAsync(rewardDto);
@@ -33,6 +35,7 @@ public class RewardsController : ControllerBase
     }
 
     [HttpPost("add")]
+    [Authorize(Roles = AuthConstants.RoleAdult)]
     public async Task<ActionResult<RewardDto>> AddReward([FromBody] CreateRewardDto createRewardDto)
     {
         if (createRewardDto.HouseholdId == 0)
@@ -44,6 +47,7 @@ public class RewardsController : ControllerBase
     }
 
     [HttpPost("add-predefined")]
+    [Authorize(Roles = AuthConstants.RoleAdult)]
     public async Task<ActionResult<IEnumerable<RewardDto>>> AddPredefinedRewards([FromBody] PredefinedRewardRequest request)
     {
         var householdId = _tokenService.GetHouseholdIdFromToken(User);
@@ -52,6 +56,7 @@ public class RewardsController : ControllerBase
     }
 
     [HttpDelete("delete")]
+    [Authorize(Roles = AuthConstants.RoleAdult)]
     public async Task<ActionResult<RewardDto>> DeleteReward([FromQuery] int id)
     {
         var result = await _rewardsService.DeleteRewardAsync(id);

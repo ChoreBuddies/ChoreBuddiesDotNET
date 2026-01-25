@@ -51,6 +51,7 @@ public class HouseholdController(IHouseholdService service, IMapper mapper, IAut
     }
     // Update
     [HttpPut("update/{householdId}")]
+    [Authorize(Roles = AuthConstants.RoleAdult)]
     public async Task<IActionResult> UpdateHousehold(int householdId, [FromBody] CreateHouseholdDto createHouseholdDto)
     {
         var household = await _service.UpdateHouseholdAsync(householdId, createHouseholdDto);
@@ -81,6 +82,7 @@ public class HouseholdController(IHouseholdService service, IMapper mapper, IAut
     }
     // Delete
     [HttpDelete("{householdId}")]
+    [Authorize(Roles = AuthConstants.RoleAdult)]
     public async Task<IActionResult> DeleteHousehold(int householdId)
     {
         var household = await _service.DeleteHouseholdAsync(householdId);

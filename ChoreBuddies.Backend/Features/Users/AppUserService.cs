@@ -1,5 +1,6 @@
 ﻿using ChoreBuddies.Backend.Domain;
 using Microsoft.AspNetCore.Identity;
+using Shared.Authentication;
 using Shared.Users;
 
 namespace ChoreBuddies.Backend.Features.Users;
@@ -124,7 +125,7 @@ public class AppUserService(IAppUserRepository userRepository, UserManager<AppUs
     {
         var members = await GetUsersHouseholdMembersAsync(userId);
 
-        var adultIds = (await _userManager.GetUsersInRoleAsync("Adult"))
+        var adultIds = (await _userManager.GetUsersInRoleAsync(AuthConstants.RoleAdult))
             .Select(u => u.Id)
             .ToHashSet();
 
@@ -136,7 +137,7 @@ public class AppUserService(IAppUserRepository userRepository, UserManager<AppUs
     {
         var members = await GetUsersHouseholdMembersAsync(userId);
 
-        var childrenIds = (await _userManager.GetUsersInRoleAsync("Child"))
+        var childrenIds = (await _userManager.GetUsersInRoleAsync(AuthConstants.RoleChild))
             .Select(u => u.Id)
             .ToHashSet();
 

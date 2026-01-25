@@ -1,8 +1,8 @@
 using ChoreBuddies.Backend.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Authentication;
 using Shared.Chores;
-using System.Security.Claims;
 
 namespace ChoreBuddies.Backend.Features.Chores;
 
@@ -26,13 +26,17 @@ public class ChoresController : ControllerBase
         var result = await _choresService.GetChoreDetailsAsync(id);
         return Ok(result);
     }
+
     [HttpPost("update")]
+    [Authorize(Roles = AuthConstants.RoleAdult)]
     public async Task<ActionResult<ChoreDto>> UpdateChore([FromBody] ChoreDto choreDto)
     {
         var result = await _choresService.UpdateChoreAsync(choreDto);
         return Ok(result);
     }
+
     [HttpPost("add")]
+    [Authorize(Roles = AuthConstants.RoleAdult)]
     public async Task<ActionResult<ChoreDto>> AddChore([FromBody] CreateChoreDto createChoreDto)
     {
         if (createChoreDto.HouseholdId <= 0)
@@ -42,18 +46,23 @@ public class ChoresController : ControllerBase
         var result = await _choresService.CreateChoreAsync(createChoreDto);
         return Ok(result);
     }
+
     [HttpPost("addlist")]
+    [Authorize(Roles = AuthConstants.RoleAdult)]
     public async Task<ActionResult<IEnumerable<ChoreDto>>> AddChoreList([FromBody] IEnumerable<CreateChoreDto> createChoreDtoList)
     {
         var result = await _choresService.CreateChoreListAsync(createChoreDtoList);
         return Ok(result);
     }
+
     [HttpDelete("delete/{id}")]
+    [Authorize(Roles = AuthConstants.RoleAdult)]
     public async Task<ActionResult<ChoreDto>> DeleteChore(int id)
     {
         var result = await _choresService.DeleteChoreAsync(id);
         return Ok(result);
     }
+
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ChoreDto>>> GetUsersChores([FromQuery] int? userId)
     {
@@ -70,6 +79,7 @@ public class ChoresController : ControllerBase
             return Ok(result);
         }
     }
+
     [HttpGet("householdChores")]
     public async Task<ActionResult<IEnumerable<ChoreDto>>> GetMyHouseholdChores()
     {
@@ -78,6 +88,7 @@ public class ChoresController : ControllerBase
         var result = await _choresService.GetMyHouseholdChoreDetailsAsync(userId);
         return Ok(result);
     }
+
     [HttpGet("householdChores/unverified")]
     public async Task<ActionResult<IEnumerable<ChoreOverviewDto>>> GetMyHouseholdUnverifiedChores()
     {
@@ -86,6 +97,7 @@ public class ChoresController : ControllerBase
         var result = await _choresService.GetMyHouseholdUnverifiedChoresAsync(userId);
         return Ok(result);
     }
+
     [HttpPost("assign")]
     public async Task<ActionResult> AssignChore([FromQuery] int choreId, [FromQuery] int? userId)
     {
@@ -102,23 +114,22 @@ public class ChoresController : ControllerBase
             return Ok();
         }
     }
+
     [HttpPost("markAsDone")]
     public async Task<ActionResult<ChoreDto>> MarkChoreAsDone([FromQuery] int choreId)
     {
         var userId = _tokenService.GetUserIdFromToken(User);
         var role = _tokenService.GetUserRoleFromToken(User);
-        var result = await _choresService.MarkChoreAsDoneAsync(choreId, userId, role == "Adult");
+        var result = await _choresService.MarkChoreAsDoneAsync(choreId, userId, role == AuthConstants.RoleAdult);
         return Ok(result);
     }
+
     [HttpPost("verify")]
+    [Authorize(Roles = AuthConstants.RoleAdult)]
     public async Task<ActionResult<ChoreDto>> VerifyChore([FromQuery] int choreId)
     {
         var userId = _tokenService.GetUserIdFromToken(User);
         var role = _tokenService.GetUserRoleFromToken(User);
-        if (role != "Adult")
-        {
-            return Forbid();
-        }
         var result = await _choresService.VerifyChoreAsync(choreId, userId);
         return Ok(result);
     }
