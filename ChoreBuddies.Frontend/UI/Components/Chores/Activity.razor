@@ -2,6 +2,7 @@
 @using Shared.Chores
 
 @inject IUserService userService
+@inject NavigationManager navigationManager
 
 <MudPaper Elevation="0" Class="pa-2">
     <MudGrid>
@@ -15,8 +16,8 @@
             <MudText Typo="Typo.body2">@GetStatus()</MudText>
         </MudItem>
         <MudItem xs="4" Class="d-flex justify-end align-center">
-            <MudButton Variant="Variant.Outlined" Color="Color.Secondary">
-                View Task →
+            <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="ViewChoreDetails">
+                View Chore →
             </MudButton>
         </MudItem>
     </MudGrid>
@@ -28,13 +29,20 @@
     public string? GetTitle() => _choreDto?.Name;
     public string GetStatus()
     {
-        if (_choreDto?.Status == Status.Assigned)
+        switch (_choreDto?.Status)
         {
-            return $"Assigned to {_userName}";
+            case Status.Assigned:
+                return $"Assigned to {_userName}";
+            case Status.UnverifiedCompleted:
+                return $"{_userName} is waiting for verification";
+            case Status.Completed:
+                return $"Completed by {_userName}";
+            default:
+                return _choreDto?.Status.ToString() ?? "";
         }
-        return _choreDto?.Status.ToString() ?? "";
     }
     public string? GetIcon() => MudBlazor.FontIcons.MaterialSymbols.Outlined.CheckCircle;
+    public void ViewChoreDetails() => navigationManager.NavigateTo($"/chore-details/{_choreDto!.Id}");
     private async Task<string?> GetChoreUserName()
     {
         if (_choreDto?.UserId is not null && _choreDto.UserId > 0)

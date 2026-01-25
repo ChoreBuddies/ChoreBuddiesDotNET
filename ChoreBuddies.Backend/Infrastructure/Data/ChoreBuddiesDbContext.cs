@@ -17,10 +17,12 @@ public class ChoreBuddiesDbContext : IdentityDbContext<AppUser, IdentityRole<int
     public DbSet<RedeemedReward> RedeemedRewards { get; set; }
     public DbSet<Reward> Rewards { get; set; }
     public DbSet<ScheduledChore> ScheduledChores { get; set; }
+    private readonly TimeProvider _timeProvider;
 
-    public ChoreBuddiesDbContext(DbContextOptions<ChoreBuddiesDbContext> options)
+    public ChoreBuddiesDbContext(DbContextOptions<ChoreBuddiesDbContext> options, TimeProvider timeProvider)
         : base(options)
     {
+        _timeProvider = timeProvider;
     }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -30,5 +32,24 @@ public class ChoreBuddiesDbContext : IdentityDbContext<AppUser, IdentityRole<int
         var isDevelopment = string.Equals(envName, "Development", StringComparison.OrdinalIgnoreCase);
 
         new DbSeeder().SetUpDbSeeding(optionsBuilder, isDevelopment);
+    }
+    public override int SaveChanges()
+    {
+        SetAuditProperties();
+        return base.SaveChanges();
+    }
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        SetAuditProperties();
+        return base.SaveChangesAsync(cancellationToken);
+    }
+    private void SetAuditProperties()
+    {
+        var now = _timeProvider.GetUtcNow().UtcDateTime;
+        var entries = ChangeTracker.Entries<Chore>().Where(e => e.State == EntityState.Modified || e.State == EntityState.Added);
+        foreach (var entry in entries)
+        {
+            entry.Entity.LastEditDate = now;
+        }
     }
 }

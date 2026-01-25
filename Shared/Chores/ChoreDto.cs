@@ -9,5 +9,7 @@ int HouseholdId,
 DateTime? DueDate,
 Status? Status,
 string Room,
-int RewardPointsCount = 0
+int RewardPointsCount = 0,
+DateTime? CompletedDate = null,
+DateTime? LastEditDate = null
 );
