@@ -177,6 +177,7 @@ public class ChoresRepository(ChoreBuddiesDbContext dbContext) : IChoresReposito
         var chore = await GetChoreByIdAsync(choreId);
         if (chore is null) return null;
         chore.UserId = userId;
+        chore.Status = Status.Assigned;
         await _dbContext.SaveChangesAsync();
         return chore;
     }

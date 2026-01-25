@@ -59,7 +59,7 @@ public class ChoresServiceTests
     // CreateChoreAsync
     // ---------------------------
     [Fact]
-    public async Task CreateChoreAsync_ShouldMapCreateDtoAndReturnCreatedDto()
+    public async Task CreateChoreAsync_ShouldMapCreateDtoAndReturnCreatedDtoAndNotSendNotification_WhenUserIdNull()
     {
         var createDto = new CreateChoreDto("test", "testt", null, 1, DateTime.Now, null, "kitchen", 10);
         var chore = new Chore("test", "testt", null, 1, DateTime.Now, null, "kitchen", 10) { Id = 1 };
@@ -73,13 +73,37 @@ public class ChoresServiceTests
 
         result.Should().NotBeNull();
         result!.Id.Should().Be(1);
+
+        _notificationService.Verify(n => n.SendNewChoreNotificationAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(),
+            It.IsAny<string>(), It.IsAny<DateTime>(), default),
+            Times.Never);
+    }
+    [Fact]
+    public async Task CreateChoreAsync_ShouldMapCreateDtoAndReturnCreatedDtoAndSendNotification_WhenUserIdNotNull()
+    {
+        var createDto = new CreateChoreDto("test", "testt", 2, 1, DateTime.Now, null, "kitchen", 10);
+        var chore = new Chore("test", "testt", 2, 1, DateTime.Now, null, "kitchen", 10) { Id = 1 };
+        var choreDto = new ChoreDto(1, "test", "testt", 2, 1, DateTime.Now, null, "kitchen", 10);
+
+        _mapper.Setup(m => m.Map<Chore>(createDto)).Returns(chore);
+        _repo.Setup(r => r.CreateChoreAsync(chore)).ReturnsAsync(chore);
+        _mapper.Setup(m => m.Map<ChoreDto>(chore)).Returns(choreDto);
+
+        var result = await _service.CreateChoreAsync(createDto);
+
+        result.Should().NotBeNull();
+        result!.Id.Should().Be(1);
+
+        _notificationService.Verify(n => n.SendNewChoreNotificationAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(),
+            It.IsAny<string>(), It.IsAny<DateTime>(), default),
+            Times.Once);
     }
 
     // ---------------------------
     // UpdateChoreAsync
     // ---------------------------
     [Fact]
-    public async Task UpdateChoreAsync_ShouldUpdateAndReturnChoreDto()
+    public async Task UpdateChoreAsync_ShouldUpdateAndReturnChoreDtoAndNotSendNotification_WhenUserIdDidNotChange()
     {
         var dto = new ChoreDto(2, "test", "testt", null, 1, DateTime.Now, null, "kitchen", 10);
         var mappedChore = new Chore("test", "testt", null, 1, DateTime.Now, null, "kitchen", 10) { Id = 2 };
@@ -97,6 +121,34 @@ public class ChoresServiceTests
         var result = await _service.UpdateChoreAsync(dto);
 
         result!.Id.Should().Be(2);
+
+        _notificationService.Verify(n => n.SendNewChoreNotificationAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(),
+            It.IsAny<string>(), It.IsAny<DateTime>(), default),
+            Times.Never);
+    }
+    [Fact]
+    public async Task UpdateChoreAsync_ShouldUpdateAndReturnChoreDtoAndSendNotification_WhenUserIdIsNull()
+    {
+        var dto = new ChoreDto(2, "test", "testt", 3, 1, DateTime.Now, null, "kitchen", 10);
+        var mappedChore = new Chore("test", "testt", null, 1, DateTime.Now, null, "kitchen", 10) { Id = 2 };
+        var updatedChore = new Chore("test", "testt", 3, 1, DateTime.Now, null, "kitchen", 10) { Id = 2 };
+        var updatedDto = new ChoreDto(2, "test", "testt", 3, 1, DateTime.Now, null, "kitchen", 10);
+
+        _repo.Setup(x => x.GetChoreByIdAsync(2)).ReturnsAsync(mappedChore);
+
+        _mapper.Setup(x => x.Map<Chore>(dto)).Returns(mappedChore);
+
+        _repo.Setup(x => x.UpdateChoreAsync(mappedChore)).ReturnsAsync(updatedChore);
+
+        _mapper.Setup(x => x.Map<ChoreDto>(updatedChore)).Returns(updatedDto);
+
+        var result = await _service.UpdateChoreAsync(dto);
+
+        result!.Id.Should().Be(2);
+
+        _notificationService.Verify(n => n.SendNewChoreNotificationAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(),
+            It.IsAny<string>(), It.IsAny<DateTime>(), default),
+            Times.Once);
     }
 
     [Fact]
@@ -138,7 +190,7 @@ public class ChoresServiceTests
     }
 
     // ---------------------------
-    // List fetch methods
+    // GetUsersChoreDetailsAsync
     // ---------------------------
     [Fact]
     public async Task GetUsersChoreDetailsAsync_ShouldMapList()
@@ -154,6 +206,10 @@ public class ChoresServiceTests
         result.Should().HaveCount(1);
     }
 
+    // ---------------------------
+    // GetMyHouseholdChoreDetailsAsync
+    // ---------------------------
+
     [Fact]
     public async Task GetMyHouseholdChoreDetailsAsync_ShouldMapList()
     {
@@ -164,6 +220,24 @@ public class ChoresServiceTests
         _mapper.Setup(m => m.Map<List<ChoreDto>>(chores)).Returns(dtos);
 
         var result = await _service.GetMyHouseholdChoreDetailsAsync(10);
+
+        result.Should().ContainSingle(x => x.Id == 7);
+    }
+
+    // ---------------------------
+    // GetMyHouseholdUnverifiedChoresAsync
+    // ---------------------------
+
+    [Fact]
+    public async Task GetMyHouseholdUnverifiedChoresAsync_ShouldMapList()
+    {
+        var chores = new List<Chore> { new Chore("test", "testt", 2, 1, DateTime.Now, Status.UnverifiedCompleted, "kitchen", 10) { Id = 7 } };
+        var dtos = new List<ChoreOverviewDto> { new ChoreOverviewDto(7, "test", 2, Status.UnverifiedCompleted, "kitchen") };
+
+        _repo.Setup(r => r.GetHouseholdUnverifiedChoresAsync(10)).ReturnsAsync(chores);
+        _mapper.Setup(m => m.Map<List<ChoreOverviewDto>>(chores)).Returns(dtos);
+
+        var result = await _service.GetMyHouseholdUnverifiedChoresAsync(10);
 
         result.Should().ContainSingle(x => x.Id == 7);
     }
@@ -213,12 +287,30 @@ public class ChoresServiceTests
             .Should().ThrowAsync<Exception>()
             .WithMessage("User not found");
     }
+    [Fact]
+    public async Task AssignChoreAsync_ShouldAssignChoreAndSendNotification()
+    {
+        var chore = new Chore("test", "testt", null, 1, DateTime.Now, Status.Unassigned, "kitchen", 10) { Id = 1 };
+        var newChore = new Chore("test", "testt", 10, 1, DateTime.Now, Status.Assigned, "kitchen", 10) { Id = 1 };
+        var user = new AppUser() { Id = 10 };
+        _repo.Setup(r => r.GetChoreByIdAsync(1)).ReturnsAsync(chore);
+        _userService.Setup(u => u.GetUserByIdAsync(10)).ReturnsAsync(user);
+        _repo.Setup(r => r.AssignChoreAsync(1, 10)).ReturnsAsync(newChore);
+
+        await _service.AssignChoreAsync(1, 10);
+
+        _repo.Verify(x => x.AssignChoreAsync(chore.Id, user.Id), Times.Once);
+
+        _notificationService.Verify(n => n.SendNewChoreNotificationAsync(10, 1, It.IsAny<string>(),
+            It.IsAny<string>(), It.IsAny<DateTime>(), default),
+            Times.Once);
+    }
 
     // ---------------------------
     // MarkChoreAsDoneAsync
     // ---------------------------
     [Fact]
-    public async Task MarkChoreAsDone_ShouldMarkCompletedAndIncreaseUserPoints()
+    public async Task MarkChoreAsDoneAsync_ShouldMarkCompletedAndIncreaseUserPoints()
     {
         var chore = new Chore("test", "testt", 10, 1, DateTime.Now, Status.Assigned, "kitchen", 10) { Id = 1 };
 
@@ -236,9 +328,29 @@ public class ChoresServiceTests
 
         result.Status.Should().Be(Status.Completed);
     }
+    [Fact]
+    public async Task MarkChoreAsDoneAsync_ShouldMarkUnverifiedCompletedAndPointsNotAdded_WhenNotVerified()
+    {
+        var chore = new Chore("test", "testt", 10, 1, DateTime.Now, Status.Assigned, "kitchen", 10) { Id = 1 };
+
+        var user = new AppUser { Id = 10, PointsCount = 0 };
+        var updatedChore = new Chore("test", "testt", 10, 1, DateTime.Now, Status.UnverifiedCompleted, "kitchen", 10) { Id = 1 };
+        var mappedDto = new ChoreDto(1, "test", "testt", 10, 1, DateTime.Now, Status.UnverifiedCompleted, "kitchen", 10);
+
+        _repo.Setup(r => r.GetChoreByIdAsync(1)).ReturnsAsync(chore);
+        _userService.Setup(u => u.GetUserByIdAsync(10)).ReturnsAsync(user);
+        _repo.Setup(r => r.UpdateChoreAsync(chore)).ReturnsAsync(updatedChore);
+        _mapper.Setup(m => m.Map<ChoreDto>(updatedChore)).Returns(mappedDto);
+
+        var result = await _service.MarkChoreAsDoneAsync(1, 10, false);
+
+        result.Status.Should().Be(Status.UnverifiedCompleted);
+        _userService.Verify(u => u.AddPointsToUser(user.Id, chore.RewardPointsCount), 
+            Times.Never);
+    }
 
     [Fact]
-    public async Task MarkChoreAsDone_ShouldThrow_WhenChoreNotFound()
+    public async Task MarkChoreAsDoneAsync_ShouldThrow_WhenChoreNotFound()
     {
         _repo.Setup(r => r.GetChoreByIdAsync(1))
             .ReturnsAsync((Chore?)null);
@@ -249,7 +361,7 @@ public class ChoresServiceTests
     }
 
     [Fact]
-    public async Task MarkChoreAsDone_ShouldThrow_WhenChoreIsNotAssigned()
+    public async Task MarkChoreAsDoneAsync_ShouldThrow_WhenChoreIsNotAssigned()
     {
         var chore = new Chore("test", "testt", null, 1, DateTime.Now, Status.Unassigned, "kitchen", 10);
 
@@ -261,7 +373,7 @@ public class ChoresServiceTests
     }
 
     [Fact]
-    public async Task MarkChoreAsDone_ShouldThrow_WhenUserIsDifferent()
+    public async Task MarkChoreAsDoneAsync_ShouldThrow_WhenUserIsDifferent()
     {
         var chore = new Chore("test", "testt", 10, 1, DateTime.Now, Status.Assigned, "kitchen", 10) { Id = 1 };
 
@@ -270,6 +382,89 @@ public class ChoresServiceTests
         await _service.Invoking(s => s.MarkChoreAsDoneAsync(1, 99, true))
             .Should().ThrowAsync<Exception>()
             .WithMessage("Only user who has to do this chore can mark it as done");
+    }
+    [Fact]
+    public async Task MarkChoreAsDoneAsync_ShouldThrow_WhenErrorWhileAddingPoints()
+    {
+        var chore = new Chore("test", "testt", 10, 1, DateTime.Now, Status.Assigned, "kitchen", 10) { Id = 1 };
+
+        _repo.Setup(r => r.GetChoreByIdAsync(1)).ReturnsAsync(chore);
+
+        _userService.Setup(u => u.AddPointsToUser(10, chore.RewardPointsCount)).ReturnsAsync(false);
+
+        await _service.Invoking(s => s.MarkChoreAsDoneAsync(1, 10, true))
+            .Should().ThrowAsync<Exception>()
+            .WithMessage("There was an error while adding points to the user");
+    }
+
+    // ---------------------------
+    // VerifyChoreAsync
+    // ---------------------------
+
+    [Fact]
+    public async Task VerifyChoreAsync_ShouldThrow_WhenChoreNotFound()
+    {
+        _repo.Setup(r => r.GetChoreByIdAsync(1))
+            .ReturnsAsync((Chore?)null);
+
+        await _service.Invoking(s => s.VerifyChoreAsync(1, 10))
+            .Should().ThrowAsync<Exception>()
+            .WithMessage("Chore not found");
+    }
+
+    [Fact]
+    public async Task VerifyChoreAsync_ShouldThrow_WhenChoreStatusNotUnverifiedCompleted()
+    {
+        var chore = new Chore("test", "testt", null, 1, DateTime.Now, Status.Unassigned, "kitchen", 10);
+
+        _repo.Setup(r => r.GetChoreByIdAsync(1)).ReturnsAsync(chore);
+
+        await _service.Invoking(s => s.VerifyChoreAsync(1, 99))
+            .Should().ThrowAsync<Exception>()
+            .WithMessage("Chore must be unverified completed in order to be able to verify");
+    }
+    [Fact]
+    public async Task VerifyChoreAsync_ShouldThrow_WhenUserIsTheSame()
+    {
+        var chore = new Chore("test", "testt", 10, 1, DateTime.Now, Status.UnverifiedCompleted, "kitchen", 10) { Id = 1 };
+
+        _repo.Setup(r => r.GetChoreByIdAsync(1)).ReturnsAsync(chore);
+
+        await _service.Invoking(s => s.VerifyChoreAsync(1, 10))
+            .Should().ThrowAsync<Exception>()
+            .WithMessage("Only another user can verify the chore");
+    }
+    [Fact]
+    public async Task VerifyChoreAsync_ShouldThrow_WhenErrorWhileAddingPoints()
+    {
+        var chore = new Chore("test", "testt", 10, 1, DateTime.Now, Status.UnverifiedCompleted, "kitchen", 10) { Id = 1 };
+
+        _repo.Setup(r => r.GetChoreByIdAsync(1)).ReturnsAsync(chore);
+
+        _userService.Setup(u => u.AddPointsToUser(10, chore.RewardPointsCount)).ReturnsAsync(false);
+
+        await _service.Invoking(s => s.VerifyChoreAsync(1, 5))
+            .Should().ThrowAsync<Exception>()
+            .WithMessage("There was an error while adding points to the user");
+    }
+    [Fact]
+    public async Task VerifyChoreAsync_ShouldMarkCompletedAndIncreaseUserPoints()
+    {
+        var chore = new Chore("test", "testt", 10, 1, DateTime.Now, Status.UnverifiedCompleted, "kitchen", 10) { Id = 1 };
+
+        var user = new AppUser { Id = 10, PointsCount = 0 };
+        var updatedChore = new Chore("test", "testt", 10, 1, DateTime.Now, Status.Completed, "kitchen", 10) { Id = 1 };
+        var mappedDto = new ChoreDto(1, "test", "testt", 10, 1, DateTime.Now, Status.Completed, "kitchen", 10);
+
+        _repo.Setup(r => r.GetChoreByIdAsync(1)).ReturnsAsync(chore);
+        _userService.Setup(u => u.GetUserByIdAsync(10)).ReturnsAsync(user);
+        _userService.Setup(u => u.AddPointsToUser(10, 10)).ReturnsAsync(true);
+        _repo.Setup(r => r.UpdateChoreAsync(chore)).ReturnsAsync(updatedChore);
+        _mapper.Setup(m => m.Map<ChoreDto>(updatedChore)).Returns(mappedDto);
+
+        var result = await _service.VerifyChoreAsync(1, 99);
+
+        result.Status.Should().Be(Status.Completed);
     }
 }
 

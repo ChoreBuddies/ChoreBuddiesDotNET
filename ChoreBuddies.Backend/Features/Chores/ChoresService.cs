@@ -129,7 +129,7 @@ public class ChoresService : IChoresService
             chore.Status = Status.Completed;
             if (!await _appUserService.AddPointsToUser(userId, chore!.RewardPointsCount))
             {
-                throw new Exception("There was an error while adding points to the user.");
+                throw new Exception("There was an error while adding points to the user");
             }
         }
         else
@@ -142,13 +142,13 @@ public class ChoresService : IChoresService
     {
         var chore = await _repository.GetChoreByIdAsync(choreId) ?? throw new Exception("Chore not found");
         if (chore.Status != Status.UnverifiedCompleted)
-            throw new Exception("Chore must be assigned in order to be able to mark as done");
+            throw new Exception("Chore must be unverified completed in order to be able to verify");
         if (chore.UserId == userId)
             throw new Exception("Only another user can verify the chore");
         chore.Status = Status.Completed;
-        if (!await _appUserService.AddPointsToUser(userId, chore!.RewardPointsCount))
+        if (!await _appUserService.AddPointsToUser((int)chore.UserId!, chore!.RewardPointsCount))
         {
-            throw new Exception("There was an error while adding points to the user.");
+            throw new Exception("There was an error while adding points to the user");
         }
         return _mapper.Map<ChoreDto>(await _repository.UpdateChoreAsync(chore!));
     }
