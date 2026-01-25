@@ -47,7 +47,7 @@ public class ChoreBuddiesDbContext : IdentityDbContext<AppUser, IdentityRole<int
     {
         var now = _timeProvider.GetUtcNow().UtcDateTime;
         var entries = ChangeTracker.Entries<Chore>().Where(e => e.State == EntityState.Modified || e.State == EntityState.Added);
-        foreach(var entry in entries)
+        foreach (var entry in entries)
         {
             entry.Entity.LastEditDate = now;
         }

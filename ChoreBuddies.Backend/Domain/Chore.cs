@@ -39,5 +39,6 @@ public class Chore(
     default!, // room
     default,  // rewardPointsCount
     default   // completedDate
-    ) { }
+    )
+    { }
 }

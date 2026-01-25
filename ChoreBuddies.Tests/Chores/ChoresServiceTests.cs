@@ -345,7 +345,7 @@ public class ChoresServiceTests
         var result = await _service.MarkChoreAsDoneAsync(1, 10, false);
 
         result.Status.Should().Be(Status.UnverifiedCompleted);
-        _userService.Verify(u => u.AddPointsToUser(user.Id, chore.RewardPointsCount), 
+        _userService.Verify(u => u.AddPointsToUser(user.Id, chore.RewardPointsCount),
             Times.Never);
     }
 
