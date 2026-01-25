@@ -26,6 +26,8 @@ public interface IAuthService
     public Task<string> GetLastNameAsync();
     public Task<int> GetHouseholdIdAsync();
     public Task<string> GetUserRoleAsync();
+
+    public Task<bool> IsChildAsync();
 }
 
 public class AuthService(
@@ -160,4 +162,12 @@ public class AuthService(
         await LogoutAsync();
         _navigationManager.NavigateTo("/login", forceLoad: true);
     }
+
+    public async Task<bool> IsChildAsync()
+    {
+        var role = await GetUserRoleAsync();
+        if (string.IsNullOrEmpty(role)) return true;
+        return String.Compare(role, "child", true) == 0;
+    }
 }
+
