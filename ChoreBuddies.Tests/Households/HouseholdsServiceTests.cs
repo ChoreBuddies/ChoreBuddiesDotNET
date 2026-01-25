@@ -2,6 +2,7 @@
 using ChoreBuddies.Backend.Features.Households;
 using ChoreBuddies.Backend.Features.Households.Exceptions;
 using ChoreBuddies.Backend.Features.Users;
+using FluentAssertions;
 using Moq;
 using Shared.Households;
 
@@ -219,4 +220,63 @@ public class HouseholdsServiceTests
 
         Assert.True(result);
     }
+
+    // -----------------------------
+    // GetUserIdForAutoAssignAsync tests
+    // -----------------------------
+    private static Chore CreateChore(
+        int assignedUserId = 1,
+        Shared.Chores.Status status = Shared.Chores.Status.Assigned)
+    {
+        return new Chore(
+            name: "Test chore",
+            description: "Test description",
+            householdId: 1,
+            userId: assignedUserId,
+            dueDate: null,
+            status: status,
+            room: "Test",
+            rewardPointsCount: 10
+        );
+    }
+
+    [Fact]
+    public async Task GetUserIdForAutoAssignAsync_ShouldReturnLeastBurdenedUserId()
+    {
+        // Arrange
+        var user1 = new AppUser
+        {
+            Id = 1,
+            Chores = new List<Chore>
+            {
+                CreateChore(),
+                CreateChore()
+            }
+        };
+
+        var user2 = new AppUser
+        {
+            Id = 2,
+            Chores = new List<Chore>
+            {
+                CreateChore()
+            }
+        };
+
+        var household = new Household(user1.Id, "", "", "");
+        household.Users = new List<AppUser> { user1, user2 };
+
+        _householdRepo
+            .Setup(r => r.GeHouseholdWithUsersWithChoresDueToFromDateAsync(
+                It.IsAny<int>(),
+                It.IsAny<DateTime>()))
+            .ReturnsAsync(household);
+
+        // Act
+        var result = await _service.GetUserIdForAutoAssignAsync(123);
+
+        // Assert
+        result.Should().Be(2);
+    }
+
 }
