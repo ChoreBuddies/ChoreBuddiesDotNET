@@ -23,6 +23,7 @@ public class ScheduledChoresBackgroundService : BackgroundService
     {
         var now = _timeProvider.GetUtcNow();
         var nextMidnight = now.Date.AddDays(1);
+        nextMidnight = DateTime.SpecifyKind(nextMidnight, DateTimeKind.Utc);
         var initialDelay = nextMidnight - now;
         await Task.Delay(initialDelay, stoppingToken);
 
@@ -102,15 +103,20 @@ public class ScheduledChoresBackgroundService : BackgroundService
             {
                 Console.WriteLine($"Error occured while processig Scheaduled Chores: {e}");
             }
-            var endOfLoopTime = _timeProvider.GetUtcNow();
-            var targetNextRun = loopNow.Date.AddDays(1);
-            var delay = targetNextRun - endOfLoopTime;
 
-            if (delay < TimeSpan.Zero)
+            var loopEndNow = _timeProvider.GetUtcNow();
+
+            nextMidnight = loopEndNow.Date.AddDays(1);
+
+            if ((nextMidnight - loopEndNow).TotalHours < 12)
             {
-                delay = TimeSpan.Zero;
+                nextMidnight = nextMidnight.AddDays(1);
             }
-            await _timeProvider.Delay(delay, stoppingToken);
+
+            nextMidnight = DateTime.SpecifyKind(nextMidnight, DateTimeKind.Utc);
+            var delay = nextMidnight - loopEndNow;
+
+            await Task.Delay(delay, stoppingToken);
         }
     }
 
