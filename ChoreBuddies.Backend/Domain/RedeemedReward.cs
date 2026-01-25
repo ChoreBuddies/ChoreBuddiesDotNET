@@ -11,5 +11,5 @@ public class RedeemedReward
     public virtual Household? Household { get; set; }
     public DateTime? RedeemedDate { get; set; }
     public int PointsSpent { get; set; }
-    public bool IsFulfilled { get; set; } // true jak rodzic zaznaczy, że wydał dziecku
+    public bool IsFulfilled { get; set; } // true for children after adult approves
 }
