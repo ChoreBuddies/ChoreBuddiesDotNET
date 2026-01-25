@@ -37,12 +37,15 @@
 <ChoreForm Model="Model"
 Users="AvailableUsers"
 @bind-PageMode="CurrentMode"
-OnValidSubmit="HandleSave" />
+OnValidSubmit="HandleSave"
+CurrentUserId="CurrentUserId"
+OnMarkChoreAsDone="MarkChoreAsDone"/>
 
 @code {
 	[Parameter] public int? ChoreId { get; set; }
 	private ChoreViewModel Model = new();
 	private PageMode CurrentMode = PageMode.Create;
+	private int CurrentUserId { get; set; }
 
 	private List<AppUserMinimalDto> AvailableUsers = new();
 	protected override async Task OnInitializedAsync()
@@ -53,6 +56,7 @@ OnValidSubmit="HandleSave" />
 	}
 	private async Task LoadData(bool isScheduledPath)
 	{
+		CurrentUserId = await authService.GetUserIdAsync();
 		AvailableUsers = (await userService.GetMyHouseholdMembersAsync())?.ToList() ?? [];
 
 		if (ChoreId.HasValue)
@@ -135,6 +139,17 @@ OnValidSubmit="HandleSave" />
             Model.EveryX = template.everyX;
 
 			Snackbar.Add("The data from the predefined chore has been loaded. You can now edit it.", Severity.Info);
+		}
+	}
+	private async Task MarkChoreAsDone()
+	{
+		if (await choresService.MarkChoreAsDoneAsync((int)Model.Id!) is not null)
+		{
+			Snackbar.Add("Marked successfully", Severity.Success);
+		}
+		else
+		{
+			Snackbar.Add("An enexpected error occured while marking chore as done", Severity.Error);
 		}
 	}
 }
