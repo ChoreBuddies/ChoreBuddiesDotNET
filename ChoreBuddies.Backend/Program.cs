@@ -9,7 +9,6 @@ using ChoreBuddies.Backend.Features.Notifications.Push;
 using ChoreBuddies.Backend.Features.PredefinedChores;
 using ChoreBuddies.Backend.Features.PredefinedRewards;
 using ChoreBuddies.Backend.Features.RedeemedRewards;
-using ChoreBuddies.Backend.Features.RedeemRewards;
 using ChoreBuddies.Backend.Features.Reminders;
 using ChoreBuddies.Backend.Features.Rewards;
 using ChoreBuddies.Backend.Features.ScheduledChores;

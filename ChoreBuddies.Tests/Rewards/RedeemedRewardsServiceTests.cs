@@ -2,7 +2,6 @@
 using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Notifications;
 using ChoreBuddies.Backend.Features.RedeemedRewards;
-using ChoreBuddies.Backend.Features.RedeemRewards;
 using ChoreBuddies.Backend.Features.Rewards;
 using ChoreBuddies.Backend.Features.Users;
 using FluentAssertions;
@@ -161,6 +160,123 @@ public class RedeemedRewardsServiceTests
         // Assertions
         result.Should().NotBeNull();
         result.Id.Should().Be(88);
+
+        _userService.Verify(u => u.RemovePointsFromUser(1, 40), Times.Once);
+
+        _rewardService.Verify(r =>
+            r.UpdateRewardAsync(It.Is<RewardDto>(x =>
+                x.QuantityAvailable == 2)),
+            Times.Once);
+
+        _redeemedRepo.Verify(r =>
+            r.RedeemRewardAsync(It.IsAny<RedeemedReward>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task RedeemRewardAsync_ShouldSendNotifications_WhenNotFulfilled()
+    {
+        var reward = new RewardDto(10, "Test", "test", 55, 40, 3)
+        {
+            Id = 10
+        };
+        var user = new AppUser { Id = 1, UserName = "User", PointsCount = 100 };
+        var adult = new AppUser { Id = 2 };
+
+        var redeemedEntity = new RedeemedReward { Id = 88, Name = "Test", Description = "test" };
+
+        _rewardService.Setup(r => r.GetRewardByIdAsync(1)).ReturnsAsync(reward);
+        _userService.Setup(u => u.GetUserByIdAsync(1)).ReturnsAsync(user);
+        _userService.Setup(u => u.RemovePointsFromUser(1, 40)).ReturnsAsync(true);
+        _rewardService.Setup(r => r.UpdateRewardAsync(It.IsAny<RewardDto>())).ReturnsAsync(reward);
+        _redeemedRepo.Setup(r => r.RedeemRewardAsync(It.IsAny<RedeemedReward>()))
+            .ReturnsAsync(redeemedEntity);
+
+        _userService.Setup(u => u.GetUsersHouseholdAdultsAsync(1))
+            .ReturnsAsync(new[] { adult });
+
+        await _service.RedeemRewardAsync(1, 1, false);
+
+        // Assertions
+
+        _notificationService.Verify(
+            n => n.SendNewRewardRequestNotificationAsync(adult.Id, redeemedEntity.Id, redeemedEntity.Name, user.UserName, default),
+            Times.Once);
+    }
+
+    // -------------------------------------------------------
+    // FulfillRewardAsync
+    // -------------------------------------------------------
+
+    [Fact]
+    public async Task FulfillRewardAsync_ShouldFulfillReward_WhenExists_AndNotFulfilled()
+    {
+        var reward = new RedeemedReward
+        {
+            Id = 1,
+            Name = "Reward",
+            Description = "Test",
+            UserId = 2,
+            HouseholdId = 3,
+            RedeemedDate = DateTime.UtcNow,
+            PointsSpent = 50,
+            IsFulfilled = false
+        };
+
+        _redeemedRepo.Setup(r => r.GetRedeemedRewardAsync(1))
+            .ReturnsAsync(reward);
+
+        var result = await _service.FulfillRewardAsync(1);
+
+        // Assertions
+        result.Should().BeTrue();
+        reward.IsFulfilled.Should().BeTrue();
+
+        _redeemedRepo.Verify(
+            r => r.UpdateRedeemedRewardAsync(reward),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task FulfillRewardAsync_ShouldReturnFalse_WhenReward_DoesNotExist()
+    {
+        _redeemedRepo.Setup(r => r.GetRedeemedRewardAsync(It.IsAny<int>()))
+            .ReturnsAsync((RedeemedReward?)null);
+
+        var result = await _service.FulfillRewardAsync(1);
+
+        // Assertions
+        result.Should().BeFalse();
+        _redeemedRepo.Verify(
+            r => r.UpdateRedeemedRewardAsync(It.IsAny<RedeemedReward>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task FulfillRewardAsync_ShouldReturnFalse_WhenReward_AlreadyFulfilled()
+    {
+        var reward = new RedeemedReward
+        {
+            Id = 1,
+            Name = "Reward",
+            Description = "Test",
+            UserId = 2,
+            HouseholdId = 3,
+            RedeemedDate = DateTime.UtcNow,
+            PointsSpent = 50,
+            IsFulfilled = true
+        };
+
+        _redeemedRepo.Setup(r => r.GetRedeemedRewardAsync(1))
+            .ReturnsAsync(reward);
+
+        var result = await _service.FulfillRewardAsync(1);
+
+        // Assertions
+        result.Should().BeFalse();
+        _redeemedRepo.Verify(
+            r => r.UpdateRedeemedRewardAsync(It.IsAny<RedeemedReward>()),
+            Times.Never);
     }
 }
 

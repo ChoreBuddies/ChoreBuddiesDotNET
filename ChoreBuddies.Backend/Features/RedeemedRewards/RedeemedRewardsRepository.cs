@@ -2,7 +2,7 @@
 using ChoreBuddies.Backend.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace ChoreBuddies.Backend.Features.RedeemRewards;
+namespace ChoreBuddies.Backend.Features.RedeemedRewards;
 
 public interface IRedeemedRewardsRepository
 {
