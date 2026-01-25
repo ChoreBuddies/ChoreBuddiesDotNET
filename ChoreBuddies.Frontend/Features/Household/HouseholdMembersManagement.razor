@@ -102,7 +102,7 @@
     private int _userId = -1;
     private bool _currentUserIsChild = false;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         AvailableRoles = (await userService.GetAvailableRolesAsync())?.ToList() ?? [];
         _userId = await authService.GetUserIdAsync();
@@ -114,6 +114,7 @@
         }
         LoadModels();
     }
+
     private void LoadModels()
     {
         MembersModel.Clear();
