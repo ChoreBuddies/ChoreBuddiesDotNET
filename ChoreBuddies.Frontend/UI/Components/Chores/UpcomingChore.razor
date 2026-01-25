@@ -22,7 +22,7 @@
 
 		<MudItem xs="4" Class="d-flex justify-end align-center">
 			<MudStack>
-				@if (_choreDto?.Status != Status.Completed)
+				@if (_choreDto?.Status == Status.Assigned)
 				{
 					<MudButton Color="Color.Default" Variant="Variant.Outlined" Class="mt-1" OnClick="OpenReminderDialog">
 						Set a reminder

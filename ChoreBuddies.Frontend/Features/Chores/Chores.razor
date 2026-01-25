@@ -1,13 +1,16 @@
 ﻿@page "/chores"
 
+@using ChoreBuddies.Frontend.Features.User
 @using ChoreBuddies.Frontend.UI.Components.Chores
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 @using Shared.Chores
+@using Shared.Users
 
 @inject IAuthService authService
 @inject IChoresService choresService
+@inject IUserService userService
 @inject NavigationManager _navigationManager
 
 <AuthorizeView>
@@ -24,70 +27,129 @@
     </NotAuthorized>
     <Authorized>
         <PageTitle>Home</PageTitle>
+        @if (_isLoading)
+        {
+            <MudProgressCircular Indeterminate="true" />
+        }
+        else
+        {
+            <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="pa-4">
 
-        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="pa-4">
+                <MudPaper Class="p-6" Elevation="0" Style="width: 100%; max-width: 900px;">
 
-            <MudPaper Class="p-6" Elevation="0" Style="width: 100%; max-width: 900px;">
+                    <MudStack Spacing="1">
+                        <MudSelect T="int" Variant="Variant.Outlined"
+                                   Margin="Margin.Dense"
+                                   class="rounded-lg bg-white"
+                                   @bind-Value="_userId">
+                            @foreach (var user in _users)
+                            {
+                                <MudSelectItem T="int" Value="@(user.Id)">@user.UserName</MudSelectItem>
+                            }
+                        </MudSelect>
 
-                <MudStack Spacing="1">
-                    @if (_userChores == null || _userChores.Count == 0)
-                    {
-                        <p>Add a chore to view it here!</p>
-                    }
-                    else
-                    {
-                        @foreach (var chore in _userChores.Where(c => c.Status == Status.Assigned))
+                        @if (_userChores == null || _userChores.Count == 0)
                         {
-                            <UpcomingChore _choreDto="chore" OnChanged="ComponentStateChanged" />
+                            <p>Add a chore to view it here!</p>
                         }
-                        @if ((_filteredChores = _userChores.Where(c => c.Status == Status.UnverifiedCompleted)).Count() > 0)
+                        else
                         {
-                            <MudText Typo="Typo.button" Class="mx-4 text-muted">
-                                Unverified Chores
-                            </MudText>
-                            <MudDivider Class="mt-1 mb-3" Style="border-width: 2px;" />
-                            @foreach (var chore in _filteredChores)
+                            @foreach (var chore in _userChores.Where(c => c.Status == Status.Assigned))
                             {
                                 <UpcomingChore _choreDto="chore" OnChanged="ComponentStateChanged" />
                             }
-                        }
-                        @if ((_filteredChores = _userChores.Where(c => c.Status == Status.Completed)).Count() > 0)
-                        {
-                            <MudText Typo="Typo.button" Class="mx-4 text-muted">
-                                Completed Chores
-                            </MudText>
-                            <MudDivider Class="mt-1 mb-3" Style="border-width: 2px;" />
-                            @foreach (var chore in _filteredChores)
+                            @if (_unassignedChores?.Count() > 0)
                             {
-                                <UpcomingChore _choreDto="chore" OnChanged="ComponentStateChanged" />
+                                <MudText Typo="Typo.button" Class="mx-4 text-muted">
+                                    Unassigned Chores
+                                </MudText>
+                                <MudDivider Class="mt-1 mb-3" Style="border-width: 2px;" />
+                                @foreach (var chore in _unassignedChores)
+                                {
+                                    <UpcomingChore _choreDto="chore" OnChanged="ComponentStateChanged" />
+                                }
+                            }
+                            @if ((_filteredChores = _userChores.Where(c => c.Status == Status.UnverifiedCompleted)).Count() > 0)
+                            {
+                                <MudText Typo="Typo.button" Class="mx-4 text-muted">
+                                    Unverified Chores
+                                </MudText>
+                                <MudDivider Class="mt-1 mb-3" Style="border-width: 2px;" />
+                                @foreach (var chore in _filteredChores)
+                                {
+                                    <UpcomingChore _choreDto="chore" OnChanged="ComponentStateChanged" />
+                                }
+                            }
+                            @if ((_filteredChores = _userChores.Where(c => c.Status == Status.Completed)).Count() > 0)
+                            {
+                                <MudText Typo="Typo.button" Class="mx-4 text-muted">
+                                    Completed Chores
+                                </MudText>
+                                <MudDivider Class="mt-1 mb-3" Style="border-width: 2px;" />
+                                @foreach (var chore in _filteredChores)
+                                {
+                                    <UpcomingChore _choreDto="chore" OnChanged="ComponentStateChanged" />
+                                }
                             }
                         }
-                    }
 
-                </MudStack>
-            </MudPaper>
-        </MudContainer>
+                    </MudStack>
+                </MudPaper>
+            </MudContainer>
+        }
     </Authorized>
 </AuthorizeView>
 
 @code
 {
+    private int userId;
+    public int _userId
+    {
+        get => userId; set
+        {
+            if (userId != value)
+            {
+                userId = value;
+                _userChores = GetUserChores();
+                StateHasChanged();
+            }
+        }
+    }
+    public IEnumerable<AppUserMinimalDto> _users { get; set; } = [];
+
     public List<ChoreDto>? _userChores { get; set; }
+    public List<ChoreDto>? _householdChores { get; set; }
+    public List<ChoreDto>? _unassignedChores { get; set; }
+
+
     public IEnumerable<ChoreDto>? _filteredChores { get; set; }
+
+    public bool _isLoading { get; set; } = true;
 
     protected override async Task OnInitializedAsync()
     {
-        _userChores = await GetUserChores();
+        _isLoading = true;
+
+        _userId = await authService.GetUserIdAsync();
+        _users = await userService.GetMyHouseholdMembersAsync() ?? [];
+        _householdChores = await GetHouseholdChores();
+        _userChores = GetUserChores();
+        _unassignedChores = GetUnassignedChores();
+
+        _isLoading = false;
     }
-    private async Task<List<ChoreDto>> GetUserChores()
+    private async Task<List<ChoreDto>> GetHouseholdChores()
     {
-        var userChoresEnum = (await choresService.GetMyChoresAsync());
-        List<ChoreDto> userChores = new();
-        if (userChoresEnum is not null)
-        {
-            userChores = userChoresEnum.OrderBy(c => c.DueDate).ToList();
-        }
-        return userChores;
+        return (await choresService.GetMyHouseholdChoresAsync())
+            ?.OrderBy(c => c.DueDate).ToList() ?? [];
+    }
+    private List<ChoreDto> GetUserChores()
+    {
+        return _householdChores?.Where(c => c.UserId == _userId).ToList() ?? [];
+    }
+    private List<ChoreDto> GetUnassignedChores()
+    {
+        return _householdChores?.Where(c => c.Status == Status.Unassigned).ToList() ?? [];
     }
     private void GoToLogin()
     {
