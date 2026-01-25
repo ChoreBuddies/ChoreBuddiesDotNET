@@ -15,66 +15,69 @@
 @inject IRedeemedRewardsService redeemedRewardsService
 @inject IScheduledChoresService scheduledChoresService
 @inject IUserService userService
+@inject IAuthService authService
 @inject NavigationManager navigationManager
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
 
-    <!-- ==== Header ==== -->
-    <MudText Typo="Typo.h4" Style="font-weight:800;">
-        Household Management
-    </MudText>
-    <MudText Typo="Typo.subtitle1" Color="Color.Secondary" Class="mb-8">
-        Manage household settings, members, chores and rewards
-    </MudText>
+	<!-- ==== Header ==== -->
+	<MudText Typo="Typo.h4" Style="font-weight:800;">
+		Household Management
+	</MudText>
+	<MudText Typo="Typo.subtitle1" Color="Color.Secondary" Class="mb-8">
+		Manage household settings, members, chores and rewards
+	</MudText>
 
-    <!-- ===== Household details ===== -->
-    @if (household is not null)
-    {
-        <HouseholdInvitationCodeDisplay Household="household" />
-        <MudPaper Elevation="0" Class="pa-6 mb-8" Style="background:#f5f6f8; border-radius:16px;">
-            <div>
-                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start" Class="mb-3">
-                    <MudText Typo="Typo.h5" Style="font-weight:700;">
-                        Household Details
-                    </MudText>
+	<!-- ===== Household details ===== -->
+	@if (household is not null)
+	{
+		<HouseholdInvitationCodeDisplay Household="household" />
+		<MudPaper Elevation="0" Class="pa-6 mb-8" Style="background:#f5f6f8; border-radius:16px;">
+			<div>
+				<MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start" Class="mb-3">
+					<MudText Typo="Typo.h5" Style="font-weight:700;">
+						Household Details
+					</MudText>
+					@if (!_currentUserIsChild)
+					{
+						<MudButton Variant="Variant.Outlined"
+										StartIcon="@Icons.Material.Filled.Edit"
+										OnClick="@EditHousehold"
+										Color="Color.Primary"
+										Size="Size.Large"
+										Style="text-transform:none; border-radius:20px;">
+							Edit
+						</MudButton>
+					}
+				</MudStack>
+				<div style="width: 60px; height: 4px; background-color: var(--mud-palette-primary);  border-radius: 2px;" />
+			</div>
 
-                    <MudButton Variant="Variant.Outlined"
-                               StartIcon="@Icons.Material.Filled.Edit"
-                               OnClick="@EditHousehold"
-                               Color="Color.Primary"
-                               Size="Size.Large"
-                               Style="text-transform:none; border-radius:20px;">
-                        Edit
-                    </MudButton>
-                </MudStack>
-                <div style="width: 60px; height: 4px; background-color: var(--mud-palette-primary);  border-radius: 2px;" />
-            </div>
+			<MudGrid Spacing="3">
+				<MudItem xs="12" sm="4">
+					<MudText Color="Color.Secondary">Name:</MudText>
+					<MudText Typo="Typo.h6">@household.Name</MudText>
+				</MudItem>
+				<MudItem xs="12" sm="8">
+					<MudText Color="Color.Secondary">Description:</MudText>
+					<MudText Typo="Typo.body1">@household.Description</MudText>
+				</MudItem>
+			</MudGrid>
+		</MudPaper>
+	}
+	else
+	{
+		<MudProgressCircular Indeterminate="true" />
+	}
 
-            <MudGrid Spacing="3">
-                <MudItem xs="12" sm="4">
-                    <MudText Color="Color.Secondary">Name:</MudText>
-                    <MudText Typo="Typo.h6">@household.Name</MudText>
-                </MudItem>
-                <MudItem xs="12" sm="8">
-                    <MudText Color="Color.Secondary">Description:</MudText>
-                    <MudText Typo="Typo.body1">@household.Description</MudText>
-                </MudItem>
-            </MudGrid>
-        </MudPaper>
-    }
-    else
-    {
-        <MudProgressCircular Indeterminate="true" />
-    }
-
-    <!-- ===== Members & roles ===== -->
-    <HouseholdMembersManagement Members="Users" />
+	<!-- ===== Members & roles ===== -->
+	<HouseholdMembersManagement Members="Users" />
 
 
-    <!-- ===== Recurring chores ===== -->
-    <ScheduledChoresManagement />
+	<!-- ===== Recurring chores ===== -->
+	<ScheduledChoresManagement />
 
-    @* <MudText Typo="Typo.h6" Class="mb-4" Style="font-weight:700;">
+	@* <MudText Typo="Typo.h6" Class="mb-4" Style="font-weight:700;">
         Recurring Chores
     </MudText>
 
@@ -119,104 +122,107 @@
             </MudButton>
         </MudItem>
     </MudGrid> *@
-    <!-- ===== Chore approvals ===== -->
-    <MudText Typo="Typo.h6" Class="mb-4" Style="font-weight:700;">
-        Chore Verifications
-    </MudText>
+	<!-- ===== Chore approvals ===== -->
+	<MudText Typo="Typo.h6" Class="mb-4" Style="font-weight:700;">
+		Chore Verifications
+	</MudText>
 
-    @if (Chores is null || Chores.Count == 0)
-    {
-        <p>There are no unverified chores</p>
-    }
-    else
-    {
-        <MudTable Items="Chores" Elevation="0" Style="border-radius:12px;">
-            <HeaderContent>
-                <MudTh>User</MudTh>
-                <MudTh>Chore</MudTh>
-                <MudTh Style="width: 25%; white-space: nowrap; text-align: center;"></MudTh>
-            </HeaderContent>
+	@if (Chores is null || Chores.Count == 0)
+	{
+		<p>There are no unverified chores</p>
+	}
+	else
+	{
+		<MudTable Items="Chores" Elevation="0" Style="border-radius:12px;">
+			<HeaderContent>
+				<MudTh>User</MudTh>
+				<MudTh>Chore</MudTh>
+				<MudTh Style="width: 25%; white-space: nowrap; text-align: center;"></MudTh>
+			</HeaderContent>
 
-            <RowTemplate>
-                <MudTd>@GetUserName((int)context.UserId!)</MudTd>
-                <MudTd>@context.Name</MudTd>
-                <MudTd Align="Align.Right">
-                    <MudStack Direction="Row" Spacing="1">
-                        <MudButton Variant="Variant.Filled"
-                                   Color="Color.Primary"
-                                   Size="Size.Small"
-                                   Style="text-transform:none;"
-                                   OnClick="@(() => VerifyChore(context.Id))">
-                            Mark as verified
-                        </MudButton>
-                    </MudStack>
-                </MudTd>
-            </RowTemplate>
-        </MudTable>
-    }
-    <!-- ===== Reward approvals ===== -->
-    <MudText Typo="Typo.h6" Class="mb-4" Style="font-weight:700;">
-        Reward Approvals
-    </MudText>
-    @if (PendingRewards is null || PendingRewards.Count == 0)
-    {
-        <p>There are no unverified chores</p>
-    }
-    else
-    {
-        <MudTable Items="PendingRewards" Elevation="0" Style="border-radius:12px;">
-            <HeaderContent>
-                <MudTh>User</MudTh>
-                <MudTh>Reward</MudTh>
-                <MudTh>Points</MudTh>
-                <MudTh Style="width: 25%; white-space: nowrap; text-align: center;"></MudTh>
-            </HeaderContent>
+			<RowTemplate>
+				<MudTd>@GetUserName((int)context.UserId!)</MudTd>
+				<MudTd>@context.Name</MudTd>
+				<MudTd Align="Align.Right">
+					<MudStack Direction="Row" Spacing="1">
+						<MudButton Variant="Variant.Filled"
+								   Disabled="@_currentUserIsChild"
+								   Color="Color.Primary"
+								   Size="Size.Small"
+								   Style="text-transform:none;"
+								   OnClick="@(() => VerifyChore(context.Id))">
+							Mark as verified
+						</MudButton>
+					</MudStack>
+				</MudTd>
+			</RowTemplate>
+		</MudTable>
+	}
+	<!-- ===== Reward approvals ===== -->
+	<MudText Typo="Typo.h6" Class="mb-4" Style="font-weight:700;">
+		Reward Approvals
+	</MudText>
+	@if (PendingRewards is null || PendingRewards.Count == 0)
+	{
+		<p>There are no unverified chores</p>
+	}
+	else
+	{
+		<MudTable Items="PendingRewards" Elevation="0" Style="border-radius:12px;">
+			<HeaderContent>
+				<MudTh>User</MudTh>
+				<MudTh>Reward</MudTh>
+				<MudTh>Points</MudTh>
+				<MudTh Style="width: 25%; white-space: nowrap; text-align: center;"></MudTh>
+			</HeaderContent>
 
-            <RowTemplate>
-                <MudTd>@context.UserName</MudTd>
-                <MudTd>@context.Name</MudTd>
-                <MudTd>@context.PointsSpent</MudTd>
-                <MudTd Align="Align.Right">
-                    <MudStack Direction="Row" Spacing="1">
-                        <MudButton Variant="Variant.Filled"
-                                   Color="Color.Primary"
-                                   Size="Size.Small"
-                                   Style="text-transform:none;"
-                                   OnClick="@(() => FulfillReward(context.Id))">
-                            Mark as fulfilled
-                        </MudButton>
-                    </MudStack>
-                </MudTd>
-            </RowTemplate>
-        </MudTable>
-    }
+			<RowTemplate>
+				<MudTd>@context.UserName</MudTd>
+				<MudTd>@context.Name</MudTd>
+				<MudTd>@context.PointsSpent</MudTd>
+				<MudTd Align="Align.Right">
+					<MudStack Direction="Row" Spacing="1">
+						<MudButton Variant="Variant.Filled"
+								   Color="Color.Primary"
+								   Size="Size.Small"
+								   Style="text-transform:none;"
+								   OnClick="@(() => FulfillReward(context.Id))">
+							Mark as fulfilled
+						</MudButton>
+					</MudStack>
+				</MudTd>
+			</RowTemplate>
+		</MudTable>
+	}
 </MudContainer>
 
 @code {
 
-    // ==== DTOS ====
-    private HouseholdDto? household;
+	// ==== DTOS ====
+	private HouseholdDto? household;
 
 
-    private List<RedeemedRewardWithUserNameDto> PendingRewards = [];
-    private List<ChoreOverviewDto> Chores = [];
-    private List<AppUserRoleDto> Users = [];
+	private List<RedeemedRewardWithUserNameDto> PendingRewards = [];
+	private List<ChoreOverviewDto> Chores = [];
+	private List<AppUserRoleDto> Users = [];
 
-    // ==== Logic ====
+	// ==== Logic ====
+	private bool _currentUserIsChild = true;
 
-    protected override async Task OnInitializedAsync()
-    {
-        household = await householdService.GetHouseholdByIdAsync();
-        PendingRewards = (await redeemedRewardsService.GetHouseholdsUnfulfilledRedeemedRewardsAsync()).ToList();
-        Chores = (await choresService.GetMyHouseholdUnverifiedChoresAsync())?.ToList() ?? [];
-        Users = (await userService.GetMyHouseholdMembersRolesAsync())?.ToList() ?? [];
-    }
+	protected override async Task OnInitializedAsync()
+	{
+		household = await householdService.GetHouseholdByIdAsync();
+		PendingRewards = (await redeemedRewardsService.GetHouseholdsUnfulfilledRedeemedRewardsAsync()).ToList();
+		Chores = (await choresService.GetMyHouseholdUnverifiedChoresAsync())?.ToList() ?? [];
+		Users = (await userService.GetMyHouseholdMembersRolesAsync())?.ToList() ?? [];
+		_currentUserIsChild = await authService.IsChildAsync();
+	}
 
-    public void EditHousehold() => navigationManager.NavigateTo($"/household/details/{household!.Id}");
-    public string GetUserName(int Id)
-    {
-        return Users?.Where(u => u.Id == Id)?.FirstOrDefault()?.UserName ?? "";
-    }
-    public async Task FulfillReward(int Id) => await redeemedRewardsService.FulfillRewardAsync(Id);
-    public async Task VerifyChore(int Id) => await choresService.VerifyChoreAsync(Id);
+	public void EditHousehold() => navigationManager.NavigateTo($"/household/details/{household!.Id}");
+	public string GetUserName(int Id)
+	{
+		return Users?.Where(u => u.Id == Id)?.FirstOrDefault()?.UserName ?? "";
+	}
+	public async Task FulfillReward(int Id) => await redeemedRewardsService.FulfillRewardAsync(Id);
+	public async Task VerifyChore(int Id) => await choresService.VerifyChoreAsync(Id);
 }

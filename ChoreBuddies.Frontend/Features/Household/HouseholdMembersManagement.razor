@@ -12,7 +12,7 @@
             <MudText Typo="Typo.h5" Class="mb-4" Style="font-weight:700;">
                 Household Members
             </MudText>
-            @if (!_isEditingChores)
+            @if (!_isEditingChores && !_currentUserIsChild)
             {
                 <MudButton Variant="Variant.Outlined"
                 StartIcon="@Icons.Material.Filled.Edit"
@@ -100,9 +100,9 @@
     // ==== STATES ====
     private bool _isEditingChores = false;
     private int _userId = -1;
-    private bool _currentUserIsChild = false;
+    private bool _currentUserIsChild = true;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         AvailableRoles = (await userService.GetAvailableRolesAsync())?.ToList() ?? [];
         _userId = await authService.GetUserIdAsync();
@@ -114,6 +114,7 @@
         }
         LoadModels();
     }
+
     private void LoadModels()
     {
         MembersModel.Clear();
