@@ -126,7 +126,7 @@ public class AuthService(
 
     public async Task<string> GetLastNameAsync() => await GetClaimValueAsync(JwtRegisteredClaimNames.FamilyName);
 
-    public async Task<string> GetUserNameAsync() => await GetClaimValueAsync(JwtRegisteredClaimNames.Name);
+    public async Task<string> GetUserNameAsync() => await GetClaimValueAsync(JwtRegisteredClaimNames.UniqueName);
 
     public async Task<int> GetHouseholdIdAsync() => Int32.TryParse(await GetClaimValueAsync(AuthConstants.JwtHouseholdId), out var x) ? x : -1;
 
