@@ -160,6 +160,48 @@ public class RedeemedRewardsServiceTests
         // Assertions
         result.Should().NotBeNull();
         result.Id.Should().Be(88);
+
+        _userService.Verify(u => u.RemovePointsFromUser(1, 40), Times.Once);
+
+        _rewardService.Verify(r =>
+            r.UpdateRewardAsync(It.Is<RewardDto>(x =>
+                x.QuantityAvailable == 2)),
+            Times.Once);
+
+        _redeemedRepo.Verify(r =>
+            r.RedeemRewardAsync(It.IsAny<RedeemedReward>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task RedeemRewardAsync_ShouldSendNotifications_WhenNotFulfilled()
+    {
+        var reward = new RewardDto(10, "Test", "test", 55, 40, 3)
+        {
+            Id = 10
+        };
+        var user = new AppUser { Id = 1, UserName = "User", PointsCount = 100 };
+        var adult = new AppUser { Id = 2 };
+
+        var redeemedEntity = new RedeemedReward { Id = 88, Name = "Test", Description = "test" };
+
+        _rewardService.Setup(r => r.GetRewardByIdAsync(1)).ReturnsAsync(reward);
+        _userService.Setup(u => u.GetUserByIdAsync(1)).ReturnsAsync(user);
+        _userService.Setup(u => u.RemovePointsFromUser(1, 40)).ReturnsAsync(true);
+        _rewardService.Setup(r => r.UpdateRewardAsync(It.IsAny<RewardDto>())).ReturnsAsync(reward);
+        _redeemedRepo.Setup(r => r.RedeemRewardAsync(It.IsAny<RedeemedReward>()))
+            .ReturnsAsync(redeemedEntity);
+
+        _userService.Setup(u => u.GetUsersHouseholdAdultsAsync(1))
+            .ReturnsAsync(new[] { adult });
+
+        await _service.RedeemRewardAsync(1, 1, false);
+
+        // Assertions
+
+        _notificationService.Verify(
+            n => n.SendNewRewardRequestNotificationAsync(adult.Id, redeemedEntity.Id, redeemedEntity.Name, user.UserName, default),
+            Times.Once);
     }
 
     // -------------------------------------------------------
