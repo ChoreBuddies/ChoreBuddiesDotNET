@@ -120,7 +120,7 @@ public class ChoresController : ControllerBase
     {
         var userId = _tokenService.GetUserIdFromToken(User);
         var role = _tokenService.GetUserRoleFromToken(User);
-        var result = await _choresService.MarkChoreAsDoneAsync(choreId, userId, role == "Adult");
+        var result = await _choresService.MarkChoreAsDoneAsync(choreId, userId, role == AuthConstants.RoleAdult);
         return Ok(result);
     }
 
@@ -130,10 +130,6 @@ public class ChoresController : ControllerBase
     {
         var userId = _tokenService.GetUserIdFromToken(User);
         var role = _tokenService.GetUserRoleFromToken(User);
-        if (role != "Adult")
-        {
-            return Forbid();
-        }
         var result = await _choresService.VerifyChoreAsync(choreId, userId);
         return Ok(result);
     }

@@ -19,7 +19,7 @@ public class RedeemedRewardsController(IRedeemedRewardsService redeemedRewardsSe
     {
         var userId = _tokenService.GetUserIdFromToken(User);
         var role = _tokenService.GetUserRoleFromToken(User);
-        var result = await _redeemedRewardsService.RedeemRewardAsync(userId, rewardDto.RewardId, rewardDto.IsFulfilled && role == "Adult");
+        var result = await _redeemedRewardsService.RedeemRewardAsync(userId, rewardDto.RewardId, rewardDto.IsFulfilled && role == AuthConstants.RoleAdult);
         return Ok(result);
     }
 
@@ -28,10 +28,6 @@ public class RedeemedRewardsController(IRedeemedRewardsService redeemedRewardsSe
     public async Task<ActionResult<bool>> FulfillReward([FromBody] FulfillRewardDto fulfillRewardDto)
     {
         var role = _tokenService.GetUserRoleFromToken(User);
-        if (role != "Adult")
-        {
-            return Forbid();
-        }
         return Ok(await _redeemedRewardsService.FulfillRewardAsync(fulfillRewardDto.redeemedRewardId));
     }
 

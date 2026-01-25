@@ -127,11 +127,11 @@ public class DbSeeder
     {
         if (children.Contains(user.UserName))
         {
-            userManager.AddToRoleAsync(user, "Child").Wait();
+            userManager.AddToRoleAsync(user, AuthConstants.RoleChild).Wait();
         }
         else
         {
-            userManager.AddToRoleAsync(user, "Adult").Wait();
+            userManager.AddToRoleAsync(user, AuthConstants.RoleAdult).Wait();
         }
     }
 
@@ -139,11 +139,11 @@ public class DbSeeder
     {
         if (children.Contains(user.UserName))
         {
-            await userManager.AddToRoleAsync(user, "Child");
+            await userManager.AddToRoleAsync(user, AuthConstants.RoleChild);
         }
         else
         {
-            await userManager.AddToRoleAsync(user, "Adult");
+            await userManager.AddToRoleAsync(user, AuthConstants.RoleAdult);
         }
     }
 

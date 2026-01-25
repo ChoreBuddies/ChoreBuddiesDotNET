@@ -86,7 +86,7 @@ e
     protected override async Task OnInitializedAsync()
     {
         AvailableFrequencies = Enum.GetValues<Frequency>().ToList();
-        _isChild = await authService.GetUserRoleAsync() == "Child";
+        _isChild = await authService.GetUserRoleAsync() == AuthConstants.RoleChild;
 
         Chores = (await scheduledChoresService.GetMyHouseholdChoresOverviewAsync())
                  ?.ToList() ?? [];
