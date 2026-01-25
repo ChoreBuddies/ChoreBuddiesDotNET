@@ -270,7 +270,8 @@ public class HouseholdsServiceTests
             dueDate: null,
             status: status,
             room: "Test",
-            rewardPointsCount: 10
+            rewardPointsCount: 10,
+            completedDate: null
         );
     }
 

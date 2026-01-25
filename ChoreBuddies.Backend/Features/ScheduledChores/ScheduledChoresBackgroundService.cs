@@ -88,7 +88,8 @@ public class ScheduledChoresBackgroundService : BackgroundService
                             dueDate: dueDate,
                             status: userId is not null ? Status.Assigned : Status.Unassigned,
                             room: sc.Room,
-                            rewardPointsCount: sc.RewardPointsCount
+                            rewardPointsCount: sc.RewardPointsCount,
+                            completedDate: null
                         );
 
                         db.Chores.Add(chore);

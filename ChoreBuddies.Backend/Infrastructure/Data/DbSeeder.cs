@@ -543,7 +543,8 @@ public class DbSeeder
                 DateTime.UtcNow.AddDays(2),
                 Status.Assigned,
                 "Kitchen",
-                50));
+                50,
+                null));
 
             list.Add(new Chore(
                 "Take out the trash",
@@ -553,7 +554,8 @@ public class DbSeeder
                 DateTime.UtcNow.AddHours(4),
                 Status.Assigned,
                 "Garage",
-                10));
+                10,
+                null));
 
             list.Add(new Chore(
                 "Grocery shopping",
@@ -563,7 +565,8 @@ public class DbSeeder
                 DateTime.UtcNow.AddDays(-1),
                 Status.Completed,
                 "Living Room",
-                20));
+                20,
+                DateTime.UtcNow));
         }
 
         // households[2]
@@ -587,16 +590,17 @@ public class DbSeeder
                 date,
                 Status.Completed,
                 "Apartment",
-                random.Next(10, 50)
+                random.Next(10, 50),
+                DateTime.UtcNow
             ));
         }
 
-        list.Add(new Chore("Buy toilet paper", "Urgent!", null, hStudent.Id, DateTime.UtcNow, Status.Unassigned, "Bathroom", 15));
-        list.Add(new Chore("Clean up after party", "Bottles in the living room", null, hStudent.Id, DateTime.UtcNow.AddHours(10), Status.Unassigned, "Living Room", 100));
+        list.Add(new Chore("Buy toilet paper", "Urgent!", null, hStudent.Id, DateTime.UtcNow, Status.Unassigned, "Bathroom", 15, null));
+        list.Add(new Chore("Clean up after party", "Bottles in the living room", null, hStudent.Id, DateTime.UtcNow.AddHours(10), Status.Unassigned, "Living Room", 100, null));
 
         if (usersStudent.Any())
         {
-            list.Add(new Chore("Wash the dishes", "Your turn", usersStudent[0].Id, hStudent.Id, DateTime.UtcNow.AddHours(1), Status.Assigned, "Kitchen", 25));
+            list.Add(new Chore("Wash the dishes", "Your turn", usersStudent[0].Id, hStudent.Id, DateTime.UtcNow.AddHours(1), Status.Assigned, "Kitchen", 25, null));
         }
 
         return list;

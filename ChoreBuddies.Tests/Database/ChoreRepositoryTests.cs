@@ -37,7 +37,7 @@ public class ChoresRepositoryTests : BaseIntegrationTest
     {
         // Arrange
         var household = await CreateTestHouseholdAsync();
-        var chore = new Chore("Wash Dishes", "Kitchen", null, household.Id, DateTime.UtcNow.AddDays(1), Status.Unassigned, "Kitchen", 10);
+        var chore = new Chore("Wash Dishes", "Kitchen", null, household.Id, DateTime.UtcNow.AddDays(1), Status.Unassigned, "Kitchen", 10, null);
 
         // Act
         var result = await _repository.CreateChoreAsync(chore);
@@ -59,8 +59,8 @@ public class ChoresRepositoryTests : BaseIntegrationTest
         var household = await CreateTestHouseholdAsync();
         var chores = new List<Chore>
         {
-            new Chore("Task 1", "D1", null, household.Id, null, Status.Unassigned, "Living Room", 5),
-            new Chore("Task 2", "D2", null, household.Id, null, Status.Unassigned, "Bedroom", 5)
+            new Chore("Task 1", "D1", null, household.Id, null, Status.Unassigned, "Living Room", 5, null),
+            new Chore("Task 2", "D2", null, household.Id, null, Status.Unassigned, "Bedroom", 5, null)
         };
 
         // Act
@@ -79,7 +79,7 @@ public class ChoresRepositoryTests : BaseIntegrationTest
     {
         // Arrange
         var household = await CreateTestHouseholdAsync();
-        var chore = new Chore("Find Me", "Hidden", null, household.Id, null, Status.Unassigned, "Hall", 20);
+        var chore = new Chore("Find Me", "Hidden", null, household.Id, null, Status.Unassigned, "Hall", 20, null);
 
         DbContext.Chores.Add(chore);
         await DbContext.SaveChangesAsync();
@@ -102,8 +102,8 @@ public class ChoresRepositoryTests : BaseIntegrationTest
         DbContext.ApplicationUsers.Add(user);
         await DbContext.SaveChangesAsync();
 
-        var myChore = new Chore("My Task", "Desc", user.Id, household.Id, null, Status.Assigned, "Room", 10);
-        var otherChore = new Chore("Other Task", "Desc", null, household.Id, null, Status.Unassigned, "Room", 10);
+        var myChore = new Chore("My Task", "Desc", user.Id, household.Id, null, Status.Assigned, "Room", 10, null);
+        var otherChore = new Chore("Other Task", "Desc", null, household.Id, null, Status.Unassigned, "Room", 10, null);
 
         DbContext.Chores.AddRange(myChore, otherChore);
         await DbContext.SaveChangesAsync();
@@ -131,8 +131,8 @@ public class ChoresRepositoryTests : BaseIntegrationTest
         DbContext.Households.Add(household);
         await DbContext.SaveChangesAsync();
 
-        var chore1 = new Chore("Vacuum", "Desc", null, household.Id, null, Status.Unassigned, "All", 50);
-        var chore2 = new Chore("Dust", "Desc", owner.Id, household.Id, null, Status.Assigned, "All", 20);
+        var chore1 = new Chore("Vacuum", "Desc", null, household.Id, null, Status.Unassigned, "All", 50, null);
+        var chore2 = new Chore("Dust", "Desc", owner.Id, household.Id, null, Status.Assigned, "All", 20, null);
 
         DbContext.Chores.AddRange(chore1, chore2);
         await DbContext.SaveChangesAsync();
@@ -153,7 +153,7 @@ public class ChoresRepositoryTests : BaseIntegrationTest
     {
         // Arrange
         var household = await CreateTestHouseholdAsync();
-        var chore = new Chore("Old Name", "Old Desc", null, household.Id, null, Status.Unassigned, "Old Room", 5);
+        var chore = new Chore("Old Name", "Old Desc", null, household.Id, null, Status.Unassigned, "Old Room", 5, null);
         DbContext.Chores.Add(chore);
         await DbContext.SaveChangesAsync();
 
@@ -180,7 +180,7 @@ public class ChoresRepositoryTests : BaseIntegrationTest
         DbContext.ApplicationUsers.Add(user);
         await DbContext.SaveChangesAsync();
 
-        var chore = new Chore("To Assign", "Desc", null, household.Id, null, Status.Unassigned, "Room", 10);
+        var chore = new Chore("To Assign", "Desc", null, household.Id, null, Status.Unassigned, "Room", 10, null);
         DbContext.Chores.Add(chore);
         await DbContext.SaveChangesAsync();
 
@@ -199,7 +199,7 @@ public class ChoresRepositoryTests : BaseIntegrationTest
     {
         // Arrange
         var household = await CreateTestHouseholdAsync();
-        var chore = new Chore("To Delete", "Bye", null, household.Id, null, Status.Unassigned, "Void", 1);
+        var chore = new Chore("To Delete", "Bye", null, household.Id, null, Status.Unassigned, "Void", 1, null);
         DbContext.Chores.Add(chore);
         await DbContext.SaveChangesAsync();
 

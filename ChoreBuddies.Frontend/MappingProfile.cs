@@ -43,7 +43,9 @@ public class MappingProfile : Profile
                 src.DueDate,
                 null,
                 src.Room,
-                src.RewardPointsCount
+                src.RewardPointsCount,
+                null,
+                null
             ));
         CreateMap<ChoreViewModel, ScheduledChoreDto>().ReverseMap();
     }
