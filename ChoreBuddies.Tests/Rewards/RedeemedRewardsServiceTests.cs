@@ -2,7 +2,6 @@
 using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Notifications;
 using ChoreBuddies.Backend.Features.RedeemedRewards;
-using ChoreBuddies.Backend.Features.RedeemRewards;
 using ChoreBuddies.Backend.Features.Rewards;
 using ChoreBuddies.Backend.Features.Users;
 using FluentAssertions;
