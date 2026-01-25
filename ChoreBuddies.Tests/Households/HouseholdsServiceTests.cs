@@ -34,6 +34,7 @@ public class HouseholdsServiceTests
     [Fact]
     public async Task CreateHouseholdAsync_ShouldCreateAndJoinHousehold()
     {
+        // Arrange
         _invitationService.Setup(x => x.GenerateUniqueInvitationCodeAsync())
             .ReturnsAsync("INV123");
 
@@ -47,10 +48,12 @@ public class HouseholdsServiceTests
         _householdRepo.Setup(x => x.GetHouseholdByInvitationCodeAsync("INV123"))
             .ReturnsAsync(created);
 
+        // Act
         var result = await _service.CreateHouseholdAsync(
             new CreateHouseholdDto("Test", ""),
             10);
 
+        // Assert
         Assert.NotNull(result);
         Assert.Equal("INV123", result.InvitationCode);
 
@@ -61,6 +64,7 @@ public class HouseholdsServiceTests
     [Fact]
     public async Task CreateHouseholdAsync_ShouldThrow_WhenJoinFails()
     {
+        // Arrange
         _invitationService.Setup(x => x.GenerateUniqueInvitationCodeAsync())
             .ReturnsAsync("INV123");
 
@@ -70,6 +74,7 @@ public class HouseholdsServiceTests
         _userService.Setup(x => x.GetUserByIdAsync(It.IsAny<int>()))
             .ReturnsAsync((AppUser?)null);
 
+        // Act & Assert
         await Assert.ThrowsAsync<ArgumentException>(() =>
             _service.CreateHouseholdAsync(
                 new CreateHouseholdDto("Test", ""), 10));
@@ -81,12 +86,15 @@ public class HouseholdsServiceTests
     [Fact]
     public async Task GetUsersHouseholdAsync_ShouldReturnHousehold()
     {
+        // Arrange
         var household = new Household(99, "Test", "INV123", "");
         _householdRepo.Setup(x => x.GetHouseholdByIdAsync(household.Id))
             .ReturnsAsync(household);
 
+        // Act
         var result = await _service.GetUsersHouseholdAsync(household.Id);
 
+        // Assert
         Assert.NotNull(result);
         Assert.Equal(household.Id, result.Id);
     }
@@ -94,11 +102,14 @@ public class HouseholdsServiceTests
     [Fact]
     public async Task GetUsersHouseholdAsync_ShouldReturnNull()
     {
+        // Arrange
         _householdRepo.Setup(x => x.GetHouseholdByIdAsync(1))
             .ReturnsAsync((Household?)null);
 
+        // Act
         var result = await _service.GetUsersHouseholdAsync(1);
 
+        // Assert
         Assert.Null(result);
     }
 
@@ -108,6 +119,7 @@ public class HouseholdsServiceTests
     [Fact]
     public async Task JoinHouseholdAsync_ShouldJoinUser()
     {
+        // Arrange
         var user = new AppUser { Id = 10 };
         var household = new Household(77, "Test", "INV123", "");
 
@@ -117,8 +129,10 @@ public class HouseholdsServiceTests
         _householdRepo.Setup(x => x.GetHouseholdByInvitationCodeAsync("INV123"))
             .ReturnsAsync(household);
 
+        // Act
         var result = await _service.JoinHouseholdAsync("INV123", 10);
 
+        // Assert
         Assert.Equal(household, result);
         _householdRepo.Verify(x => x.JoinHouseholdAsync(household, user), Times.Once);
     }
@@ -126,9 +140,11 @@ public class HouseholdsServiceTests
     [Fact]
     public async Task JoinHouseholdAsync_ShouldThrow_WhenUserNotFound()
     {
+        // Arrange
         _userService.Setup(x => x.GetUserByIdAsync(10))
             .ReturnsAsync((AppUser?)null);
 
+        // Act & Assert
         await Assert.ThrowsAsync<ArgumentException>(() =>
             _service.JoinHouseholdAsync("INV123", 10));
     }
@@ -136,12 +152,14 @@ public class HouseholdsServiceTests
     [Fact]
     public async Task JoinHouseholdAsync_ShouldThrow_WhenHouseholdNotFound()
     {
+        // Arrange
         _userService.Setup(x => x.GetUserByIdAsync(10))
             .ReturnsAsync(new AppUser { Id = 10 });
 
         _householdRepo.Setup(x => x.GetHouseholdByInvitationCodeAsync("INV123"))
             .ReturnsAsync((Household?)null);
 
+        // Act & Assert
         await Assert.ThrowsAsync<InvalidInvitationCodeException>(() =>
             _service.JoinHouseholdAsync("INV123", 10));
     }
@@ -152,6 +170,7 @@ public class HouseholdsServiceTests
     [Fact]
     public async Task UpdateHouseholdAsync_ShouldUpdate()
     {
+        // Arrange
         var household = new Household(3, "Test", "INV123", "");
         _householdRepo.Setup(x => x.GetHouseholdByIdAsync(household.Id))
             .ReturnsAsync(household);
@@ -161,8 +180,11 @@ public class HouseholdsServiceTests
             .ReturnsAsync(new Household(3, "NewName", "INV123", description: "NewDesc"));
 
         var dto = new CreateHouseholdDto("NewName", "NewDesc");
+
+        // Act
         var result = await _service.UpdateHouseholdAsync(household.Id, dto);
 
+        // Assert
         Assert.Equal("NewName", result!.Name);
         Assert.Equal("NewDesc", result.Description);
     }
@@ -170,11 +192,14 @@ public class HouseholdsServiceTests
     [Fact]
     public async Task UpdateHouseholdAsync_ShouldReturnNull_WhenNotFound()
     {
+        // Arrange
         _householdRepo.Setup(x => x.GetHouseholdByIdAsync(3))
             .ReturnsAsync((Household?)null);
 
+        // Act
         var result = await _service.UpdateHouseholdAsync(3, new CreateHouseholdDto("", null));
 
+        // Assert
         Assert.Null(result);
     }
 
@@ -184,6 +209,7 @@ public class HouseholdsServiceTests
     [Fact]
     public async Task DeleteHouseholdAsync_ShouldDelete()
     {
+        // Arrange
         var household = new Household(5, "Test", "INV123", "");
         _householdRepo.Setup(x => x.GetHouseholdByIdAsync(household.Id))
             .ReturnsAsync(household);
@@ -191,19 +217,24 @@ public class HouseholdsServiceTests
         _householdRepo.Setup(x => x.DeleteHouseholdAsync(household))
             .ReturnsAsync(household);
 
+        // Act
         var result = await _service.DeleteHouseholdAsync(household.Id);
 
+        // Assert
         Assert.Equal(household.Id, result!.Id);
     }
 
     [Fact]
     public async Task DeleteHouseholdAsync_ShouldReturnNull_WhenNotFound()
     {
+        // Arrange
         _householdRepo.Setup(x => x.GetHouseholdByIdAsync(5))
             .ReturnsAsync((Household?)null);
 
+        // Act
         var result = await _service.DeleteHouseholdAsync(5);
 
+        // Assert
         Assert.Null(result);
     }
 
@@ -213,11 +244,14 @@ public class HouseholdsServiceTests
     [Fact]
     public async Task CheckIfUserBelongsAsync_ShouldReturnValue()
     {
+        // Arrange
         _householdRepo.Setup(x => x.CheckIfUserBelongsAsync(1, 10))
             .ReturnsAsync(true);
 
+        // Act
         var result = await _service.CheckIfUserBelongsAsync(1, 10);
 
+        // Assert
         Assert.True(result);
     }
 
