@@ -5,5 +5,6 @@ int Id,
 string Name,
 int? UserId,
 Status Status,
-string Room
+string Room,
+DateTime DueDate
 );

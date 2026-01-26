@@ -14,6 +14,7 @@
 @inject IHouseholdService householdService
 @inject IRedeemedRewardsService redeemedRewardsService
 @inject IScheduledChoresService scheduledChoresService
+@inject ISnackbar snackBar
 @inject IUserService userService
 @inject IAuthService authService
 @inject NavigationManager navigationManager
@@ -41,11 +42,11 @@
 					@if (!_currentUserIsChild)
 					{
 						<MudButton Variant="Variant.Outlined"
-										StartIcon="@Icons.Material.Filled.Edit"
-										OnClick="@EditHousehold"
-										Color="Color.Primary"
-										Size="Size.Large"
-										Style="text-transform:none; border-radius:20px;">
+						StartIcon="@Icons.Material.Filled.Edit"
+						OnClick="@EditHousehold"
+						Color="Color.Primary"
+						Size="Size.Large"
+						Style="text-transform:none; border-radius:20px;">
 							Edit
 						</MudButton>
 					}
@@ -77,51 +78,6 @@
 	<!-- ===== Recurring chores ===== -->
 	<ScheduledChoresManagement />
 
-	@* <MudText Typo="Typo.h6" Class="mb-4" Style="font-weight:700;">
-        Recurring Chores
-    </MudText>
-
-    <MudGrid Class="mb-10">
-        @foreach (var chore in RecurringChores)
-        {
-            <MudItem xs="12" md="6">
-                <MudPaper Elevation="1" Class="p-4" Style="border-radius:12px;">
-                    <MudStack Spacing="1">
-                        <MudText Typo="Typo.subtitle1" Style="font-weight:700;">
-                            @chore.Name
-                        </MudText>
-
-                        <MudText Typo="Typo.body2" Color="Color.Secondary">
-                            @chore.Description
-                        </MudText>
-
-                        <MudText Typo="Typo.caption">
-                            Frequency: @chore.Frequency
-                        </MudText>
-
-                        <MudStack Spacing="2" Class="mt-2">
-                            <MudButton Variant="Variant.Text" Size="Size.Small">
-                                Edit
-                            </MudButton>
-                            <MudButton Variant="Variant.Text"
-                            Color="Color.Error"
-                            Size="Size.Small">
-                                Delete
-                            </MudButton>
-                        </MudStack>
-                    </MudStack>
-                </MudPaper>
-            </MudItem>
-        }
-
-        <MudItem xs="12">
-            <MudButton Variant="Variant.Filled"
-            Color="Color.Primary"
-            Style="text-transform:none;">
-                Add recurring chore
-            </MudButton>
-        </MudItem>
-    </MudGrid> *@
 	<!-- ===== Chore approvals ===== -->
 	<MudText Typo="Typo.h6" Class="mb-4" Style="font-weight:700;">
 		Chore Verifications
@@ -146,11 +102,11 @@
 				<MudTd Align="Align.Right">
 					<MudStack Direction="Row" Spacing="1">
 						<MudButton Variant="Variant.Filled"
-								   Disabled="@_currentUserIsChild"
-								   Color="Color.Primary"
-								   Size="Size.Small"
-								   Style="text-transform:none;"
-								   OnClick="@(() => VerifyChore(context.Id))">
+						Disabled="@_currentUserIsChild"
+						Color="Color.Primary"
+						Size="Size.Small"
+						Style="text-transform:none;"
+						OnClick="@(() => VerifyChore(context))">
 							Mark as verified
 						</MudButton>
 					</MudStack>
@@ -164,7 +120,7 @@
 	</MudText>
 	@if (PendingRewards is null || PendingRewards.Count == 0)
 	{
-		<p>There are no unverified chores</p>
+		<p>There are no unverified rewards</p>
 	}
 	else
 	{
@@ -183,10 +139,10 @@
 				<MudTd Align="Align.Right">
 					<MudStack Direction="Row" Spacing="1">
 						<MudButton Variant="Variant.Filled"
-								   Color="Color.Primary"
-								   Size="Size.Small"
-								   Style="text-transform:none;"
-								   OnClick="@(() => FulfillReward(context.Id))">
+						Color="Color.Primary"
+						Size="Size.Small"
+						Style="text-transform:none;"
+						OnClick="@(() => FulfillReward(context))">
 							Mark as fulfilled
 						</MudButton>
 					</MudStack>
@@ -223,6 +179,16 @@
 	{
 		return Users?.Where(u => u.Id == Id)?.FirstOrDefault()?.UserName ?? "";
 	}
-	public async Task FulfillReward(int Id) => await redeemedRewardsService.FulfillRewardAsync(Id);
-	public async Task VerifyChore(int Id) => await choresService.VerifyChoreAsync(Id);
+	public async Task FulfillReward(RedeemedRewardWithUserNameDto reward) { 
+		await redeemedRewardsService.FulfillRewardAsync(reward.Id);
+		snackBar.Add("Reward fulfilled successfully", Severity.Success);
+		PendingRewards.Remove(reward);
+		StateHasChanged();
+	}
+	public async Task VerifyChore(ChoreOverviewDto chore) {
+		await choresService.VerifyChoreAsync(chore.Id);
+		snackBar.Add("Chore verified successfully", Severity.Success);
+		Chores.Remove(chore);
+		StateHasChanged();
+	}
 }
