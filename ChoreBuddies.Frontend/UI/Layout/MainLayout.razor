@@ -4,6 +4,7 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IAuthApiService authApiService
 @inject NavigationManager Navigation
+@inject IAuthService authService
 
 <MudThemeProvider Theme="_theme" />
 <MudPopoverProvider />
@@ -76,14 +77,17 @@
                                     <!-- Quick Actions Section -->
                                     <div class="pa-4">
                                         <MudText Typo="Typo.subtitle2" Class="mb-3">Quick Actions</MudText>
-                                        <MudButton StartIcon="@Icons.Material.Filled.Add"
-                                                    Color="Color.Primary"
-                                                    Variant="Variant.Filled"
-                                                    FullWidth="true"
-                                                    Class="mb-2"
-                                                    OnClick="@AddNewChore">
-                                            Add New Chore
-                                        </MudButton>
+                                        @if (!_isChild)
+                                        {
+                                            <MudButton StartIcon="@Icons.Material.Filled.Add"
+                                            Color="Color.Primary"
+                                            Variant="Variant.Filled"
+                                            FullWidth="true"
+                                            Class="mb-2"
+                                            OnClick="@AddNewChore">
+                                                Add New Chore
+                                            </MudButton>
+                                        }
                                         <MudButton StartIcon="@Icons.Material.Filled.List"
                                                     Color="Color.Default"
                                                     Variant="Variant.Outlined"
@@ -174,6 +178,7 @@
     private bool _drawerOpen = false; 
     private bool _showMiniChat = true;
     private bool _showFullHouseLayout = false;
+    private bool _isChild = true;
 
     private MudTheme _theme = new MudTheme()
     {
@@ -197,13 +202,14 @@
         }
     };
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         AuthenticationStateProvider.AuthenticationStateChanged += OnAuthStateChanged;
         Navigation.LocationChanged += OnLocationChanged;
 
         CheckMiniChatVisibility();
         CheckLayoutVisibility();
+        _isChild = await authService.IsChildAsync();
     }
 
     private async void OnAuthStateChanged(Task<AuthenticationState> task)
