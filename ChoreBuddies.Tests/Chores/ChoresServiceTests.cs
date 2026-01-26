@@ -232,7 +232,7 @@ public class ChoresServiceTests
     public async Task GetMyHouseholdUnverifiedChoresAsync_ShouldMapList()
     {
         var chores = new List<Chore> { new Chore("test", "testt", 2, 1, DateTime.Now.AddDays(-1), Status.UnverifiedCompleted, "kitchen", 10, DateTime.Now) { Id = 7 } };
-        var dtos = new List<ChoreOverviewDto> { new ChoreOverviewDto(7, "test", 2, Status.UnverifiedCompleted, "kitchen") };
+        var dtos = new List<ChoreOverviewDto> { new ChoreOverviewDto(7, "test", 2, Status.UnverifiedCompleted, "kitchen", DateTime.Now) };
 
         _repo.Setup(r => r.GetHouseholdUnverifiedChoresAsync(10)).ReturnsAsync(chores);
         _mapper.Setup(m => m.Map<List<ChoreOverviewDto>>(chores)).Returns(dtos);
