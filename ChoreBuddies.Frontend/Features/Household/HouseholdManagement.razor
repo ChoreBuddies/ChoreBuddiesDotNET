@@ -42,11 +42,11 @@
 					@if (!_currentUserIsChild)
 					{
 						<MudButton Variant="Variant.Outlined"
-						StartIcon="@Icons.Material.Filled.Edit"
-						OnClick="@EditHousehold"
-						Color="Color.Primary"
-						Size="Size.Large"
-						Style="text-transform:none; border-radius:20px;">
+								   StartIcon="@Icons.Material.Filled.Edit"
+								   OnClick="@EditHousehold"
+								   Color="Color.Primary"
+								   Size="Size.Large"
+								   Style="text-transform:none; border-radius:20px;">
 							Edit
 						</MudButton>
 					}
@@ -79,77 +79,85 @@
 	<ScheduledChoresManagement />
 
 	<!-- ===== Chore approvals ===== -->
-	<MudText Typo="Typo.h6" Class="mb-4" Style="font-weight:700;">
-		Chore Verifications
-	</MudText>
+	<MudPaper Elevation="0" Class="pa-6 mb-8" Style="background:#f5f6f8; border-radius:16px;">
+		<div>
+			<MudText Typo="Typo.h6" Class="mb-4" Style="font-weight:700;">
+				Chore Verifications
+			</MudText>
 
-	@if (Chores is null || Chores.Count == 0)
-	{
-		<p>There are no unverified chores</p>
-	}
-	else
-	{
-		<MudTable Items="Chores" Elevation="0" Style="border-radius:12px;">
-			<HeaderContent>
-				<MudTh>User</MudTh>
-				<MudTh>Chore</MudTh>
-				<MudTh Style="width: 25%; white-space: nowrap; text-align: center;"></MudTh>
-			</HeaderContent>
+			@if (Chores is null || Chores.Count == 0)
+			{
+				<p>There are no unverified chores</p>
+			}
+			else
+			{
+				<MudTable Items="Chores" Elevation="0" Style="border-radius:12px; background:#f5f6f8; ">
+					<HeaderContent>
+						<MudTh>User</MudTh>
+						<MudTh>Chore</MudTh>
+						<MudTh Style="width: 25%; white-space: nowrap; text-align: center;"></MudTh>
+					</HeaderContent>
 
-			<RowTemplate>
-				<MudTd>@GetUserName((int)context.UserId!)</MudTd>
-				<MudTd>@context.Name</MudTd>
-				<MudTd Align="Align.Right">
-					<MudStack Direction="Row" Spacing="1">
-						<MudButton Variant="Variant.Filled"
-						Disabled="@_currentUserIsChild"
-						Color="Color.Primary"
-						Size="Size.Small"
-						Style="text-transform:none;"
-						OnClick="@(() => VerifyChore(context))">
-							Mark as verified
-						</MudButton>
-					</MudStack>
-				</MudTd>
-			</RowTemplate>
-		</MudTable>
-	}
+					<RowTemplate>
+						<MudTd>@GetUserName((int)context.UserId!)</MudTd>
+						<MudTd>@context.Name</MudTd>
+						<MudTd Align="Align.Right">
+							<MudStack Direction="Row" Spacing="1">
+								<MudButton Variant="Variant.Filled"
+										   Disabled="@_currentUserIsChild"
+										   Color="Color.Primary"
+										   Size="Size.Small"
+										   Style="text-transform:none;"
+										   OnClick="@(() => VerifyChore(context))">
+									Mark as verified
+								</MudButton>
+							</MudStack>
+						</MudTd>
+					</RowTemplate>
+				</MudTable>
+			}
+		</div>
+	</MudPaper>
 	<!-- ===== Reward approvals ===== -->
-	<MudText Typo="Typo.h6" Class="mb-4" Style="font-weight:700;">
-		Reward Approvals
-	</MudText>
-	@if (PendingRewards is null || PendingRewards.Count == 0)
-	{
-		<p>There are no unverified rewards</p>
-	}
-	else
-	{
-		<MudTable Items="PendingRewards" Elevation="0" Style="border-radius:12px;">
-			<HeaderContent>
-				<MudTh>User</MudTh>
-				<MudTh>Reward</MudTh>
-				<MudTh>Points</MudTh>
-				<MudTh Style="width: 25%; white-space: nowrap; text-align: center;"></MudTh>
-			</HeaderContent>
+	<MudPaper Elevation="0" Class="pa-6 mb-8" Style="background:#f5f6f8; border-radius:16px;">
+		<div>
+			<MudText Typo="Typo.h6" Class="mb-4" Style="font-weight:700;">
+				Reward Approvals
+			</MudText>
+			@if (PendingRewards is null || PendingRewards.Count == 0)
+			{
+				<p>There are no unverified rewards</p>
+			}
+			else
+			{
+				<MudTable Items="PendingRewards" Elevation="0" Style="background:#f5f6f8; border-radius:12px;">
+					<HeaderContent>
+						<MudTh>User</MudTh>
+						<MudTh>Reward</MudTh>
+						<MudTh>Points</MudTh>
+						<MudTh Style="width: 25%; white-space: nowrap; text-align: center;"></MudTh>
+					</HeaderContent>
 
-			<RowTemplate>
-				<MudTd>@context.UserName</MudTd>
-				<MudTd>@context.Name</MudTd>
-				<MudTd>@context.PointsSpent</MudTd>
-				<MudTd Align="Align.Right">
-					<MudStack Direction="Row" Spacing="1">
-						<MudButton Variant="Variant.Filled"
-						Color="Color.Primary"
-						Size="Size.Small"
-						Style="text-transform:none;"
-						OnClick="@(() => FulfillReward(context))">
-							Mark as fulfilled
-						</MudButton>
-					</MudStack>
-				</MudTd>
-			</RowTemplate>
-		</MudTable>
-	}
+					<RowTemplate>
+						<MudTd>@context.UserName</MudTd>
+						<MudTd>@context.Name</MudTd>
+						<MudTd>@context.PointsSpent</MudTd>
+						<MudTd Align="Align.Right">
+							<MudStack Direction="Row" Spacing="1">
+								<MudButton Variant="Variant.Filled"
+										   Color="Color.Primary"
+										   Size="Size.Small"
+										   Style="text-transform:none;"
+										   OnClick="@(() => FulfillReward(context))">
+									Mark as fulfilled
+								</MudButton>
+							</MudStack>
+						</MudTd>
+					</RowTemplate>
+				</MudTable>
+			}
+		</div>
+	</MudPaper>
 </MudContainer>
 
 @code {
@@ -179,13 +187,15 @@
 	{
 		return Users?.Where(u => u.Id == Id)?.FirstOrDefault()?.UserName ?? "";
 	}
-	public async Task FulfillReward(RedeemedRewardWithUserNameDto reward) { 
+	public async Task FulfillReward(RedeemedRewardWithUserNameDto reward)
+	{
 		await redeemedRewardsService.FulfillRewardAsync(reward.Id);
 		snackBar.Add("Reward fulfilled successfully", Severity.Success);
 		PendingRewards.Remove(reward);
 		StateHasChanged();
 	}
-	public async Task VerifyChore(ChoreOverviewDto chore) {
+	public async Task VerifyChore(ChoreOverviewDto chore)
+	{
 		await choresService.VerifyChoreAsync(chore.Id);
 		snackBar.Add("Chore verified successfully", Severity.Success);
 		Chores.Remove(chore);
