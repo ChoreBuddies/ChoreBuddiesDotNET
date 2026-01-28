@@ -6,6 +6,6 @@ public record CreateChoreDto(
     int? UserId,
     int HouseholdId,
     DateTime? DueDate,
-    Status? Status,
+    Status Status,
     string Room,
     int RewardPointsCount);

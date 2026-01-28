@@ -49,7 +49,7 @@ public class RemindersServiceTests
     {
         // Arrange
         var remindAt = DateTime.Now.AddDays(1);
-        var chore = new ChoreDto(10, "Take out trash", "", 0, 0, null, null, "");
+        var chore = new ChoreDto(10, "Take out trash", "", 0, 0, null, Status.Unassigned, "");
         var reminderDto = new ReminderDto(remindAt, chore.Id);
 
         _choresServiceMock
@@ -82,7 +82,7 @@ public class RemindersServiceTests
             userId,
             householdId,
             null,
-            null,
+            Status.Unassigned,
             ""
         );
         var reminderDto = new ReminderDto(remindAt, chore.Id);

@@ -80,10 +80,9 @@ public class ChoresRepository(ChoreBuddiesDbContext dbContext) : IChoresReposito
             {
                 current.DueDate = chore.DueDate;
             }
-            if (chore.Status is not null)
-            {
-                current.Status = chore.Status;
-            }
+
+            current.Status = chore.Status;
+
             if (chore.Room is not null && chore.Room != "")
             {
                 current.Room = chore.Room;
