@@ -61,9 +61,9 @@ public class ChoresServiceTests
     [Fact]
     public async Task CreateChoreAsync_ShouldMapCreateDtoAndReturnCreatedDtoAndNotSendNotification_WhenUserIdNull()
     {
-        var createDto = new CreateChoreDto("test", "testt", null, 1, DateTime.Now, null, "kitchen", 10);
+        var createDto = new CreateChoreDto("test", "testt", null, 1, DateTime.Now, Status.Unassigned, "kitchen", 10);
         var chore = new Chore("test", "testt", null, 1, DateTime.Now, Status.Unassigned, "kitchen", 10, null) { Id = 1 };
-        var choreDto = new ChoreDto(1, "test", "testt", null, 1, DateTime.Now, null, "kitchen", 10, null);
+        var choreDto = new ChoreDto(1, "test", "testt", null, 1, DateTime.Now, Status.Unassigned, "kitchen", 10, null);
 
         _mapper.Setup(m => m.Map<Chore>(createDto)).Returns(chore);
         _repo.Setup(r => r.CreateChoreAsync(chore)).ReturnsAsync(chore);
@@ -81,9 +81,9 @@ public class ChoresServiceTests
     [Fact]
     public async Task CreateChoreAsync_ShouldMapCreateDtoAndReturnCreatedDtoAndSendNotification_WhenUserIdNotNull()
     {
-        var createDto = new CreateChoreDto("test", "testt", 2, 1, DateTime.Now, null, "kitchen", 10);
+        var createDto = new CreateChoreDto("test", "testt", 2, 1, DateTime.Now, Status.Unassigned, "kitchen", 10);
         var chore = new Chore("test", "testt", 2, 1, DateTime.Now, Status.Unassigned, "kitchen", 10, null) { Id = 1 };
-        var choreDto = new ChoreDto(1, "test", "testt", 2, 1, DateTime.Now, null, "kitchen", 10, null);
+        var choreDto = new ChoreDto(1, "test", "testt", 2, 1, DateTime.Now, Status.Unassigned, "kitchen", 10, null);
 
         _mapper.Setup(m => m.Map<Chore>(createDto)).Returns(chore);
         _repo.Setup(r => r.CreateChoreAsync(chore)).ReturnsAsync(chore);
@@ -156,7 +156,7 @@ public class ChoresServiceTests
     {
         _repo.Setup(x => x.GetChoreByIdAsync(2)).ReturnsAsync((Chore?)null);
 
-        await _service.Invoking(s => s.UpdateChoreAsync(new ChoreDto(2, "test", "testt", null, 1, DateTime.Now, null, "kitchen", 10, null)))
+        await _service.Invoking(s => s.UpdateChoreAsync(new ChoreDto(2, "test", "testt", null, 1, DateTime.Now, Status.Unassigned, "kitchen", 10, null)))
             .Should().ThrowAsync<Exception>()
             .WithMessage("Chore not found");
     }
