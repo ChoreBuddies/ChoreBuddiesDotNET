@@ -8,7 +8,7 @@ public class Chore(
     int? userId,
     int householdId,
     DateTime? dueDate,
-    Status? status,
+    Status status,
     string room,
     int rewardPointsCount,
     DateTime? completedDate)
@@ -20,7 +20,7 @@ public class Chore(
     public int? UserId { get; set; } = userId;
     public int HouseholdId { get; set; } = householdId;
     public DateTime? DueDate { get; set; } = dueDate;
-    public Status? Status { get; set; } = status;
+    public Status Status { get; set; } = status;
     public string Room { get; set; } = room;
     public int RewardPointsCount { get; set; } = rewardPointsCount;
     public DateTime? CompletedDate { get; set; } = completedDate;
