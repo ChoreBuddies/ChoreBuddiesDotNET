@@ -11,7 +11,7 @@
 <MudPaper Elevation="1" Class="pa-4 rounded-lg">
 	<MudGrid>
 		<MudItem xs="8">
-			<MudText Typo="Typo.caption" Color="Color.Secondary">@GetDueText()</MudText>
+			<MudText Typo="Typo.caption" Color="Color.Secondary">@GetDateText()</MudText>
 			<MudText Typo="Typo.h6">@GetTitle()</MudText>
 			<MudText Typo="Typo.body2">@GetDescription()</MudText>
 
@@ -22,7 +22,7 @@
 
 		<MudItem xs="4" Class="d-flex justify-end align-center">
 			<MudStack>
-				@if (_choreDto?.Status == Status.Assigned)
+				@if (_choreDto?.Status == Status.Assigned && _choreDto?.UserId == _currentUserId)
 				{
 					<MudButton Color="Color.Default" Variant="Variant.Outlined" Class="mt-1" OnClick="OpenReminderDialog">
 						Set a reminder
@@ -40,10 +40,18 @@
 @code {
 	[Parameter] public ChoreDto? _choreDto { get; set; }
 	[Parameter] public EventCallback OnChanged { get; set; }
+	[Parameter] public int? _currentUserId { get; set; }
 	public string? GetTitle() => _choreDto?.Name;
 	public string? GetDescription() => _choreDto?.Description;
-	public string? GetDueText() => _choreDto?.DueDate.ToString();
 	public void ViewChoreDetails() => navigationManager.NavigateTo($"/chore-details/{_choreDto!.Id}");
+	public string? GetDateText()
+	{
+		if(_choreDto?.Status == Status.Unassigned || _choreDto?.Status == Status.Assigned)
+		{
+			return "Due " + _choreDto?.DueDate.ToString();
+		}
+		return "Completed " + _choreDto?.CompletedDate.ToString();
+	}
 	public async Task MarkChoreAsDone()
 	{
 		if (await choresService.MarkChoreAsDoneAsync(_choreDto!.Id) is not null)

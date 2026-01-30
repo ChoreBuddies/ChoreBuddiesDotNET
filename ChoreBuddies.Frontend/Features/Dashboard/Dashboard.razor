@@ -47,7 +47,7 @@
                     {
                         @foreach (var chore in _userChores)
                         {
-                            <UpcomingChore _choreDto="chore" OnChanged="ComponentStateChanged"/>
+                            <UpcomingChore _choreDto="chore" OnChanged="ComponentStateChanged" _currentUserId="_userId"/>
                         }
                     }
 
@@ -83,6 +83,7 @@
 @code
 {
     string? _username { get; set; } = "User";
+    int _userId { get; set; }
     private int _householdCompletionPercent { get; set; } = 0;
     public int GetHouseholdCompletionPercent() => Math.Clamp(_householdCompletionPercent, 0, 100);
     public List<ChoreDto>? _userChores { get; set; }
@@ -91,6 +92,7 @@
     protected override async Task OnInitializedAsync()
     {
         _username = await authService.GetUserNameAsync();
+        _userId = await authService.GetUserIdAsync();
         _userChores = await GetUserChores();
         _householdChores = await GetHouseholdChoresAndSetCompletion();
     }

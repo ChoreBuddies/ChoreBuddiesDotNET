@@ -18,9 +18,9 @@
         <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="pa-4">
             <p>You are not authorized to view this content</p>
             <MudButton Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       Size="Size.Large"
-                       OnClick="@GoToLogin">
+            Color="Color.Primary"
+            Size="Size.Large"
+            OnClick="@GoToLogin">
                 Login
             </MudButton>
         </MudContainer>
@@ -39,9 +39,9 @@
 
                     <MudStack Spacing="1">
                         <MudSelect T="int" Variant="Variant.Outlined"
-                                   Margin="Margin.Dense"
-                                   class="rounded-lg bg-white"
-                                   @bind-Value="_userId">
+                        Margin="Margin.Dense"
+                        class="rounded-lg bg-white"
+                        @bind-Value="_userId">
                             @foreach (var user in _users)
                             {
                                 <MudSelectItem T="int" Value="@(user.Id)">@user.UserName</MudSelectItem>
@@ -88,7 +88,7 @@
                                 <MudDivider Class="mt-1 mb-3" Style="border-width: 2px;" />
                                 @foreach (var chore in _filteredChores)
                                 {
-                                    <UpcomingChore _choreDto="chore" OnChanged="ComponentStateChanged" />
+                                    <UpcomingChore _choreDto="chore" OnChanged="ComponentStateChanged" _currentUserId="_myUserId"/>
                                 }
                             }
                         }
@@ -102,6 +102,7 @@
 
 @code
 {
+    public int _myUserId { get; set; }
     private int userId;
     public int _userId
     {
@@ -130,7 +131,8 @@
     {
         _isLoading = true;
 
-        _userId = await authService.GetUserIdAsync();
+        _myUserId = await authService.GetUserIdAsync();
+        _userId = _myUserId;
         _users = await userService.GetMyHouseholdMembersAsync() ?? [];
         _householdChores = await GetHouseholdChores();
         _userChores = GetUserChores();
