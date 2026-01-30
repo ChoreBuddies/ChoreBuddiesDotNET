@@ -63,9 +63,10 @@ public class AppUserService(IAppUserRepository userRepository, UserManager<AppUs
 
     public async Task<bool> AddPointsToUser(int userId, int pointsCount)
     {
-        if (pointsCount <= 0) return false;
+        if (pointsCount < 0) return false;
         var user = await _userRepository.GetUserByIdAsync(userId);
         if (user is null) return false;
+        if (pointsCount == 0) return true;
         user.PointsCount += pointsCount;
         await _userRepository.SaveChangesAsync();
         return true;
@@ -73,9 +74,10 @@ public class AppUserService(IAppUserRepository userRepository, UserManager<AppUs
 
     public async Task<bool> RemovePointsFromUser(int userId, int pointsCount)
     {
-        if (pointsCount <= 0) return false;
+        if (pointsCount < 0) return false;
         var user = await _userRepository.GetUserByIdAsync(userId);
         if (user is null || user.PointsCount < pointsCount) return false;
+        if (pointsCount == 0) return true;
         user.PointsCount -= pointsCount;
         await _userRepository.SaveChangesAsync();
         return true;
