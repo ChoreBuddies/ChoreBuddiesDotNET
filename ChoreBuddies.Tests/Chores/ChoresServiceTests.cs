@@ -15,6 +15,7 @@ public class ChoresServiceTests
     private readonly Mock<IAppUserService> _userService;
     private readonly Mock<INotificationService> _notificationService;
     private readonly Mock<IMapper> _mapper;
+    private readonly Mock<TimeProvider> _timeProvider;
     private readonly ChoresService _service;
 
     public ChoresServiceTests()
@@ -23,8 +24,9 @@ public class ChoresServiceTests
         _userService = new Mock<IAppUserService>();
         _mapper = new Mock<IMapper>();
         _notificationService = new Mock<INotificationService>();
+        _timeProvider = new Mock<TimeProvider>();
 
-        _service = new ChoresService(_mapper.Object, _repo.Object, _userService.Object, _notificationService.Object);
+        _service = new ChoresService(_mapper.Object, _repo.Object, _userService.Object, _notificationService.Object, _timeProvider.Object);
     }
 
     // ---------------------------
