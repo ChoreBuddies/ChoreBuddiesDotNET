@@ -80,9 +80,19 @@ public class ChoresRepository(ChoreBuddiesDbContext dbContext) : IChoresReposito
             {
                 current.DueDate = chore.DueDate;
             }
-
-            current.Status = chore.Status;
-
+            if (current.Status != Status.Completed && chore.Status != Status.UnverifiedCompleted)
+            {
+                if (chore.UserId is null)
+                {
+                    current.UserId = null;
+                    current.Status = Status.Unassigned;
+                }
+                else if (chore.UserId > 0)
+                {
+                    current.UserId = chore.UserId;
+                    current.Status = Status.Assigned;
+                }
+            }
             if (chore.Room is not null && chore.Room != "")
             {
                 current.Room = chore.Room;
@@ -122,7 +132,7 @@ public class ChoresRepository(ChoreBuddiesDbContext dbContext) : IChoresReposito
         }
     }
 
-    public async Task<IEnumerable<Chore>?> GetHouseholdChoresAsync(int userId) // TODO: change to householdId
+    public async Task<IEnumerable<Chore>?> GetHouseholdChoresAsync(int userId)
     {
         try
         {
