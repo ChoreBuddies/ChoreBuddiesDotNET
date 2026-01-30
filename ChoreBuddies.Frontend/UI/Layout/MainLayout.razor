@@ -214,6 +214,7 @@
 
     private async void OnAuthStateChanged(Task<AuthenticationState> task)
     {
+        _isChild = await authService.IsChildAsync();
         await InvokeAsync(StateHasChanged);
     }
 
