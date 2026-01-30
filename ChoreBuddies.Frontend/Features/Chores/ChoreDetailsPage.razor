@@ -24,132 +24,134 @@
 
 @if (CurrentMode == PageMode.Create)
 {
-	<MudButton Variant="Variant.Outlined"
-	Color="Color.Primary"
-	StartIcon="@Icons.Material.Filled.ContentCopy"
-	OnClick="OpenPredefinedChoreDialog"
-	Class="mb-4"
-	Style="text-transform: none;">
-		Select from predefined
-	</MudButton>
+    <MudButton Variant="Variant.Outlined"
+               Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.ContentCopy"
+               OnClick="OpenPredefinedChoreDialog"
+               Class="mb-4"
+               Style="text-transform: none;">
+        Select from predefined
+    </MudButton>
 }
 
 <ChoreForm Model="Model"
-Users="AvailableUsers"
-@bind-PageMode="CurrentMode"
-OnValidSubmit="HandleSave"
-CurrentUserId="CurrentUserId"
-OnMarkChoreAsDone="MarkChoreAsDone"/>
+           Users="AvailableUsers"
+           @bind-PageMode="CurrentMode"
+           OnValidSubmit="HandleSave"
+           CurrentUserId="CurrentUserId"
+           OnMarkChoreAsDone="MarkChoreAsDone" />
 
 @code {
-	[Parameter] public int? ChoreId { get; set; }
-	private ChoreViewModel Model = new();
-	private PageMode CurrentMode = PageMode.Create;
-	private int CurrentUserId { get; set; }
+    [Parameter] public int? ChoreId { get; set; }
+    private ChoreViewModel Model = new();
+    private PageMode CurrentMode = PageMode.Create;
+    private int CurrentUserId { get; set; }
+    private bool IsChild { get; set; }
 
-	private List<AppUserMinimalDto> AvailableUsers = new();
-	protected override async Task OnInitializedAsync()
-	{
-		bool isScheduledPath = navigationManager.Uri.ToLower().Contains("scheduled");
+    private List<AppUserMinimalDto> AvailableUsers = new();
+    protected override async Task OnInitializedAsync()
+    {
+        bool isScheduledPath = navigationManager.Uri.ToLower().Contains("scheduled");
 
-		await LoadData(isScheduledPath);
-	}
-	private async Task LoadData(bool isScheduledPath)
-	{
-		CurrentUserId = await authService.GetUserIdAsync();
-		AvailableUsers = (await userService.GetMyHouseholdMembersAsync())?.ToList() ?? [];
+        await LoadData(isScheduledPath);
+    }
+    private async Task LoadData(bool isScheduledPath)
+    {
+        CurrentUserId = await authService.GetUserIdAsync();
+        IsChild = await authService.IsChildAsync();
+        AvailableUsers = (await userService.GetMyHouseholdMembersAsync())?.ToList() ?? [];
 
-		if (ChoreId.HasValue)
-		{
-			CurrentMode = PageMode.View;
+        if (ChoreId.HasValue)
+        {
+            CurrentMode = PageMode.View;
 
-			if (isScheduledPath)
-			{
-				var dto = await scheduledChoreService.GetChoreByIdAsync(ChoreId.Value);
-				Model = Mapper.Map<ChoreViewModel>(dto);
-				Model.IsScheduled = true;
-			}
-			else
-			{
-				var dto = await choresService.GetChoreByIdAsync(ChoreId.Value);
-				Model = Mapper.Map<ChoreViewModel>(dto);
-			}
-		}
-		else
-		{
-			Model = new ChoreViewModel { IsScheduled = false };
-			CurrentMode = PageMode.Create;
-		}
-	}
+            if (isScheduledPath)
+            {
+                var dto = await scheduledChoreService.GetChoreByIdAsync(ChoreId.Value);
+                Model = Mapper.Map<ChoreViewModel>(dto);
+                Model.IsScheduled = true;
+            }
+            else
+            {
+                var dto = await choresService.GetChoreByIdAsync(ChoreId.Value);
+                Model = Mapper.Map<ChoreViewModel>(dto);
+            }
+        }
+        else
+        {
+            Model = new ChoreViewModel { IsScheduled = false };
+            CurrentMode = PageMode.Create;
+        }
+    }
 
-	private async Task HandleSave(ChoreViewModel updatedModel)
-	{
-		dynamic? result;
-		if (CurrentMode == PageMode.Edit)
-		{
-			if (updatedModel.IsScheduled)
-			{
-				var dto = Mapper.Map<ScheduledChoreDto>(updatedModel);
-				result = await scheduledChoreService.UpdateChoreAsync(dto);
-			}
-			else
-			{
-				var dto = Mapper.Map<ChoreDto>(updatedModel);
-				result = await choresService.UpdateChoreAsync(dto);
-			}
-		}
-		else
-		{
-			if (updatedModel.IsScheduled)
-			{
-				var dto = Mapper.Map<CreateScheduledChoreDto>(updatedModel);
-				result = await scheduledChoreService.CreateChoreAsync(dto);
-			}
-			else
-			{
-				var dto = Mapper.Map<CreateChoreDto>(updatedModel);
-				result = await choresService.CreateChoreAsync(dto);
-			}
-		}
-		if(result is not null)
-		{
-			Snackbar.Add("Saved successfully!", Severity.Success);
-			await JS.InvokeVoidAsync("history.back");
-		}
-	}
+    private async Task HandleSave(ChoreViewModel updatedModel)
+    {
+        dynamic? result;
+        if (CurrentMode == PageMode.Edit)
+        {
+            if (updatedModel.IsScheduled)
+            {
+                var dto = Mapper.Map<ScheduledChoreDto>(updatedModel);
+                result = await scheduledChoreService.UpdateChoreAsync(dto);
+            }
+            else
+            {
+                var dto = Mapper.Map<ChoreDto>(updatedModel);
+                result = await choresService.UpdateChoreAsync(dto);
+            }
+        }
+        else
+        {
+            if (updatedModel.IsScheduled)
+            {
+                var dto = Mapper.Map<CreateScheduledChoreDto>(updatedModel);
+                result = await scheduledChoreService.CreateChoreAsync(dto);
+            }
+            else
+            {
+                var dto = Mapper.Map<CreateChoreDto>(updatedModel);
+                result = await choresService.CreateChoreAsync(dto);
+            }
+        }
+        if (result is not null)
+        {
+            Snackbar.Add("Saved successfully!", Severity.Success);
+            await JS.InvokeVoidAsync("history.back");
+        }
+    }
 
-	private async Task OpenPredefinedChoreDialog()
-	{
-		var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+    private async Task OpenPredefinedChoreDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
 
-		var dialog = await DialogService.ShowAsync<PredefinedChoreDialog>("Choose predefined chore", options);
-		var result = await dialog.Result;
+        var dialog = await DialogService.ShowAsync<PredefinedChoreDialog>("Choose predefined chore", options);
+        var result = await dialog.Result;
 
-		if (result is not null &&
-			!result.Canceled &&
-			result.Data is PredefinedChoreDto template)
-		{
-			Model.Name = template.name;
-			Model.Description = template.description;
-			Model.Room = template.room;
-			Model.RewardPointsCount = template.rewardPointsCount;
-			Model.Frequency = template.frequency;
+        if (result is not null &&
+            !result.Canceled &&
+            result.Data is PredefinedChoreDto template)
+        {
+            Model.Name = template.name;
+            Model.Description = template.description;
+            Model.Room = template.room;
+            Model.RewardPointsCount = template.rewardPointsCount;
+            Model.Frequency = template.frequency;
             Model.IsScheduled = true;
             Model.ChoreDuration = template.choreDuration;
             Model.EveryX = template.everyX;
 
-			Snackbar.Add("The data from the predefined chore has been loaded. You can now edit it.", Severity.Info);
-		}
-	}
-	private async Task MarkChoreAsDone()
-	{
-		if (await choresService.MarkChoreAsDoneAsync((int)Model.Id!) is not null)
-		{
-			Snackbar.Add("Marked successfully", Severity.Success);
-		}
-		else
-		{
-			Snackbar.Add("An enexpected error occured while marking chore as done", Severity.Error);
-		}
-	}
+            Snackbar.Add("The data from the predefined chore has been loaded. You can now edit it.", Severity.Info);
+        }
+    }
+    private async Task MarkChoreAsDone()
+    {
+        if (await choresService.MarkChoreAsDoneAsync((int)Model.Id!) is not null)
+        {
+            Snackbar.Add("Marked successfully", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add("An enexpected error occured while marking chore as done", Severity.Error);
+        }
+    }
 }
