@@ -76,7 +76,7 @@
                     <MudButton OnClick="MarkChoreAsDone" Color="Color.Primary" Variant="Variant.Filled" Style="text-transform: none;">Mark as done</MudButton>
                 }
             }
-            else
+            @if (PageMode != PageMode.View)
             {
                 <MudButton OnClick="OnSaveInternal" Color="Color.Primary" Variant="Variant.Filled" Style="text-transform: none;">Save</MudButton>
                 @if (PageMode == PageMode.Edit)
@@ -98,7 +98,7 @@
     [Parameter] public bool ShowCancel { get; set; }
     [Parameter] public int CurrentUserId { get; set; }
     [Parameter] public EventCallback OnMarkChoreAsDone { get; set; }
-    [Parameter] public Status status { get; set; }
+    [Parameter] public Status? status { get; set; }
     [Parameter] public bool isChild { get; set; }
 
     private MudForm? _form;
