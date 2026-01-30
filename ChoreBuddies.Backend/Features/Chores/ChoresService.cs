@@ -31,12 +31,15 @@ public class ChoresService : IChoresService
     private readonly IMapper _mapper;
     private readonly IAppUserService _appUserService;
     private readonly INotificationService _notificationsService;
-    public ChoresService(IMapper mapper, IChoresRepository choresRepository, IAppUserService appUserService, INotificationService notificationService)
+    private readonly TimeProvider _timeProvider;
+
+    public ChoresService(IMapper mapper, IChoresRepository choresRepository, IAppUserService appUserService, INotificationService notificationService, TimeProvider timeProvider)
     {
         _mapper = mapper;
         _repository = choresRepository;
         _appUserService = appUserService;
         _notificationsService = notificationService;
+        _timeProvider = timeProvider;
     }
 
     public async Task<ChoreDto?> GetChoreDetailsAsync(int choreId)
@@ -136,6 +139,7 @@ public class ChoresService : IChoresService
         {
             chore.Status = Status.UnverifiedCompleted;
         }
+        chore.CompletedDate = _timeProvider.GetUtcNow().DateTime;
         return _mapper.Map<ChoreDto>(await _repository.UpdateChoreAsync(chore!));
     }
     public async Task<ChoreDto> VerifyChoreAsync(int choreId, int userId)
