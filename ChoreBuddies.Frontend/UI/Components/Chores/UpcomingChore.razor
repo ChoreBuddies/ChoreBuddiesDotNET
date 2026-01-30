@@ -9,90 +9,94 @@
 @inject IRemindersService remindersService;
 
 <MudPaper Elevation="1" Class="pa-4 rounded-lg">
-	<MudGrid>
-		<MudItem xs="8">
-			<MudText Typo="Typo.caption" Color="Color.Secondary">@GetDateText()</MudText>
-			<MudText Typo="Typo.h6">@GetTitle()</MudText>
-			<MudText Typo="Typo.body2">@GetDescription()</MudText>
+    <MudGrid>
+        <MudItem xs="8">
+            <MudText Typo="Typo.caption" Color="Color.Secondary">@GetDateText()</MudText>
+            <MudText Typo="Typo.h6">@GetTitle()</MudText>
+            <MudText Typo="Typo.body2">@GetDescription()</MudText>
 
-			<MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="ViewChoreDetails">
-				View Chore →
-			</MudButton>
-		</MudItem>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="ViewChoreDetails">
+                View Chore →
+            </MudButton>
+        </MudItem>
 
-		<MudItem xs="4" Class="d-flex justify-end align-center">
-			<MudStack>
-				@if (_choreDto?.Status == Status.Assigned && _choreDto?.UserId == _currentUserId)
-				{
-					<MudButton Color="Color.Default" Variant="Variant.Outlined" Class="mt-1" OnClick="OpenReminderDialog">
-						Set a reminder
-					</MudButton>
+        <MudItem xs="4" Class="d-flex justify-end align-center">
+            <MudStack>
+                @if (_choreDto?.Status == Status.Assigned && _choreDto?.UserId == _currentUserId)
+                {
+                    <MudButton Color="Color.Default" Variant="Variant.Outlined" Class="mt-1" OnClick="OpenReminderDialog">
+                        Set a reminder
+                    </MudButton>
 
-					<MudButton Color="Color.Default" Variant="Variant.Outlined" Class="mt-1" OnClick="MarkChoreAsDone">
-						Mark as done
-					</MudButton>
-				}
-			</MudStack>
-		</MudItem>
-	</MudGrid>
+                    <MudButton Color="Color.Default" Variant="Variant.Outlined" Class="mt-1" OnClick="MarkChoreAsDone">
+                        Mark as done
+                    </MudButton>
+                }
+            </MudStack>
+        </MudItem>
+    </MudGrid>
 </MudPaper>
 
 @code {
-	[Parameter] public ChoreDto? _choreDto { get; set; }
-	[Parameter] public EventCallback OnChanged { get; set; }
-	[Parameter] public int? _currentUserId { get; set; }
-	public string? GetTitle() => _choreDto?.Name;
-	public string? GetDescription() => _choreDto?.Description;
-	public void ViewChoreDetails() => navigationManager.NavigateTo($"/chore-details/{_choreDto!.Id}");
-	public string? GetDateText()
-	{
-		if(_choreDto?.Status == Status.Unassigned || _choreDto?.Status == Status.Assigned)
-		{
-			return "Due " + _choreDto?.DueDate.ToString();
-		}
-		return "Completed " + _choreDto?.CompletedDate.ToString();
-	}
-	public async Task MarkChoreAsDone()
-	{
-		if (await choresService.MarkChoreAsDoneAsync(_choreDto!.Id) is not null)
-		{
-			Snackbar.Add("Marked successfully", Severity.Success);
-			await OnChanged.InvokeAsync();
-		}
-		else
-		{
-			Snackbar.Add("An enexpected error occured while marking chore as done", Severity.Error);
-		}
-	}
-	private async Task OpenReminderDialog()
-	{
-		var parameters = new DialogParameters
-		{
-			["Label"] = "Set reminder"
-		};
+    [Parameter] public ChoreDto? _choreDto { get; set; }
+    [Parameter] public EventCallback OnChanged { get; set; }
+    [Parameter] public int? _currentUserId { get; set; }
+    public string? GetTitle() => _choreDto?.Name;
+    public string? GetDescription() => _choreDto?.Description;
+    public void ViewChoreDetails() => navigationManager.NavigateTo($"/chore-details/{_choreDto!.Id}");
+    public string? GetDateText()
+    {
+        if ((_choreDto?.Status == Status.Unassigned || _choreDto?.Status == Status.Assigned) && _choreDto?.DueDate is not null)
+        {
+            return "Due " + ((DateTime)_choreDto?.DueDate!).ToString("yyyy.MM.dd");
+        }
+        else if (_choreDto?.CompletedDate is not null)
+        {
+            return "Completed " + ((DateTime)_choreDto?.CompletedDate!).ToString("yyyy.MM.dd");
+        }
+        return String.Empty;
+    }
+    public async Task MarkChoreAsDone()
+    {
+        if (await choresService.MarkChoreAsDoneAsync(_choreDto!.Id) is not null)
+        {
+            Snackbar.Add("Marked successfully", Severity.Success);
+            await OnChanged.InvokeAsync();
+        }
+        else
+        {
+            Snackbar.Add("An enexpected error occured while marking chore as done", Severity.Error);
+        }
+    }
+    private async Task OpenReminderDialog()
+    {
+        var parameters = new DialogParameters
+            {
+                ["Label"] = "Set reminder"
+            };
 
-		var options = new DialogOptions
-		{
-			CloseButton = true,
-			MaxWidth = MaxWidth.ExtraSmall,
-			FullWidth = true
-		};
+        var options = new DialogOptions
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.ExtraSmall,
+                FullWidth = true
+            };
 
-		var dialog = await DialogService.ShowAsync<DateTimePickerPopUp>(
-			title: "",
-			parameters: parameters,
-			options: options);
+        var dialog = await DialogService.ShowAsync<DateTimePickerPopUp>(
+            title: "",
+            parameters: parameters,
+            options: options);
 
-		var result = await dialog.Result;
+        var result = await dialog.Result;
 
-		if (_choreDto is not null && result is not null && !result.Canceled && result.Data is DateTime resultDateTime)
-		{
-			await remindersService.SetReminder(_choreDto.Id, resultDateTime.ToUniversalTime());
-		}
-		else
-		{
-			throw new InvalidDataException();
-		}
-	}
+        if (_choreDto is not null && result is not null && !result.Canceled && result.Data is DateTime resultDateTime)
+        {
+            await remindersService.SetReminder(_choreDto.Id, resultDateTime.ToUniversalTime());
+        }
+        else
+        {
+            throw new InvalidDataException();
+        }
+    }
 
 }
