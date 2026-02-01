@@ -218,6 +218,7 @@ public class Program
         });
 
         builder.Services.AddScoped<IEmailService, EmailService>();
+        builder.Services.AddScoped<IFirebaseMessagingClient, FirebaseClientAdapter>();
         builder.Services.AddScoped<INotificationPreferenceRepository, NotificationPreferenceRepository>();
         builder.Services.AddScoped<INotificationPreferenceService, NotificationPreferenceService>();
         builder.Services.AddScoped<INotificationChannel>(sp => (INotificationChannel)sp.GetRequiredService<IEmailService>());
