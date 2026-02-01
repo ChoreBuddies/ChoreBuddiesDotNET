@@ -3,7 +3,6 @@
 using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Notifications.Exceptions;
 using ChoreBuddies.Backend.Features.Notifications.Push;
-using FirebaseAdmin;
 using FirebaseAdmin.Messaging;
 using FluentAssertions;
 using Moq;
@@ -109,10 +108,7 @@ public class FirebaseNotificationsServiceTests
 
         _firebaseMock
             .Setup(f => f.SendAsync(It.IsAny<Message>(), default))
-            .ThrowsAsync(new FirebaseMessagingException(
-                ErrorCode.NotFound,
-                "Not found",
-                MessagingErrorCode.Unregistered));
+            .ThrowsAsync(new FcmTokenUnregisteredException(user.Id));
 
         Func<Task> act = () => _service.SendNewMessageNotificationAsync(
             user,
