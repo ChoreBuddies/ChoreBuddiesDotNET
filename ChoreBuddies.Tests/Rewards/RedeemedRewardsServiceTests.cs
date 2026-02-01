@@ -112,6 +112,21 @@ public class RedeemedRewardsServiceTests
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("This reward cannot be redeemed");
     }
+    [Fact]
+    public async Task RedeemRewardAsync_ShouldThrow_WhenErrorWithDeductingPointsFromUser()
+    {
+        var reward = new RewardDto(5, "Test", "test", 1, 10, 3);
+        var user = new AppUser { PointsCount = 100 };
+
+        _rewardService.Setup(r => r.GetRewardByIdAsync(5)).ReturnsAsync(reward);
+        _userService.Setup(r => r.GetUserByIdAsync(2)).ReturnsAsync(user);
+        _userService.Setup(r => r.RemovePointsFromUser(2, 10)).ReturnsAsync(false);
+
+        Func<Task> act = async () => await _service.RedeemRewardAsync(2, 5, false);
+
+        await act.Should().ThrowAsync<Exception>()
+            .WithMessage("There was an error while removing points from user");
+    }
 
     [Fact]
     public async Task RedeemRewardAsync_ShouldThrow_WhenUserDoesNotHaveEnoughPoints()

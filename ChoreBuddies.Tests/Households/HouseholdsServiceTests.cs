@@ -313,5 +313,51 @@ public class HouseholdsServiceTests
         // Assert
         result.Should().Be(2);
     }
+    [Fact]
+    public async Task GetUserIdForAutoAssignAsync_ShouldThrow_WhenUsersAreNull()
+    {
+        // Arrange
+        var user1 = new AppUser
+        {
+            Id = 1,
+            Chores = new List<Chore>
+            {
+                CreateChore(),
+                CreateChore()
+            }
+        };
+
+        var household = new Household(user1.Id, "", "", "");
+        household.Users = [];
+
+        _householdRepo
+            .Setup(r => r.GeHouseholdWithUsersWithChoresDueToFromDateAsync(
+                It.IsAny<int>(),
+                It.IsAny<DateTime>()))
+            .ReturnsAsync(household);
+
+        // Act
+        Func<Task> act = async () => await _service.GetUserIdForAutoAssignAsync(123);
+
+        // Assert
+        await act.Should().ThrowAsync<HouseholdHasNoUsersException>();
+    }
+
+    [Fact]
+    public async Task GetUserIdForAutoAssignAsync_ShouldThrow_WhenHouseholdIsNull()
+    {
+        // Arrange
+        _householdRepo
+            .Setup(r => r.GeHouseholdWithUsersWithChoresDueToFromDateAsync(
+                It.IsAny<int>(),
+                It.IsAny<DateTime>()))
+            .ReturnsAsync((Household?)null);
+
+        // Act
+        Func<Task> act = async () => await _service.GetUserIdForAutoAssignAsync(123);
+
+        // Assert
+        await act.Should().ThrowAsync<HouseholdDoesNotExistException>();
+    }
 
 }
