@@ -106,6 +106,19 @@ public class NotificationPreferenceServiceTests
 
         _repoMock.Verify(r => r.UpdatePreferenceAsync(It.IsAny<NotificationPreference>(), It.IsAny<CancellationToken>()), Times.Never);
     }
+    [Fact]
+    public async Task UpdatePreferenceAsync_DoesNothing_WhenExistingPreferenceIsNull()
+    {
+        var user = new AppUser { Id = 1 };
+        var dto = new NotificationPreferenceDto { Type = NotificationEvent.NewChore, Channel = NotificationChannel.Email, IsEnabled = false };
+
+        _repoMock.Setup(r => r.GetPreferenceByKeysAsync(user.Id, dto.Type, dto.Channel, It.IsAny<CancellationToken>()))
+                       .ReturnsAsync((NotificationPreference?)null);
+
+        await _service.UpdatePreferenceAsync(user, dto);
+
+        _repoMock.Verify(r => r.UpdatePreferenceAsync(It.IsAny<NotificationPreference>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
 
     [Fact]
     public async Task UpdatePreferenceAsync_UpdatesPreference_WhenExists()

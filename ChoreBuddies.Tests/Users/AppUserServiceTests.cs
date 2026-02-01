@@ -1,4 +1,5 @@
 ﻿using ChoreBuddies.Backend.Domain;
+using ChoreBuddies.Backend.Features.Households.Exceptions;
 using ChoreBuddies.Backend.Features.Users;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
@@ -103,6 +104,33 @@ public class AppUserServiceTests
     }
 
     // --- Points Tests ---
+
+    [Fact]
+    public async Task GetUserPointsCountAsync_ShouldThrow_WhenUserIsNull()
+    {
+        // Arrange
+        _userRepositoryMock.Setup(r => r.GetUserByIdAsync(123)).ReturnsAsync((AppUser?)null);
+
+        // Act
+        Func<Task> act = async () => await _service.GetUserPointsCountAsync(123);
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("User with id 123 not found.");
+    }
+    [Fact]
+    public async Task GetUserPointsCountAsync_ShouldReturnUserPointsCount()
+    {
+        // Arrange
+        var user = new AppUser { Id = 123, FirstName = "user", PointsCount = 100 };
+        _userRepositoryMock.Setup(r => r.GetUserByIdAsync(123)).ReturnsAsync(user);
+
+        // Act
+        var result = await _service.GetUserPointsCountAsync(123);
+
+        // Assert
+        result.Should().Be(100);
+    }
 
     [Fact]
     public async Task AddPointsToUser_ShouldReturnFalse_WhenPointsNegative()
