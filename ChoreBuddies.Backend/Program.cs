@@ -44,10 +44,17 @@ public class Program
 
         builder.Services.AddCors(options =>
         {
-            options.AddPolicy("AllowAll", policy =>
+            options.AddPolicy("LocalhostOnly", policy =>
             {
                 policy
-                    .AllowAnyOrigin()
+                    .SetIsOriginAllowed(origin =>
+                    {
+                        if (string.IsNullOrEmpty(origin))
+                            return false;
+
+                        var uri = new Uri(origin);
+                        return uri.Host == "localhost";
+                    })
                     .AllowAnyMethod()
                     .AllowAnyHeader();
             });
@@ -97,7 +104,6 @@ public class Program
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            //options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
         })
         .AddJwtBearer(options =>
         {
@@ -166,7 +172,7 @@ public class Program
         // Predefined Chores
         builder.Services.AddScoped<IPredefinedChoreRepository, PredefinedChoreRepository>();
         builder.Services.AddScoped<IPredefinedChoreService, PredefinedChoreService>();
-        // ScheduledChore
+        // Scheduled Chores
         builder.Services.AddScoped<IScheduledChoresRepository, ScheduledChoresRepository>();
         builder.Services.AddScoped<IScheduledChoresService, ScheduledChoresService>();
         builder.Services.AddHostedService<ScheduledChoresBackgroundService>();
@@ -264,11 +270,9 @@ public class Program
 
         app.MapControllers();
 
-        // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
         {
             app.UseExceptionHandler("/Error");
-            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
 
@@ -277,7 +281,7 @@ public class Program
 
         app.UseRouting();
 
-        app.UseCors("AllowAll");
+        app.UseCors("LocalhostOnly");
 
         app.UseAuthentication();
         app.UseAuthorization();
