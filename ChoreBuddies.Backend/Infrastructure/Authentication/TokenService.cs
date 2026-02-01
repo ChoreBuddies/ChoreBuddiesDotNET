@@ -69,7 +69,8 @@ public class TokenService : ITokenService
             Expires = GetAccessTokenExpiration(),
             Issuer = _config["JwtSettings:Issuer"],
             Audience = _config["JwtSettings:Audience"],
-            SigningCredentials = creds
+            SigningCredentials = creds,
+            NotBefore = _timeProvider.GetUtcNow().UtcDateTime
         };
 
         // Create the token handler and write the token
