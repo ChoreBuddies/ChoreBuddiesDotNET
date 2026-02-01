@@ -25,85 +25,11 @@ public class ScheduledChoresBackgroundService : BackgroundService
         var nextMidnight = now.Date.AddDays(1);
         nextMidnight = DateTime.SpecifyKind(nextMidnight, DateTimeKind.Utc);
         var initialDelay = nextMidnight - now;
-        await Task.Delay(initialDelay, stoppingToken);
+        await _timeProvider.Delay(initialDelay, stoppingToken);
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            var loopNow = _timeProvider.GetUtcNow();
-            try
-            {
-                using var scope = _services.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<ChoreBuddiesDbContext>();
-                var householdService = scope.ServiceProvider.GetRequiredService<IHouseholdService>();
-
-                var candidates = await db.ScheduledChores.AsNoTracking().Select(x => new { x.Id, x.Frequency, x.EveryX, x.LastGenerated }).ToListAsync(stoppingToken);
-                var idsToProcess = new List<int>();
-
-                foreach (var candidate in candidates)
-                {
-                    if (ShouldGenerate(candidate.LastGenerated, candidate.Frequency, candidate.EveryX, loopNow.Date))
-                    {
-                        idsToProcess.Add(candidate.Id);
-                    }
-                }
-                if (idsToProcess.Any())
-                {
-                    var scheduledChores = await db.ScheduledChores
-                        .Where(x => idsToProcess.Contains(x.Id))
-                        .ToListAsync(stoppingToken);
-
-                    foreach (var sc in scheduledChores)
-                    {
-                        DateTime dueDate = sc.Frequency switch
-                        {
-                            Frequency.Daily => loopNow.Date.AddDays(1),
-                            Frequency.Weekly => loopNow.Date.AddWeeks(1),
-                            Frequency.Monthly => loopNow.Date.AddMonths(1),
-                            _ => loopNow.Date.AddDays(1)
-                        };
-
-                        var userId = sc.UserId;
-                        if (userId is null)
-                        {
-                            try
-                            {
-                                userId = await householdService.GetUserIdForAutoAssignAsync(sc.Id);
-                            }
-                            catch (HouseholdDoesNotExistException)
-                            {
-                                db.ScheduledChores.Remove(sc);
-                                continue;
-                            }
-                            catch (HouseholdHasNoUsersException)
-                            {
-                                userId = null;
-                            }
-                        }
-
-                        var chore = new Chore(
-                            name: sc.Name,
-                            description: sc.Description,
-                            userId: userId,
-                            householdId: sc.HouseholdId,
-                            dueDate: dueDate,
-                            status: userId is not null ? Status.Assigned : Status.Unassigned,
-                            room: sc.Room,
-                            rewardPointsCount: sc.RewardPointsCount,
-                            completedDate: null
-                        );
-
-                        db.Chores.Add(chore);
-
-                        sc.LastGenerated = loopNow.Date;
-                    }
-
-                    await db.SaveChangesAsync(stoppingToken);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Error occured while processig Scheaduled Chores: {e}");
-            }
+            await ProcessLoopRunAsync(_timeProvider.GetUtcNow(), stoppingToken);
 
             var loopEndNow = _timeProvider.GetUtcNow();
 
@@ -117,7 +43,85 @@ public class ScheduledChoresBackgroundService : BackgroundService
             nextMidnight = DateTime.SpecifyKind(nextMidnight, DateTimeKind.Utc);
             var delay = nextMidnight - loopEndNow;
 
-            await Task.Delay(delay, stoppingToken);
+            await _timeProvider.Delay(delay, stoppingToken);
+        }
+    }
+
+    public async Task ProcessLoopRunAsync(DateTimeOffset loopNow, CancellationToken stoppingToken)
+    {
+        try
+        {
+            using var scope = _services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<ChoreBuddiesDbContext>();
+            var householdService = scope.ServiceProvider.GetRequiredService<IHouseholdService>();
+
+            var candidates = await db.ScheduledChores.AsNoTracking().Select(x => new { x.Id, x.Frequency, x.EveryX, x.LastGenerated }).ToListAsync(stoppingToken);
+            var idsToProcess = new List<int>();
+
+            foreach (var candidate in candidates)
+            {
+                if (ShouldGenerate(candidate.LastGenerated, candidate.Frequency, candidate.EveryX, loopNow.Date))
+                {
+                    idsToProcess.Add(candidate.Id);
+                }
+            }
+            if (idsToProcess.Any())
+            {
+                var scheduledChores = await db.ScheduledChores
+                    .Where(x => idsToProcess.Contains(x.Id))
+                    .ToListAsync(stoppingToken);
+
+                foreach (var sc in scheduledChores)
+                {
+                    DateTime dueDate = sc.Frequency switch
+                    {
+                        Frequency.Daily => loopNow.Date.AddDays(1),
+                        Frequency.Weekly => loopNow.Date.AddWeeks(1),
+                        Frequency.Monthly => loopNow.Date.AddMonths(1),
+                        _ => loopNow.Date.AddDays(1)
+                    };
+
+                    var userId = sc.UserId;
+                    if (userId is null)
+                    {
+                        try
+                        {
+                            userId = await householdService.GetUserIdForAutoAssignAsync(sc.Id);
+                        }
+                        catch (HouseholdDoesNotExistException)
+                        {
+                            db.ScheduledChores.Remove(sc);
+                            continue;
+                        }
+                        catch (HouseholdHasNoUsersException)
+                        {
+                            userId = null;
+                        }
+                    }
+
+                    var chore = new Chore(
+                        name: sc.Name,
+                        description: sc.Description,
+                        userId: userId,
+                        householdId: sc.HouseholdId,
+                        dueDate: dueDate,
+                        status: userId is not null ? Status.Assigned : Status.Unassigned,
+                        room: sc.Room,
+                        rewardPointsCount: sc.RewardPointsCount,
+                        completedDate: null
+                    );
+
+                    db.Chores.Add(chore);
+
+                    sc.LastGenerated = loopNow.Date;
+                }
+
+                await db.SaveChangesAsync(stoppingToken);
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error occured while processig Scheaduled Chores: {e}");
         }
     }
 

@@ -33,6 +33,9 @@ public class ScheduledChoresServiceTests
         {
             cfg.CreateMap<ScheduledChore, ScheduledChoreDto>().ReverseMap();
             cfg.CreateMap<CreateScheduledChoreDto, ScheduledChore>();
+            cfg.CreateMap<ScheduledChore, ScheduledChoreTileViewDto>()
+            .ForCtorParam(nameof(ScheduledChoreTileViewDto.UserName), opt => opt.MapFrom(src =>
+                src.User != null ? src.User.UserName : null));
         }, loggerFactoryMock.Object);
 
         _mapper = config.CreateMapper();
@@ -225,5 +228,153 @@ public class ScheduledChoresServiceTests
         // Assert
         Assert.Single(result);
         Assert.Equal(2, ((List<ScheduledChoreDto>)result)[0].Id);
+    }
+    //////////////////////////////
+
+    [Fact]
+    public async Task UpdateChoreFrequencyAsync_Updates_WhenSuccessful()
+    {
+        // Arrange
+        int choreId = 1;
+        var frequency = Frequency.Weekly;
+        var resultChore = new ScheduledChore(name: "Test", description: "Desc", userId: null, room: "Living", everyX: 1, frequency: frequency, rewardPointsCount: 5, householdId: 1, choreDuration: 1)
+        {
+            Id = choreId
+        };
+
+        _repoMock.Setup(r => r.UpdateChoreFrequencyAsync(choreId, frequency))
+                 .ReturnsAsync(resultChore);
+
+        // Act
+        var result = await _service.UpdateChoreFrequencyAsync(choreId, frequency);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(choreId, result.Id);
+    }
+
+    [Fact]
+    public async Task UpdateChoreFrequencyAsync_Throws_WhenRepoReturnsNull()
+    {
+        // Arrange
+        _repoMock.Setup(r => r.UpdateChoreFrequencyAsync(It.IsAny<int>(), It.IsAny<Frequency>()))
+                 .ReturnsAsync((ScheduledChore?)null);
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<Exception>(() =>
+            _service.UpdateChoreFrequencyAsync(1, Frequency.Monthly));
+
+        Assert.Equal("Updating Chore Frequency Failed", ex.Message);
+    }
+
+    [Fact]
+    public async Task AddPredefinedChoresToHouseholdAsync_CreatesChores_WhenSuccessful()
+    {
+        // Arrange
+        var predefinedIds = new List<int> { 10, 11 };
+        int householdId = 99;
+
+        var predefinedChores = new List<PredefinedChore>
+        {
+            new PredefinedChore {
+                Id = 10,
+                Name = "Clean Windows",
+                Description = "Desc 1",
+                Room = "Living Room",
+                EveryX = 1,
+                Frequency = Frequency.Monthly,
+                RewardPointsCount = 30,
+                ChoreDuration = 30
+            },
+            new PredefinedChore {
+                Id = 11,
+                Name = "Mow Lawn",
+                Description = "Desc 2",
+                Room = "Garden",
+                EveryX = 1,
+                Frequency = Frequency.Weekly,
+                RewardPointsCount = 60,
+                ChoreDuration = 60
+            }
+        };
+
+        _predefinedChoreServiceMock
+            .Setup(s => s.GetPredefinedChoresAsync(predefinedIds))
+            .ReturnsAsync(predefinedChores);
+
+        _repoMock
+            .Setup(r => r.CreateChoreAsync(It.IsAny<ScheduledChore>()))
+            .ReturnsAsync((ScheduledChore c) =>
+            {
+                c.Id = new Random().Next(1, 1000);
+                return c;
+            });
+
+        // Act
+        var result = await _service.AddPredefinedChoresToHouseholdAsync(predefinedIds, householdId);
+
+        // Assert
+        Assert.NotNull(result);
+        var resultList = result as List<ScheduledChoreDto> ?? new List<ScheduledChoreDto>(result);
+        Assert.Equal(2, resultList.Count);
+
+        _repoMock.Verify(r => r.CreateChoreAsync(It.Is<ScheduledChore>(c => c.HouseholdId == householdId)), Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task AddPredefinedChoresToHouseholdAsync_Throws_WhenCreateChoreFails()
+    {
+        // Arrange
+        var predefinedIds = new List<int> { 10 };
+        var predefinedChores = new List<PredefinedChore>
+        {
+            new PredefinedChore {
+                Id = 10,
+                Name = "Fail Chore",
+                Description = "Desc",
+                Room = "Room",
+                EveryX = 1,
+                Frequency = Frequency.Daily,
+                RewardPointsCount = 10,
+                ChoreDuration = 10
+            }
+        };
+
+        _predefinedChoreServiceMock
+            .Setup(s => s.GetPredefinedChoresAsync(predefinedIds))
+            .ReturnsAsync(predefinedChores);
+
+        _repoMock
+            .Setup(r => r.CreateChoreAsync(It.IsAny<ScheduledChore>()))
+            .ReturnsAsync((ScheduledChore?)null);
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<Exception>(() =>
+            _service.AddPredefinedChoresToHouseholdAsync(predefinedIds, 1));
+
+        Assert.Equal("Creating Chore from Predefined Chore Failed", ex.Message);
+    }
+
+    [Fact]
+    public async Task GetMyHouseholdChoresOverviewDetailsAsync_ReturnsMappedList()
+    {
+        // Arrange
+        int userId = 5;
+        var choresList = new List<ScheduledChore>
+        {
+            new ScheduledChore(name: "Task A", description: "D", userId: userId, room: "R", everyX: 1, frequency: Frequency.Daily, rewardPointsCount: 1, householdId: 1, choreDuration: 10) { Id = 1 },
+            new ScheduledChore(name: "Task B", description: "D", userId: userId, room: "R", everyX: 1, frequency: Frequency.Daily, rewardPointsCount: 1, householdId: 1, choreDuration: 10) { Id = 2 }
+        };
+
+        _repoMock
+            .Setup(r => r.GetHouseholdChoresWithUserAsync(userId))
+            .ReturnsAsync(choresList);
+
+        // Act
+        var result = await _service.GetMyHouseholdChoresOverviewDetailsAsync(userId);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(2, ((List<ScheduledChoreTileViewDto>)result).Count);
     }
 }
