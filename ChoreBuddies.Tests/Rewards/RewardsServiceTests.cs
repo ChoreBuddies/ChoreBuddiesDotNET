@@ -3,6 +3,7 @@ using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.PredefinedRewards;
 using ChoreBuddies.Backend.Features.Rewards;
 using Moq;
+using Shared.PredefinedRewards;
 using Shared.Rewards;
 
 namespace ChoreBuddies.Tests.Rewards;
@@ -146,6 +147,72 @@ public class RewardsServiceTests
         _repository.Setup(r => r.GetRewardByIdAsync(3)).ReturnsAsync((Reward?)null);
 
         await Assert.ThrowsAsync<Exception>(() => _service.UpdateRewardAsync(rewardDto));
+    }
+
+    // -------------------------------------------------------
+    // AddPredefinedRewardsToHouseholdAsync
+    // -------------------------------------------------------
+
+    [Fact]
+    public async Task AddPredefinedRewardsToHouseholdAsync_ShouldCreateRewards_AndReturnMappedDtos()
+    {
+        // Arrange
+        var householdId = 10;
+        var predefIds = new List<int> { 1, 2 };
+
+        var predefRewards = new List<PredefinedRewardDto>
+        {
+            new PredefinedRewardDto(1, "Pizza Night", "Free pizza for everyone", 100, 1),
+            new PredefinedRewardDto(2, "Extra Screen Time", "1 hour of gaming", 50, 5)
+        };
+
+        var createdReward1 = new Reward("Pizza Night", "Free pizza for everyone", 100, 1, householdId) { Id = 101 };
+        var createdReward2 = new Reward("Extra Screen Time", "1 hour of gaming", 50, 5, householdId) { Id = 102 };
+
+        var expectedDtos = new List<RewardDto>
+        {
+            new RewardDto(101, "Pizza Night", "Free pizza for everyone", 100, 1, householdId),
+            new RewardDto(102, "Extra Screen Time", "1 hour of gaming", 50, 5, householdId)
+        };
+
+        _predefinedService.Setup(s => s.GetPredefinedRewardsAsync(predefIds)).ReturnsAsync(predefRewards);
+        _repository.SetupSequence(r => r.CreateRewardAsync(It.IsAny<Reward>()))
+            .ReturnsAsync(createdReward1)
+            .ReturnsAsync(createdReward2);
+
+        _mapper.Setup(m => m.Map<List<RewardDto>>(It.Is<List<Reward>>(l => l.Count == 2))).Returns(expectedDtos);
+
+        // Act
+        var result = await _service.AddPredefinedRewardsToHouseholdAsync(predefIds, householdId);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Count());
+        Assert.Equal(101, result.First().Id);
+
+        _repository.Verify(r => r.CreateRewardAsync(It.Is<Reward>(rew => rew.HouseholdId == householdId)), Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task AddPredefinedRewardsToHouseholdAsync_ShouldThrowException_WhenRepositoryReturnsNull()
+    {
+        // Arrange
+        var householdId = 10;
+        var predefIds = new List<int> { 1 };
+        var predefRewards = new List<PredefinedRewardDto>
+        {
+            new PredefinedRewardDto(1, "Error Reward", "Desc", 10, 1)
+        };
+
+        _predefinedService.Setup(s => s.GetPredefinedRewardsAsync(predefIds)).ReturnsAsync(predefRewards);
+
+        _repository.Setup(r => r.CreateRewardAsync(It.IsAny<Reward>())).ReturnsAsync((Reward?)null);
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<Exception>(() =>
+            _service.AddPredefinedRewardsToHouseholdAsync(predefIds, householdId));
+
+        Assert.Equal("Creating Reward from Predefined Reward Failed", ex.Message);
     }
 }
 
