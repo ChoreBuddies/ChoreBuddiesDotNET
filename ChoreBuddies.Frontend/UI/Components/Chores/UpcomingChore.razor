@@ -48,11 +48,11 @@
     {
         if ((_choreDto?.Status == Status.Unassigned || _choreDto?.Status == Status.Assigned) && _choreDto?.DueDate is not null)
         {
-            return "Due " + ((DateTime)_choreDto?.DueDate!).ToString("yyyy.MM.dd");
+            return "Due " + ((DateTime)_choreDto?.DueDate!).ToString("dd.MM.yyyy");
         }
         else if (_choreDto?.CompletedDate is not null)
         {
-            return "Completed " + ((DateTime)_choreDto?.CompletedDate!).ToString("yyyy.MM.dd");
+            return "Completed " + ((DateTime)_choreDto?.CompletedDate!).ToString("dd.MM.yyyy");
         }
         return String.Empty;
     }
