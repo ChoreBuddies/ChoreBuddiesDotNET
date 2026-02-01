@@ -68,7 +68,7 @@
                                      Margin="Margin.Dense"
                                      HideSpinButtons="true"
                                      ReadOnly="@IsReadOnly"
-                                     Class="@GetInputClass()" 
+                                     Class="@GetInputClass()"
                                      Required="true"
                                      RequiredError="Cost is required!" />
                 </div>
@@ -93,12 +93,15 @@
 
                 @if (CurrentMode == PageMode.View)
                 {
-                    <MudButton Variant="Variant.Filled"
-                               DisableElevation="true"
-                               Style="background-color: #f0f0f0; color: #333; text-transform: none; font-weight: 600; padding: 6px 24px;"
-                               OnClick="SwitchToEditMode">
-                        Edit
-                    </MudButton>
+                    if (!IsChild)
+                    {
+                        <MudButton Variant="Variant.Filled"
+                                   DisableElevation="true"
+                                   Style="background-color: #f0f0f0; color: #333; text-transform: none; font-weight: 600; padding: 6px 24px;"
+                                   OnClick="SwitchToEditMode">
+                            Edit
+                        </MudButton>
+                    }
 
                     <MudButton Variant="Variant.Filled"
                                Color="Color.Primary"
@@ -143,12 +146,14 @@
     private RewardModel? model { get; set; }
 
     private enum PageMode { Create, View, Edit }
-    private PageMode CurrentMode = PageMode.Create;
+    private PageMode CurrentMode = PageMode.View;
 
+    private bool IsChild { get; set; }
     private bool IsReadOnly => CurrentMode == PageMode.View;
 
     protected override async Task OnInitializedAsync()
     {
+        IsChild = await authService.IsChildAsync();
         householdId = await authService.GetHouseholdIdAsync();
         if (householdId is null || householdId <= 0)
         {
@@ -250,7 +255,7 @@
         public string? Description { get; set; }
         public int Cost { get; set; }
         public int QuantityAvailable { get; set; }
-        public RewardModel(string name, string description, int cost, int quantity): this()
+        public RewardModel(string name, string description, int cost, int quantity) : this()
         {
             RewardName = name;
             Description = description;
