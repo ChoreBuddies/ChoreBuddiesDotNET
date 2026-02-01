@@ -10,6 +10,7 @@ public interface IAppUserService
     public Task<AppUser?> GetUserByEmailAsync(string email);
 
     public Task<AppUser?> GetUserByIdAsync(int id);
+    public Task<bool> ClearFcmTokenAsync(int userId);
     public Task<IEnumerable<AppUser>> GetUntrackedUsersByIdAsync(IEnumerable<int> ids);
 
     public Task<bool> UpdateUserAsync(int userId, UpdateAppUserDto userDto);
@@ -193,6 +194,19 @@ public class AppUserService(IAppUserRepository userRepository, UserManager<AppUs
             throw new InvalidOperationException($"User with id {userId} not found.");
         }
         return user.PointsCount;
+    }
+
+    public async Task<bool> ClearFcmTokenAsync(int userId)
+    {
+        var user = await _userRepository.GetUserByIdAsync(userId);
+        if (user == null) return false;
+
+        user.FcmToken = null;
+
+        await _userRepository.UpdateUserAsync(user);
+        await _userRepository.SaveChangesAsync();
+
+        return true;
     }
 }
 

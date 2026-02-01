@@ -1,4 +1,5 @@
 ﻿using ChoreBuddies.Backend.Domain;
+using ChoreBuddies.Backend.Features.Notifications.Exceptions;
 using ChoreBuddies.Backend.Features.Notifications.NotificationPreferences;
 using ChoreBuddies.Backend.Features.Users;
 using Shared.Notifications;
@@ -67,11 +68,16 @@ public class NotificationService : INotificationService
 
         var channelsToUse = _channels.Where(c => requiredChannels.Contains(c.ChannelType));
 
-        int successCount = 0;
         foreach (var channel in channelsToUse)
         {
-            await sender(channel, recipient);
-            successCount++;
+            try
+            {
+                await sender(channel, recipient);
+            }
+            catch (FcmTokenUnregisteredException)
+            {
+                await _appUserService.ClearFcmTokenAsync(recipient.Id);
+            }
         }
 
         return true;
