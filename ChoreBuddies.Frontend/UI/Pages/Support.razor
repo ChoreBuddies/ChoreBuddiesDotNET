@@ -1,0 +1,54 @@
+﻿@page "/support"
+@inject ISnackbar Snackbar
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8 mb-12">
+    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true" Style="font-weight: 800; color: #5B6FE6;">
+        Support Center
+    </MudText>
+
+    <MudText Typo="Typo.h6" Align="Align.Center" Class="mb-8">Frequently Asked Questions</MudText>
+
+    <MudExpansionPanels MultiExpansion="true">
+        <MudExpansionPanel Text="How do I create a household?">
+            After signing up, you will be guided to either create a new household or join your family's existing household.
+        </MudExpansionPanel>
+        <MudExpansionPanel Text="How do points and rewards work?">
+            When a child completes a chore and it is verified by an adult, points are added to their balance. These points can be spent in the Rewards store.
+        </MudExpansionPanel>
+        <MudExpansionPanel Text="I am not receiving push notifications.">
+            Please ensure that notifications are enabled in your mobile device settings and that you are logged into the ChoreBuddies mobile app.
+        </MudExpansionPanel>
+    </MudExpansionPanels>
+
+    <MudPaper Class="pa-8 mt-12 rounded-xl" Elevation="4">
+        <MudText Typo="Typo.h5" Class="mb-4">Contact Us</MudText>
+        <MudGrid>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="_email" Label="Your Email" Variant="Variant.Outlined" FullWidth="true" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="_subject" Label="Subject" Variant="Variant.Outlined" FullWidth="true" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="_message" Label="Message" Variant="Variant.Outlined" Lines="5" FullWidth="true" />
+            </MudItem>
+            <MudItem xs="12" Class="d-flex justify-end">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SubmitTicket" Size="Size.Large" Style="text-transform:none;">
+                    Send Message
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private string _email = string.Empty;
+    private string _subject = string.Empty;
+    private string _message = string.Empty;
+
+    private void SubmitTicket()
+    {
+        Snackbar.Add("Support ticket submitted successfully!", Severity.Success);
+        _email = _subject = _message = string.Empty;
+    }
+}
