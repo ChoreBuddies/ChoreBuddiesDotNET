@@ -1,5 +1,6 @@
 ﻿using ChoreBuddies.Backend.Domain;
 using ChoreBuddies.Backend.Features.Notifications;
+using ChoreBuddies.Backend.Features.Notifications.Exceptions;
 using ChoreBuddies.Backend.Features.Notifications.NotificationPreferences;
 using ChoreBuddies.Backend.Features.Users;
 using FluentAssertions;
@@ -44,14 +45,17 @@ public class NotificationServiceTests
     [Fact]
     public async Task SendNewChoreNotificationAsync_ShouldThrow_WhenRecipientDoesNotExist()
     {
+        // Arrange
         _userService
             .Setup(x => x.GetUserByIdAsync(It.IsAny<int>()))
             .ReturnsAsync((AppUser?)null);
 
+        // Act
         var act = async () =>
             await _service.SendNewChoreNotificationAsync(
                 999, -1, "Chore", "Description", DateTime.UtcNow);
 
+        // Assert
         await act.Should().ThrowAsync<ArgumentException>()
             .WithMessage("Invalid recipient");
     }
@@ -59,6 +63,7 @@ public class NotificationServiceTests
     [Fact]
     public async Task SendNewChoreNotificationAsync_ShouldSendOnlyToPreferredChannels()
     {
+        // Arrange
         _notificationPreverenceService
             .Setup(x => x.GetActiveChannelsAsync(
                 _recipient,
@@ -75,6 +80,7 @@ public class NotificationServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync("id");
 
+        // Act
         var result = await _service.SendNewChoreNotificationAsync(
             _recipient.Id,
             1,
@@ -82,6 +88,7 @@ public class NotificationServiceTests
             "Kitchen sink",
             DateTime.UtcNow);
 
+        // Assert
         result.Should().BeTrue();
 
         _emailChannelMock.Verify(x =>
@@ -104,9 +111,51 @@ public class NotificationServiceTests
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    [Fact]
+    public async Task SendNewRewardRequestNotificationAsync_ShouldSendToPreferredChannels()
+    {
+        // Arrange
+        _notificationPreverenceService
+            .Setup(x => x.GetActiveChannelsAsync(
+                _recipient,
+                NotificationEvent.RewardRequest,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([NotificationChannel.Push]);
+
+        _pushChannelMock
+            .Setup(x => x.SendNewRewardRequestNotificationAsync(
+                _recipient,
+                It.IsAny<int>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("id");
+
+        // Act
+        var result = await _service.SendNewRewardRequestNotificationAsync(
+            _recipient.Id,
+            10,
+            "Ice Cream",
+            "Jimmy");
+
+        // Assert
+        result.Should().BeTrue();
+
+        _pushChannelMock.Verify(x =>
+            x.SendNewRewardRequestNotificationAsync(
+                _recipient,
+                10,
+                "Ice Cream",
+                "Jimmy",
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     [Fact]
     public async Task SendNewMessageNotificationAsync_ShouldSendToAllEnabledChannels()
     {
+        // Arrange
         _notificationPreverenceService
             .Setup(x => x.GetActiveChannelsAsync(
                 _recipient,
@@ -133,11 +182,13 @@ public class NotificationServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync("id");
 
+        // Act
         var result = await _service.SendNewMessageNotificationAsync(
             _recipient.Id,
             "Alice",
             "Hello!");
 
+        // Assert
         result.Should().BeTrue();
 
         _emailChannelMock.Verify(x =>
@@ -159,6 +210,7 @@ public class NotificationServiceTests
     [Fact]
     public async Task SendReminderAsync_ShouldUseReminderEvent()
     {
+        // Arrange
         _notificationPreverenceService
             .Setup(x => x.GetActiveChannelsAsync(
                 _recipient,
@@ -174,11 +226,13 @@ public class NotificationServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync("id");
 
+        // Act
         var result = await _service.SendReminderAsync(
             _recipient.Id,
             -1,
             "Take out trash");
 
+        // Assert
         result.Should().BeTrue();
 
         _pushChannelMock.Verify(x =>
@@ -188,5 +242,52 @@ public class NotificationServiceTests
                 "Take out trash",
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+    [Fact]
+    public async Task SendNotification_ShouldClearFcmToken_WhenChannelThrowsFcmTokenUnregisteredException()
+    {
+        // Arrange
+        _notificationPreverenceService
+            .Setup(x => x.GetActiveChannelsAsync(
+                _recipient,
+                NotificationEvent.NewChore,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([NotificationChannel.Push]);
+
+        _pushChannelMock
+            .Setup(x => x.SendNewChoreNotificationAsync(
+                It.IsAny<AppUser>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new FcmTokenUnregisteredException(1));
+
+        // Act
+        await _service.SendNewChoreNotificationAsync(
+            _recipient.Id, 1, "Chore", "Desc", DateTime.UtcNow);
+
+        // Assert
+        _userService.Verify(x => x.ClearFcmTokenAsync(_recipient.Id), Times.Once);
+    }
+    [Fact]
+    public async Task SendNotification_ShouldNotThrow_WhenGenericExceptionOccursInChannel()
+    {
+        // Arrange
+        _notificationPreverenceService
+            .Setup(x => x.GetActiveChannelsAsync(
+                _recipient,
+                NotificationEvent.NewMessage,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([NotificationChannel.Email]);
+
+        _emailChannelMock
+            .Setup(x => x.SendNewMessageNotificationAsync(
+                It.IsAny<AppUser>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new Exception("Error"));
+
+        // Act
+        var action = async () => await _service.SendNewMessageNotificationAsync(
+            _recipient.Id, "Sender", "Content");
+
+        // Assert
+        await action.Should().NotThrowAsync();
+        (await action()).Should().BeTrue();
     }
 }
