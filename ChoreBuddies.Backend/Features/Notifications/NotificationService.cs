@@ -62,7 +62,6 @@ public class NotificationService : INotificationService
 
     private async Task<bool> SendNotificationAsync(int recipientId, NotificationEvent eventType, Func<INotificationChannel, AppUser, Task> sender, CancellationToken ct = default)
     {
-
         var recipient = await getRecipient(recipientId);
         var requiredChannels = await _preferenceService.GetActiveChannelsAsync(recipient, eventType, ct);
 
@@ -77,6 +76,14 @@ public class NotificationService : INotificationService
             catch (FcmTokenUnregisteredException)
             {
                 await _appUserService.ClearFcmTokenAsync(recipient.Id);
+            }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error occured while sending notification: {ex}");
             }
         }
 
