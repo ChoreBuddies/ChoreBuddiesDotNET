@@ -1,0 +1,72 @@
+﻿@page "/support"
+@inject ISnackbar Snackbar
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8 mb-12">
+    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true" Style="font-weight: 800; color: #5B6FE6;">
+        Support Center
+    </MudText>
+
+    <MudText Typo="Typo.h6" Align="Align.Center" Class="mb-8">Frequently Asked Questions</MudText>
+
+    <MudExpansionPanels MultiExpansion="true">
+        <MudExpansionPanel Text="How do I create a household?">
+            After signing up, you will be guided to either create a new household or join your family's existing household.
+        </MudExpansionPanel>
+        <MudExpansionPanel Text="How do points and rewards work?">
+            When a child completes a chore and it is verified by an adult, points are added to their balance. These points can be spent in the Rewards store.
+        </MudExpansionPanel>
+        <MudExpansionPanel Text="I am not receiving push notifications.">
+            Please ensure that notifications are enabled in your mobile device settings and that you are logged into the ChoreBuddies mobile app.
+        </MudExpansionPanel>
+    </MudExpansionPanels>
+
+    <MudPaper Class="pa-8 mt-12 rounded-xl" Elevation="4">
+        <MudForm @ref="form" @bind-IsValid="@_success">
+            <MudText Typo="Typo.h5" Class="mb-4">Contact Support</MudText>
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudTextField T="string" @bind-Value="_email" Label="Your Email"
+                                  Variant="Variant.Outlined" FullWidth="true"
+                                  Required="true" RequiredError="Email is required!"
+                                  Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})" /> 
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField T="string" @bind-Value="_subject" Label="Subject"
+                                  Variant="Variant.Outlined" FullWidth="true"
+                                  Required="true" RequiredError="Subject is required!" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField T="string" @bind-Value="_message" Label="Message Details"
+                                  Variant="Variant.Outlined" Lines="5" FullWidth="true"
+                                  Required="true" RequiredError="Message cannot be empty!" /> 
+                </MudItem>
+                <MudItem xs="12" Class="d-flex justify-end">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                               Disabled="@(!_success)" OnClick="SubmitTicket"
+                               Size="Size.Large" Style="text-transform:none; border-radius: 8px;">
+                        Send Message 
+                    </MudButton>
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private bool _success;
+    private MudForm form;
+    private string _email = string.Empty; 
+    private string _subject = string.Empty; 
+    private string _message = string.Empty;
+
+    private async Task SubmitTicket()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            Snackbar.Add("Support ticket submitted successfully!", Severity.Success); 
+            _email = _subject = _message = string.Empty;
+            await form.ResetAsync();
+        }
+    }
+}

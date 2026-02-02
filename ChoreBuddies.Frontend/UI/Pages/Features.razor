@@ -1,0 +1,48 @@
+﻿@page "/features"
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
+    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true" Style="font-weight: 800; color: #5B6FE6;">
+        Discover ChoreBuddies
+    </MudText>
+    <MudText Typo="Typo.h6" Align="Align.Center" Class="mb-12" Style="color: #666;">
+        Turn daily responsibilities into an engaging adventure for the whole family.
+    </MudText>
+
+    <MudGrid>
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper Elevation="25" Class="pa-6 rounded-lg d-flex flex-column align-center" Style="height: 100%">
+                <MudIcon Icon="@Icons.Material.Filled.SportsEsports" Color="Color.Primary" Style="font-size: 3rem;" />
+                <MudText Typo="Typo.h6" Class="mt-4">Gamification</MudText>
+                <MudText Align="Align.Center" Class="mt-2">Earn points for completed chores and exchange them for exciting rewards in the shop.</MudText>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper Elevation="25" Class="pa-6 rounded-lg d-flex flex-column align-center" Style="height: 100%">
+                <MudIcon Icon="@Icons.Material.Filled.Group" Color="Color.Primary" Style="font-size: 3rem;" />
+                <MudText Typo="Typo.h6" Class="mt-4">Household Management</MudText>
+                <MudText Align="Align.Center" Class="mt-2">Easily create or join a household using unique access codes to collaborate with family members.</MudText>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper Elevation="25" Class="pa-6 rounded-lg d-flex flex-column align-center" Style="height: 100%">
+                <MudIcon Icon="@Icons.Material.Filled.AutoFixHigh" Color="Color.Primary" Style="font-size: 3rem;" />
+                <MudText Typo="Typo.h6" Class="mt-4">Smart Automation</MudText>
+                <MudText Align="Align.Center" Class="mt-2">Set up recurring chores that renew automatically, ensuring your home stays organized effortlessly.</MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+
+    <MudStack AlignItems="AlignItems.Center" Class="mt-12">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large"
+                   Style="text-transform:none; border-radius: 12px; padding: 12px 40px;"
+                   OnClick="@(() => Navigation.NavigateTo("/signup"))">
+            Get Started Now
+        </MudButton>
+    </MudStack>
+</MudContainer>
+
+@code {
+    [Inject] private NavigationManager Navigation { get; set; }
+}

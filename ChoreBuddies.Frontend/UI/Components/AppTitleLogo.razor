@@ -1,6 +1,23 @@
-﻿
-@inject NavigationManager Navigation
+﻿@inject NavigationManager Navigation
 
-<MudIconButton Icon="@Icons.Material.Filled.Home" Color="Color.Dark" style="padding: 14px;"
-               OnClick="@(() => Navigation.NavigateTo("/"))" />
-<MudText Typo="Typo.h5" Class="ml-2" Style="color: #000; font-weight: bold;">ChoreBuddies</MudText>
+<div class="d-flex align-center">
+    <MudIconButton Icon="@Icons.Material.Filled.Home" Color="Color.Dark" style="padding: 14px;"
+                   OnClick="HandleNavigation" /> 
+    <MudText Typo="Typo.h5" Class="ml-2" Style="color: #000; font-weight: bold;">ChoreBuddies</MudText>
+</div>
+
+@code {
+    [Parameter] public bool IsUserAuthenticated { get; set; }
+
+    private void HandleNavigation()
+    {
+        if (IsUserAuthenticated)
+        {
+            Navigation.NavigateTo("/"); 
+        }
+        else
+        {
+            Navigation.NavigateTo("/features");
+        }
+    }
+}
