@@ -21,34 +21,52 @@
     </MudExpansionPanels>
 
     <MudPaper Class="pa-8 mt-12 rounded-xl" Elevation="4">
-        <MudText Typo="Typo.h5" Class="mb-4">Contact Us</MudText>
-        <MudGrid>
-            <MudItem xs="12" sm="6">
-                <MudTextField @bind-Value="_email" Label="Your Email" Variant="Variant.Outlined" FullWidth="true" />
-            </MudItem>
-            <MudItem xs="12" sm="6">
-                <MudTextField @bind-Value="_subject" Label="Subject" Variant="Variant.Outlined" FullWidth="true" />
-            </MudItem>
-            <MudItem xs="12">
-                <MudTextField @bind-Value="_message" Label="Message" Variant="Variant.Outlined" Lines="5" FullWidth="true" />
-            </MudItem>
-            <MudItem xs="12" Class="d-flex justify-end">
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SubmitTicket" Size="Size.Large" Style="text-transform:none;">
-                    Send Message
-                </MudButton>
-            </MudItem>
-        </MudGrid>
+        <MudForm @ref="form" @bind-IsValid="@_success">
+            <MudText Typo="Typo.h5" Class="mb-4">Contact Support</MudText>
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudTextField T="string" @bind-Value="_email" Label="Your Email"
+                                  Variant="Variant.Outlined" FullWidth="true"
+                                  Required="true" RequiredError="Email is required!"
+                                  Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})" /> 
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField T="string" @bind-Value="_subject" Label="Subject"
+                                  Variant="Variant.Outlined" FullWidth="true"
+                                  Required="true" RequiredError="Subject is required!" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField T="string" @bind-Value="_message" Label="Message Details"
+                                  Variant="Variant.Outlined" Lines="5" FullWidth="true"
+                                  Required="true" RequiredError="Message cannot be empty!" /> 
+                </MudItem>
+                <MudItem xs="12" Class="d-flex justify-end">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                               Disabled="@(!_success)" OnClick="SubmitTicket"
+                               Size="Size.Large" Style="text-transform:none; border-radius: 8px;">
+                        Send Message 
+                    </MudButton>
+                </MudItem>
+            </MudGrid>
+        </MudForm>
     </MudPaper>
 </MudContainer>
 
 @code {
-    private string _email = string.Empty;
-    private string _subject = string.Empty;
+    private bool _success;
+    private MudForm form;
+    private string _email = string.Empty; 
+    private string _subject = string.Empty; 
     private string _message = string.Empty;
 
-    private void SubmitTicket()
+    private async Task SubmitTicket()
     {
-        Snackbar.Add("Support ticket submitted successfully!", Severity.Success);
-        _email = _subject = _message = string.Empty;
+        await form.Validate();
+        if (form.IsValid)
+        {
+            Snackbar.Add("Support ticket submitted successfully!", Severity.Success); 
+            _email = _subject = _message = string.Empty;
+            await form.ResetAsync();
+        }
     }
 }
