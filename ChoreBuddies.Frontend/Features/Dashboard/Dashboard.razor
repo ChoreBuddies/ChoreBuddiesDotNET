@@ -1,13 +1,14 @@
 ﻿@page "/"
 
-@using ChoreBuddies.Frontend.UI.Components.Chores
+@using ChoreBuddies.Frontend.Features.Chores
+@using ChoreBuddies.Frontend.Features.Chores.Components
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 @using Shared.Chores
 
 @inject IAuthService authService
-@inject Chores.IChoresService choresService
+@inject IChoresService choresService
 @inject NavigationManager _navigationManager
 
 <AuthorizeView>
@@ -27,7 +28,7 @@
 
         <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="pa-4">
 
-            <MudPaper Class="p-6" Elevation="0" Style="width: 100%; max-width: 900px;">
+            <MudPaper Class="p-6 mx-auto" Elevation="0" Style="width: 100%; max-width: 900px;">
                 <MudText Typo="Typo.h4" Class="mb-6">
                     Dashboard Overview
                 </MudText>
